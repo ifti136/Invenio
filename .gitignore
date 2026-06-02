@@ -1,0 +1,36 @@
+# Flutter / Dart
+tracker_app/build/
+tracker_app/.dart_tool/
+tracker_app/.flutter-plugins
+tracker_app/.flutter-plugins-dependencies
+tracker_app/.packages
+tracker_app/.pub-cache/
+tracker_app/.pub/
+tracker_app/coverage/
+tracker_app/.metadata
+tracker_app/.fvm/
+
+# Android
+tracker_app/android/.gradle/
+tracker_app/android/captures/
+tracker_app/android/gradlew
+tracker_app/android/gradlew.bat
+tracker_app/android/local.properties
+tracker_app/android/**/GeneratedPluginRegistrant.java
+tracker_app/android/key.properties
+tracker_app/android/app/release/
+tracker_app/android/app/debug/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.iws
+
+# macOS / Windows / Linux (we target Android only)
+tracker_app/.DS_Store
+tracker_app/Thumbs.db
+
+# Temp / logs
+*.log
+*.tmp
