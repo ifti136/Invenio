@@ -1,6 +1,6 @@
 # Completion Status — Inventory & Economy Tracker
 
-Generated: 2026-06-02 (Phase 2 complete)
+Generated: 2026-06-02 (Phase 3 complete)
 
 ---
 
@@ -10,7 +10,7 @@ Generated: 2026-06-02 (Phase 2 complete)
 |--------|--------|
 | Flutter SDK | 3.24.4 (stable), Dart 3.5.4 |
 | Target | Android (min API 24) |
-| Code generation | `build_runner` run — `app_database.g.dart`, `router.g.dart`, `product_repository.g.dart`, `product_provider.g.dart` |
+| Code generation | `build_runner` run — `app_database.g.dart`, `router.g.dart`, `product_repository.g.dart`, `product_provider.g.dart`, `sale_repository.g.dart`, `sale_provider.g.dart`, `alert_service.g.dart` |
 | Analysis | `flutter analyze` — 0 errors, 1 warning (`duplicate_ignore` in `app_database.g.dart:2747`; auto-generated, harmless) |
 | APK build | Not verified (Gradle download requires network not available in this env) |
 | Theme | Liquid Glass — `glass_kit` + `aurora_background`; aurora behind every screen, glass on bottom nav / dialogs / bottom sheets / text fields |
@@ -100,7 +100,45 @@ Generated: 2026-06-02 (Phase 2 complete)
 
 ---
 
-## Phase 3 — Sales ⬜
+## Phase 3 — Sales ✅
+
+| Task | Status | Notes |
+|------|--------|-------|
+| AlertService | ✅ | `lib/services/alert_service.dart` — sealed `AppAlert` hierarchy: `BelowCostAlert` (selling < cost), `LowStockAlert` (post-sale stock ≤ threshold), `MarginDropAlert` (>15% margin drop vs last sale for the same product); `AlertService.checkSale(...)` returns all matching alerts |
+| SaleRepository | ✅ | `lib/features/sales/sale_repository.dart` — `@Riverpod(keepAlive: true)`, Drift-backed. Transactional `addSale` (insert sale + decrement stock + insert `sale` stock movement, raises on insufficient stock), `updateSale` (with stock adjustment on qty change), `markAsPaid`, `deleteSale` (transactional stock restore + `adjustment` movement); `watchAll`, `watchFiltered(SaleFilter)`, `getById`, `lastSellingPriceFor`; `SaleFilter` value class (immutable, `==`/`hashCode` for family key) with sentinel-based `copyWith` for nullable fields; `dateRangePresets` (All time / Today / This week / This month / Last 30 days); `AddSaleResult` (sale + newStock) |
+| Sale providers | ✅ | `lib/features/sales/sale_provider.dart` — `saleListProvider` (stream), `filteredSaleListProvider(family<SaleFilter>)`, `saleDetailProvider(family<int>)`, `lastSellingPriceProvider(family<int>)`, `productCostMapProvider` (future); `SaleStats` + `computeSaleStats` (count / revenue / est. profit / due count) |
+| Sale filter bar | ✅ | `lib/features/sales/widgets/sale_filter_bar.dart` — 4 rows of glass-tinted chip selectors (Date / Platform / Payment / Product); custom date range via `showDateRangePicker`; "Pick…" product chip opens the filter sheet |
+| Product filter sheet | ✅ | `lib/features/sales/widgets/product_filter_sheet.dart` — `GlassPanel` bottom sheet with `GlassTextField` search; "All products" + filtered list, selected row highlighted |
+| Sale list item (product view) | ✅ | `features/products/widgets/sale_list_item.dart` — extended with optional `onTap` / `onMarkPaid` / `onDelete` / `showProductName` / `productName`; product detail still works without them |
+| Sale list screen | ✅ | `lib/features/sales/sale_list_screen.dart` — sticky `SliverAppBar` with `+` action, sticky `SaleFilterBar`, 4-stat `GlassPanel` (count / revenue / est. profit / due), per-row `PopupMenuButton` (Edit / Mark as paid / Delete); delete via `showGlassDialog<bool>` confirm |
+| Sale form screen | ✅ | `lib/features/sales/sale_form_screen.dart` — add + edit (`int? saleId`); product picker (locked in edit mode, read-only `GlassPanel` with stock badge); qty + price side-by-side with input formatters (digits-only / decimal-2); live `GlassPanel` total + est. profit; "last sold at ৳X" hint; pre-save `BelowCost` + `LowStock` confirms via `showGlassDialog<bool>`; post-save `MarginDrop` shown as amber `SnackBar` |
+| Router — sale edit route | ✅ | `router.dart` — `/sales/:id/edit` (nested) |
+| Alert integration | ✅ | Blocking alerts (BelowCost, LowStock) gate the save with explicit user confirm; informational alerts (MarginDrop) are non-blocking and surface in a `SnackBar` after save |
+| Ledger consistency | ✅ | `addSale` / `updateSale` (on qty change) / `deleteSale` all adjust `Products.stock` and insert a `stock_movements` row (`type: 'sale'` or `'adjustment'`) in the same transaction |
+| Validation | ✅ | Quantity > 0 and ≤ current stock; selling price > 0; platform & payment required (enums, no nullable); customer name optional |
+| Run on device | ⚠️ | Cannot run on device in this env. User must run `flutter run -d <device>` locally. `flutter pub get` + `build_runner` + `flutter analyze` pass with 0 errors. |
+
+**Deviations from `05_implementation.md`:**
+- Sale form supports both add and edit (`int? saleId`) — the spec only described add. The edit form locks the product (read-only) because changing it would invalidate `stock_movements` history; only qty / price / platform / payment / customer / date are editable. The router adds `/sales/:id/edit`.
+- `SaleFilter` is defined in `sale_repository.dart` (not a separate `models/` file) — pragmatic; can be split out when reports/dashboard need DTOs.
+- `product_sales` provider is a future in `sale_provider.dart` (not in `SaleRepository`) — keeps the repos focused on their tables.
+- `AlertService` exposes a `sealed AppAlert` hierarchy with three concrete types; callers use `whereType<T>()` to dispatch (replaces the simpler "list of strings" approach in the spec).
+- `productCostMapProvider` is a `Future` provider (not a `Stream`) because cost rarely changes and a one-shot read is enough for the profit computation.
+- `glass_text_field.dart` was extended with `inputFormatters` (Phase 3) and `validator` / `autofocus` / `autovalidateMode` (already in Phase 2) — these are useful for sale-form number entry.
+
+**FR coverage:**
+- FR-S01 Log a sale: `SaleFormScreen` add path, `SaleRepository.addSale` ✅
+- FR-S02 View sales list: `SaleListScreen` + `SaleFilterBar` ✅
+- FR-S03 Filter sales (date, platform, payment, product): `SaleFilterBar` ✅
+- FR-S04 Mark sale as paid: per-row popup menu → `SaleRepository.markAsPaid` ✅
+- FR-S05 Edit sale: `/sales/:id/edit` → `SaleFormScreen` edit path (with locked product) ✅
+- FR-S06 Delete sale: per-row popup menu → `showGlassDialog` confirm → `SaleRepository.deleteSale` ✅
+- FR-S07 Show profit per sale: live `GlassPanel` total + est. profit in the form, profit stat on the list ✅
+- FR-A01 Below-cost warning: `BelowCostAlert` (pre-save confirm + post-save blocking)
+- FR-A02 Low-stock warning: `LowStockAlert` (pre-save confirm + post-save blocking)
+- FR-A03 Margin drop: `MarginDropAlert` (informational, post-save `SnackBar`)
+
+---
 
 ## Phase 4 — Expenses ⬜
 
@@ -126,7 +164,7 @@ lib/
 │   │   ├── empty_state.dart           ✅ (icon + title + message + optional action)
 │   │   ├── glass_dialog.dart          ✅ (Liquid Glass: generic showGlassDialog<T>)
 │   │   ├── glass_panel.dart           ✅ (Liquid Glass)
-│   │   ├── glass_text_field.dart      ✅ (Liquid Glass: TextFormField-backed, validator support)
+│   │   ├── glass_text_field.dart      ✅ (Liquid Glass: TextFormField-backed, validator / inputFormatters / autofocus)
 │   │   └── stat_card.dart             ✅
 │   ├── utils/
 │   │   └── formatters.dart            ✅ (money / date / date-time / day / quantity)
@@ -152,17 +190,23 @@ lib/
 │   │       ├── product_tile.dart      ✅
 │   │       ├── restock_sheet.dart     ✅
 │   │       ├── stock_movement_item.dart ✅
-│   │       └── sale_list_item.dart    ✅
+│   │       └── sale_list_item.dart    ✅ (extended with optional callbacks)
 │   ├── sales/
-│   │   ├── sale_list_screen.dart      ⬜ (placeholder)
-│   │   └── sale_form_screen.dart      ⬜ (placeholder)
+│   │   ├── sale_list_screen.dart      ✅ (filter bar, stats, list with popup menu)
+│   │   ├── sale_form_screen.dart      ✅ (add + edit, product lock, live profit, alerts)
+│   │   ├── sale_repository.dart       ✅ (Drift-backed, transactional, SaleFilter)
+│   │   ├── sale_provider.dart         ✅ (Riverpod: list, filtered list, detail, last price, cost map, stats)
+│   │   └── widgets/
+│   │       ├── sale_filter_bar.dart   ✅ (4-row chip filter)
+│   │       └── product_filter_sheet.dart ✅ (modal bottom sheet with search)
+│   ├── expenses/
 │   ├── expenses/
 │   │   ├── expense_list_screen.dart   ⬜ (placeholder)
 │   │   └── expense_form_screen.dart   ⬜ (placeholder)
 │   └── reports/
 │       └── reports_screen.dart        ⬜ (placeholder)
-├── services/                          ⬜ (empty)
-└── models/                            ⬜ (empty)
+├── services/
+│   └── alert_service.dart             ✅ (sealed AppAlert: BelowCost / LowStock / MarginDrop)
 ```
 
 ---

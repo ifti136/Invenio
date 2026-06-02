@@ -1,23 +1,30 @@
 import 'package:flutter/material.dart';
-import '../../../core/theme/app_colors.dart';
-import '../../../core/utils/formatters.dart';
-import '../../../db/app_database.dart';
+import 'package:tracker/core/theme/app_colors.dart';
+import 'package:tracker/core/utils/formatters.dart';
+import 'package:tracker/db/app_database.dart';
 
 class SaleListItem extends StatelessWidget {
   final Sale sale;
   final String? productName;
+  final bool showProductName;
   final VoidCallback? onTap;
+  final VoidCallback? onMarkPaid;
+  final VoidCallback? onDelete;
 
   const SaleListItem({
     super.key,
     required this.sale,
     this.productName,
+    this.showProductName = true,
     this.onTap,
+    this.onMarkPaid,
+    this.onDelete,
   });
 
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    final isPaid = sale.paymentStatus == 'paid';
     return Material(
       color: Colors.transparent,
       child: InkWell(
@@ -31,19 +38,17 @@ class SaleListItem extends StatelessWidget {
                 width: 42,
                 height: 42,
                 decoration: BoxDecoration(
-                  color: sale.paymentStatus == 'paid'
+                  color: isPaid
                       ? AppColors.success.withOpacity(0.15)
                       : AppColors.warning.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 alignment: Alignment.center,
                 child: Icon(
-                  sale.paymentStatus == 'paid'
+                  isPaid
                       ? Icons.check_circle_rounded
                       : Icons.schedule_rounded,
-                  color: sale.paymentStatus == 'paid'
-                      ? AppColors.success
-                      : AppColors.warning,
+                  color: isPaid ? AppColors.success : AppColors.warning,
                   size: 20,
                 ),
               ),
@@ -52,16 +57,16 @@ class SaleListItem extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      productName ?? 'Product #${sale.productId}',
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w600,
-                        fontSize: 14.5,
+                    if (showProductName)
+                      Text(
+                        productName ?? 'Product #${sale.productId}',
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 14.5,
+                        ),
                       ),
-                    ),
-                    const SizedBox(height: 2),
                     Text(
                       '${formatQuantity(sale.quantity.toDouble())} × ${formatMoney(sale.sellingPrice)} • ${formatDate(DateTime.fromMillisecondsSinceEpoch(sale.date))}',
                       style: TextStyle(

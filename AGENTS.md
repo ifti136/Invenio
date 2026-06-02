@@ -42,8 +42,39 @@ This is the canonical progress checklist. **Do not skip this step.** If you make
 - **Aurora is the background:** every screen inherits it; new screens must use `Scaffold` (transparent) or rely on the theme's `scaffoldBackgroundColor: Colors.transparent` — do not set an opaque background.
 - **Placeholder policy:** when implementing a feature, replace the placeholder file in place (`features/<x>/<x>_screen.dart`). Do **not** create `*_v2.dart` side files. Do **not** keep the old placeholder around.
 - **Naming:** `snake_case` files, `PascalCase` classes, `@riverpod` for provider generation, `part '<name>.g.dart'` for generated parts.
-- **No comments** unless the user explicitly asks. **No commits** unless the user explicitly asks.
+- **No comments** unless the user explicitly asks.
 - **No new top-level deps** without asking. The `pubspec.yaml` is the contract; deps for glass (`glass_kit`, `aurora_background`) and reports (`fl_chart`, `syncfusion_flutter_xlsio`, `share_plus`) are already approved.
+
+---
+
+## MANDATORY: Commit to GitHub after every build
+
+After **any** set of file changes that completes a logical unit of work (a phase, a feature, a bug fix, a docs sweep), you **must** commit and push. Do not wait for the user to ask.
+
+1. **Conventional commit format** (enforced):
+   - Subject: `<type>(<scope>): <short summary>` in present tense, ≤72 chars.
+   - Body (optional): 2-4 short paragraphs explaining the *what* and the *why*, with a bullet list of key additions/changes if useful.
+   - Footer (optional): notes on deviations, verification status (`flutter analyze` results), or "Not yet verified on a device".
+   - **Types**: `feat` (new user-visible feature), `fix` (bug fix), `chore` (tooling, deps, configs), `docs` (docs only), `refactor`, `style` (whitespace/formatting only), `test`.
+   - **Scopes used in this project**:
+     - `foundation` — drift schema, db wiring, router scaffold
+     - `theme` — Liquid Glass (aurora, glass chrome, app_colors, app_theme)
+     - `products` — product master
+     - `sales` — sales log
+     - `expenses` — expenses (future)
+     - `reports` — reports & export (future)
+     - `agent` — AGENTS.md / opencode workflow
+     - `instructions` — specs in `instructions/`
+     - `repo` — gitignore, gradle, ci, repo-level config
+2. **One logical change per commit.** Don't mix Phase 1 with Phase 1.5; don't mix a feature with an unrelated bug fix.
+3. **`*.g.dart` files are committed alongside their source change.** Drift's `app_database.g.dart` and Riverpod's `*.g.dart` are part of the change set — `git add` them in the same commit.
+4. **Pre-commit checklist** (run mentally before `git commit`):
+   - `git status` — only intended files are staged.
+   - `git diff --staged --stat` — diff is sensible and matches the commit message.
+   - No secrets / API keys / `local.properties` / `key.properties`.
+   - No stray files (lock files, editor temp files, `.~lock.*`).
+   - `flutter analyze` re-run if Flutter is available; capture the result in the commit footer.
+5. **Reporting**: in your final message, include the commit hash(es), branch, and remote URL. If pushing, confirm the push and report the pushed commits.
 
 ---
 

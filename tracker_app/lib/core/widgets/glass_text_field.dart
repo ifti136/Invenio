@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'glass_panel.dart';
 
 class GlassTextField extends StatefulWidget {
@@ -20,6 +21,7 @@ class GlassTextField extends StatefulWidget {
   final bool autofocus;
   final FormFieldValidator<String>? validator;
   final AutovalidateMode? autovalidateMode;
+  final List<TextInputFormatter>? inputFormatters;
 
   const GlassTextField({
     super.key,
@@ -41,6 +43,7 @@ class GlassTextField extends StatefulWidget {
     this.autofocus = false,
     this.validator,
     this.autovalidateMode,
+    this.inputFormatters,
   });
 
   @override
@@ -100,6 +103,7 @@ class _GlassTextFieldState extends State<GlassTextField> {
         autofocus: widget.autofocus,
         validator: widget.validator,
         autovalidateMode: widget.autovalidateMode,
+        inputFormatters: widget.inputFormatters,
         style: TextStyle(color: scheme.onSurface, fontSize: 15),
         cursorColor: scheme.primary,
         decoration: InputDecoration(
