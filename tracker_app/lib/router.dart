@@ -40,6 +40,12 @@ GoRouter router(Ref ref) {
                   id: int.parse(s.pathParameters['id']!),
                 ),
               ),
+              GoRoute(
+                path: ':id/edit',
+                builder: (_, s) => ProductFormScreen(
+                  productId: int.parse(s.pathParameters['id']!),
+                ),
+              ),
             ],
           ),
           GoRoute(

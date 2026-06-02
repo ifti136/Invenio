@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'glass_panel.dart';
 
-Future<void> showGlassDialog({
+Future<T?> showGlassDialog<T>({
   required BuildContext context,
   String? title,
   String? message,
@@ -10,7 +10,7 @@ Future<void> showGlassDialog({
   bool barrierDismissible = true,
 }) {
   final scheme = Theme.of(context).colorScheme;
-  return showDialog<void>(
+  return showDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,
     barrierColor: Colors.black.withOpacity(0.35),
@@ -71,11 +71,12 @@ Future<void> showGlassDialog({
   );
 }
 
-class GlassDialogAction extends StatelessWidget {
+class GlassDialogAction<T> extends StatelessWidget {
   final String label;
   final VoidCallback? onPressed;
   final bool isDestructive;
   final bool isPrimary;
+  final T? value;
 
   const GlassDialogAction({
     super.key,
@@ -83,6 +84,7 @@ class GlassDialogAction extends StatelessWidget {
     this.onPressed,
     this.isDestructive = false,
     this.isPrimary = false,
+    this.value,
   });
 
   @override

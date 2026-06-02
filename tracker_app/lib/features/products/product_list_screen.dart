@@ -1,12 +1,209 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+import 'package:tracker/core/theme/app_colors.dart';
+import 'package:tracker/core/utils/formatters.dart';
+import 'package:tracker/core/widgets/empty_state.dart';
+import 'package:tracker/core/widgets/glass_panel.dart';
+import 'package:tracker/features/products/product_provider.dart';
+import 'package:tracker/features/products/widgets/product_tile.dart';
 
-class ProductListScreen extends StatelessWidget {
+class ProductListScreen extends ConsumerStatefulWidget {
   const ProductListScreen({super.key});
 
   @override
+  ConsumerState<ProductListScreen> createState() => _ProductListScreenState();
+}
+
+class _ProductListScreenState extends ConsumerState<ProductListScreen> {
+  final _search = TextEditingController();
+
+  @override
+  void dispose() {
+    _search.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
-      body: Center(child: Text('Products — coming soon')),
+    final products = ref.watch(filteredProductListProvider);
+    final all = ref.watch(productListProvider).value ?? const [];
+    final stats = computeProductStats(all);
+    final scheme = Theme.of(context).colorScheme;
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            centerTitle: false,
+            title: const Text(
+              'Products',
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
+            ),
+            actions: [
+              IconButton(
+                tooltip: 'Add product',
+                onPressed: () => context.push('/products/add'),
+                icon: const Icon(Icons.add_rounded),
+              ),
+            ],
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            sliver: SliverToBoxAdapter(
+              child: GlassPanel(
+                radius: 20,
+                padding: const EdgeInsets.all(14),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: _StatPill(
+                        label: 'Products',
+                        value: stats.totalProducts.toString(),
+                        color: scheme.primary,
+                      ),
+                    ),
+                    Expanded(
+                      child: _StatPill(
+                        label: 'Low',
+                        value: stats.lowStock.toString(),
+                        color: AppColors.warning,
+                      ),
+                    ),
+                    Expanded(
+                      child: _StatPill(
+                        label: 'Out',
+                        value: stats.outOfStock.toString(),
+                        color: AppColors.danger,
+                      ),
+                    ),
+                    Expanded(
+                      child: _StatPill(
+                        label: 'Stock value',
+                        value: formatMoney(stats.totalStockValue),
+                        color: AppColors.success,
+                        small: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+            sliver: SliverToBoxAdapter(
+              child: Row(
+                children: [
+                  for (final f in StockFilter.values) ...[
+                    ChoiceChip(
+                      label: Text(_chipLabel(f)),
+                      selected: ref.watch(productFilterProvider).stock == f,
+                      onSelected: (_) => ref
+                          .read(productFilterProvider.notifier)
+                          .setStockFilter(f),
+                    ),
+                    const SizedBox(width: 6),
+                  ],
+                ],
+              ),
+            ),
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+            sliver: SliverToBoxAdapter(
+              child: TextField(
+                controller: _search,
+                onChanged: (v) =>
+                    ref.read(productFilterProvider.notifier).setSearch(v),
+                decoration: const InputDecoration(
+                  hintText: 'Search by name…',
+                  prefixIcon: Icon(Icons.search_rounded),
+                ),
+              ),
+            ),
+          ),
+          if (products.isEmpty)
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: EmptyState(
+                icon: Icons.inventory_2_outlined,
+                title: all.isEmpty
+                    ? 'No products yet'
+                    : 'No products match the filter',
+                message: all.isEmpty
+                    ? 'Tap the + button to add your first product.'
+                    : 'Try a different filter or search term.',
+              ),
+            )
+          else
+            SliverList.separated(
+              itemBuilder: (_, i) => ProductTile(
+                product: products[i],
+                onTap: () => context.push('/products/${products[i].id}'),
+              ),
+              separatorBuilder: (_, __) => Divider(
+                height: 0,
+                thickness: 0.5,
+                color: scheme.onSurfaceVariant.withOpacity(0.12),
+                indent: 70,
+              ),
+              itemCount: products.length,
+            ),
+          const SliverToBoxAdapter(child: SizedBox(height: 96)),
+        ],
+      ),
+    );
+  }
+
+  String _chipLabel(StockFilter f) {
+    switch (f) {
+      case StockFilter.all:
+        return 'All';
+      case StockFilter.low:
+        return 'Low stock';
+      case StockFilter.out:
+        return 'Out of stock';
+    }
+  }
+}
+
+class _StatPill extends StatelessWidget {
+  final String label;
+  final String value;
+  final Color color;
+  final bool small;
+  const _StatPill({
+    required this.label,
+    required this.value,
+    required this.color,
+    this.small = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          value,
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: color,
+            fontWeight: FontWeight.w700,
+            fontSize: small ? 13 : 18,
+          ),
+        ),
+        const SizedBox(height: 2),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 11,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          ),
+        ),
+      ],
     );
   }
 }

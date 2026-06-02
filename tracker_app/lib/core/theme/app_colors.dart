@@ -14,6 +14,9 @@ class AppColors {
   static const stockWarn = Color(0xFFEF9F27);
   static const stockLow = Color(0xFFE24B4A);
 
+  static const success = stockGood;
+  static const info = Color(0xFF4F8AF0);
+
   static const facebook = Color(0xFF1877F2);
   static const offline = Color(0xFF534AB7);
 

@@ -17,6 +17,9 @@ class GlassTextField extends StatefulWidget {
   final void Function(String)? onSubmitted;
   final FocusNode? focusNode;
   final TextInputAction? textInputAction;
+  final bool autofocus;
+  final FormFieldValidator<String>? validator;
+  final AutovalidateMode? autovalidateMode;
 
   const GlassTextField({
     super.key,
@@ -35,6 +38,9 @@ class GlassTextField extends StatefulWidget {
     this.onSubmitted,
     this.focusNode,
     this.textInputAction,
+    this.autofocus = false,
+    this.validator,
+    this.autovalidateMode,
   });
 
   @override
@@ -81,7 +87,7 @@ class _GlassTextFieldState extends State<GlassTextField> {
       isFrostedGlass: true,
       margin: EdgeInsets.zero,
       padding: EdgeInsets.zero,
-      child: TextField(
+      child: TextFormField(
         controller: widget.controller,
         focusNode: _focusNode,
         obscureText: widget.obscureText,
@@ -89,8 +95,11 @@ class _GlassTextFieldState extends State<GlassTextField> {
         maxLines: widget.obscureText ? 1 : widget.maxLines,
         minLines: widget.minLines,
         onChanged: widget.onChanged,
-        onSubmitted: widget.onSubmitted,
+        onFieldSubmitted: widget.onSubmitted,
         textInputAction: widget.textInputAction,
+        autofocus: widget.autofocus,
+        validator: widget.validator,
+        autovalidateMode: widget.autovalidateMode,
         style: TextStyle(color: scheme.onSurface, fontSize: 15),
         cursorColor: scheme.primary,
         decoration: InputDecoration(
