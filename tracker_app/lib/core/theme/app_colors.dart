@@ -16,4 +16,11 @@ class AppColors {
 
   static const facebook = Color(0xFF1877F2);
   static const offline = Color(0xFF534AB7);
+
+  static const auroraBg1 = Color(0xFF0B1026);
+  static const auroraBg2 = Color(0xFF1B2735);
+  static const auroraBg3 = Color(0xFF2C1E50);
+  static const auroraTeal = Color(0xFF1D9E75);
+  static const auroraIndigo = Color(0xFF534AB7);
+  static const auroraMagenta = Color(0xFFB987FF);
 }

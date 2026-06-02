@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
+import 'core/background/aurora_backdrop.dart';
 import 'core/theme/app_theme.dart';
 
 class TrackerApp extends ConsumerWidget {
@@ -17,6 +19,28 @@ class TrackerApp extends ConsumerWidget {
       themeMode: ThemeMode.system,
       routerConfig: router,
       debugShowCheckedModeBanner: false,
+      builder: (context, child) {
+        final brightness = MediaQuery.platformBrightnessOf(context);
+        SystemChrome.setSystemUIOverlayStyle(
+          brightness == Brightness.dark
+              ? SystemUiOverlayStyle.light.copyWith(
+                  statusBarColor: Colors.transparent,
+                  systemNavigationBarColor: Colors.transparent,
+                )
+              : SystemUiOverlayStyle.dark.copyWith(
+                  statusBarColor: Colors.transparent,
+                  systemNavigationBarColor: Colors.transparent,
+                ),
+        );
+        return Stack(
+          children: [
+            Positioned.fill(
+              child: AuroraBackdrop(brightness: brightness),
+            ),
+            Positioned.fill(child: child ?? const SizedBox.shrink()),
+          ],
+        );
+      },
     );
   }
 }

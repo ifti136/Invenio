@@ -49,6 +49,9 @@ dependencies:
   intl: ^0.19.0
   uuid: ^4.3.0
 
+  glass_kit: ^4.0.2
+  aurora_background: ^1.0.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
