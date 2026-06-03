@@ -3,6 +3,8 @@ import 'package:glass_kit/glass_kit.dart';
 import '../theme/app_colors.dart';
 
 class GlassPanel extends StatelessWidget {
+  static bool testOverride = false;
+
   final Widget? child;
   final double? width;
   final double? height;
@@ -40,6 +42,19 @@ class GlassPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    if (testOverride) {
+      return Container(
+        height: height,
+        width: width,
+        margin: margin,
+        padding: padding,
+        decoration: BoxDecoration(
+          borderRadius: radius > 0 ? BorderRadius.circular(radius) : null,
+        ),
+        child: child,
+      );
+    }
+
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final fillTop = isDark ? 0.14 : 0.22;
     final fillBottom = isDark ? 0.04 : 0.08;
@@ -47,38 +62,42 @@ class GlassPanel extends StatelessWidget {
     final borderBottom = isDark ? 0.10 : 0.18;
     final accent = isDark ? 0.18 : 0.10;
 
-    return GlassContainer(
-      height: expand ? double.infinity : height,
-      width: expand ? double.infinity : width,
-      margin: margin,
-      padding: padding,
-      borderRadius: radius > 0 ? BorderRadius.circular(radius) : null,
-      isFrostedGlass: isFrostedGlass,
-      blur: blur,
-      borderWidth: 1.0,
-      elevation: 0,
-      shadowColor: Colors.black.withOpacity(0.0),
-      frostedOpacity: isDark ? 0.10 : 0.08,
-      gradient: LinearGradient(
-        colors: [
-          Colors.white.withOpacity(fillTop),
-          Colors.white.withOpacity(fillBottom),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      ),
-      borderGradient: LinearGradient(
-        colors: [
-          Colors.white.withOpacity(borderTop),
-          Colors.white.withOpacity(borderBottom),
-          AppColors.accent.withOpacity(0.0),
-          AppColors.accent.withOpacity(accent),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        stops: const [0.0, 0.49, 0.50, 1.0],
-      ),
-      child: child,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return GlassContainer(
+          height: expand ? constraints.maxHeight : height,
+          width: expand ? constraints.maxWidth : width,
+          margin: margin,
+          padding: padding,
+          borderRadius: radius > 0 ? BorderRadius.circular(radius) : null,
+          isFrostedGlass: isFrostedGlass,
+          blur: blur,
+          borderWidth: 1.0,
+          elevation: 0,
+          shadowColor: Colors.black.withOpacity(0.0),
+          frostedOpacity: isDark ? 0.10 : 0.08,
+          gradient: LinearGradient(
+            colors: [
+              Colors.white.withOpacity(fillTop),
+              Colors.white.withOpacity(fillBottom),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderGradient: LinearGradient(
+            colors: [
+              Colors.white.withOpacity(borderTop),
+              Colors.white.withOpacity(borderBottom),
+              AppColors.accent.withOpacity(0.0),
+              AppColors.accent.withOpacity(accent),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            stops: const [0.0, 0.49, 0.50, 1.0],
+          ),
+          child: child,
+        );
+      },
     );
   }
 }

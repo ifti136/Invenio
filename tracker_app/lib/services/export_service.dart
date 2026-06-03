@@ -125,11 +125,11 @@ class ExportService {
        final profit = (s.sellingPrice - (p?.costPrice ?? 0)) * s.quantity;
        productProfits.update(s.productId, (value) => value + profit, ifAbsent: () => profit);
      }
-     final topProducts = productProfits.entries.toList()
-       ..sort((a, b) => b.value.compareTo(a.value))
-       .take(5);
-     for (var i = 0; i < topProducts.length; i++) {
-       final entry = topProducts[i];
+      final sorted = productProfits.entries.toList()
+        ..sort((a, b) => b.value.compareTo(a.value));
+      final topProducts = sorted.take(5).toList();
+      for (var i = 0; i < topProducts.length; i++) {
+        final entry = topProducts[i];
        final product = productMap[entry.key];
        sumSheet.getRangeByIndex(i + 7, 1).setText(product?.name ?? 'Unknown');
        sumSheet.getRangeByIndex(i + 7, 2).setText(entry.value.toStringAsFixed(2));

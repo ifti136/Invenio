@@ -82,7 +82,7 @@ class ExpenseRepository {
       ExpensesCompanion(
         amount: drift.Value(amount),
         category: drift.Value(category),
-        note: drift.Value(note),
+        note: note != null ? drift.Value(note) : drift.Value.absent(),
         date: drift.Value(effectiveDate.millisecondsSinceEpoch),
       ),
     );

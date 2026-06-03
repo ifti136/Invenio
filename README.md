@@ -27,7 +27,7 @@ A fully offline Flutter Android app for a single owner-operator small reseller t
 - Dashboard with today's stats (sales, revenue, gross/net profit, due, platform breakdown, low stock)
 - Daily and monthly bar charts with revenue vs. profit
 - Product-level performance report
-- Excel export (Sales + Expenses sheets) via share
+- Excel export (Sales + Expenses + Summary sheets) via share
 
 ### Design
 - Liquid Glass UI — `glass_kit` panels, aurora animated background, transparent scaffold
@@ -76,7 +76,40 @@ flutter run
 
 ```bash
 cd tracker_app
+
+# Release APK (universal)
 flutter build apk --release
+
+# Split APK by ABI (smaller per-device)
+flutter build apk --split-per-abi --release
+
+# App bundle (recommended for Play Store)
+flutter build appbundle --release
+```
+
+The APK is output to `tracker_app/build/app/outputs/flutter-apk/`.
+
+### Development Commands
+
+```bash
+cd tracker_app
+
+# Code generation (Drift, Riverpod, go_router)
+dart run build_runner build --delete-conflicting-outputs
+
+# Watch for changes (auto-regenerate)
+dart run build_runner watch --delete-conflicting-outputs
+
+# Static analysis
+flutter analyze
+
+# Run tests
+# Pure-logic tests (no native deps needed):
+flutter test test/unit/alert_service_test.dart test/unit/profit_calculation_test.dart
+
+# Full suite (requires libsqlite3-dev on Linux):
+sudo apt install libsqlite3-dev
+flutter test --reporter expanded
 ```
 
 ## Project Structure

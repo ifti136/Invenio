@@ -68,7 +68,7 @@ class ProductRepository {
       ProductsCompanion(
         name: Value(name),
         lowStockThreshold: Value(lowStockThreshold),
-        note: Value(note),
+        note: note != null ? Value(note) : Value.absent(),
       ),
     );
   }
