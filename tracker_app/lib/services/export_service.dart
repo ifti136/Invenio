@@ -9,7 +9,7 @@ class ExportService {
   final AppDatabase _db;
   ExportService(this._db);
 
-  Future<void> exportMonth(DateTime month) async {
+  Future<Workbook> buildWorkbook(DateTime month) async {
     final start = DateTime(month.year, month.month, 1);
     final end = DateTime(month.year, month.month + 1, 0, 23, 59, 59);
 
@@ -87,6 +87,11 @@ class ExportService {
       }
     }
 
+    return workbook;
+  }
+
+  Future<void> exportMonth(DateTime month) async {
+    final workbook = await buildWorkbook(month);
     final bytes = workbook.saveAsStream();
     workbook.dispose();
 
