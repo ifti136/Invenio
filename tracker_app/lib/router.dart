@@ -72,6 +72,12 @@ GoRouter router(Ref ref) {
                 path: 'add',
                 builder: (_, __) => const ExpenseFormScreen(),
               ),
+              GoRoute(
+                path: ':id/edit',
+                builder: (_, s) => ExpenseFormScreen(
+                  expenseId: int.parse(s.pathParameters['id']!),
+                ),
+              ),
             ],
           ),
           GoRoute(

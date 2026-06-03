@@ -1,6 +1,6 @@
 # Completion Status — Inventory & Economy Tracker
 
-Generated: 2026-06-02 (Phase 3 complete)
+Generated: 2026-06-03 (Phase 4 complete)
 
 ---
 
@@ -10,7 +10,7 @@ Generated: 2026-06-02 (Phase 3 complete)
 |--------|--------|
 | Flutter SDK | 3.24.4 (stable), Dart 3.5.4 |
 | Target | Android (min API 24) |
-| Code generation | `build_runner` run — `app_database.g.dart`, `router.g.dart`, `product_repository.g.dart`, `product_provider.g.dart`, `sale_repository.g.dart`, `sale_provider.g.dart`, `alert_service.g.dart` |
+| Code generation | `build_runner` run — `app_database.g.dart`, `router.g.dart`, `product_repository.g.dart`, `product_provider.g.dart`, `sale_repository.g.dart`, `sale_provider.g.dart`, `alert_service.g.dart`, `expense_repository.g.dart`, `expense_provider.g.dart` |
 | Analysis | `flutter analyze` — 0 errors, 1 warning (`duplicate_ignore` in `app_database.g.dart:2747`; auto-generated, harmless) |
 | APK build | Not verified (Gradle download requires network not available in this env) |
 | Theme | Liquid Glass — `glass_kit` + `aurora_background`; aurora behind every screen, glass on bottom nav / dialogs / bottom sheets / text fields |
@@ -140,7 +140,23 @@ Generated: 2026-06-02 (Phase 3 complete)
 
 ---
 
-## Phase 4 — Expenses ⬜
+## Phase 4 — Expenses ✅
+
+| Task | Status | Notes |
+|------|--------|-------|
+| ExpenseRepository | ✅ | `lib/features/expenses/expense_repository.dart` — `@Riverpod(keepAlive: true)`, Drift-backed. `watchAll` / `watchFiltered(ExpenseFilter)` streams, `add` / `update` / `delete` / `getById` CRUD, `totalForPeriod(start, end)` aggregate; `ExpenseCategory` enum (`ads`/`delivery`/`packaging`/`misc`) with label extension; `ExpenseFilter` value class (immutable, `==`/`hashCode` for family key) with sentinel-based `copyWith` for nullable `from`/`to`; `DateRangePreset` + `dateRangePresets()` (All time / Today / This week / This month / Last 30 days) |
+| Expense providers | ✅ | `lib/features/expenses/expense_provider.dart` — `expenseListProvider` (stream), `filteredExpenseListProvider(family<ExpenseFilter>)`, `expenseDetailProvider(family<int>)`; `ExpenseStats` + `computeExpenseStats` (count / total) |
+| Expense list screen | ✅ | `lib/features/expenses/expense_list_screen.dart` — sticky `SliverAppBar` with `+` action, sticky date filter bar (`GlassPanel` with period preset chips + Custom… date range picker), 2-stat `GlassPanel` (entries / total), per-row `PopupMenuButton` (Edit / Delete); delete via `showGlassDialog<bool>` confirm; empty state |
+| Expense form screen | ✅ | `lib/features/expenses/expense_form_screen.dart` — add + edit (`int? expenseId`); amount `GlassTextField` with decimal input formatter; category toggle (`_ToggleGroup<ExpenseCategory>`); note `GlassTextField`; tappable date field opening `showDatePicker`; delete button (edit mode only, outlined red); save via `FilledButton`; `SnackBar` feedback |
+| Router — expense edit route | ✅ | `router.dart` — `/expenses/:id/edit` (nested) |
+| Validation | ✅ | Amount > 0 required; category required (enum, non-nullable); note optional; date defaults to now |
+| Run on device | ⚠️ | Cannot run on device in this env. User must run `flutter run -d <device>` locally. `flutter pub get` + `build_runner` + `flutter analyze` pass with 0 errors. |
+
+**Deviations from `05_implementation.md`:**
+- Expense form supports both add and edit (`int? expenseId`) — the spec only described add. The router adds `/expenses/:id/edit`.
+- `ExpenseCategory` is an enum with label extensions (matching `SalePlatform` pattern in Phase 3) — the spec stored category as a raw string.
+- Date filter with presets + custom range picker is included in the list screen — spec was silent on filtering; user explicitly requested date-range filtering.
+- `ExpenseFilter`, `DateRangePreset`, and `dateRangePresets()` are defined in `expense_repository.dart` (matching `SaleFilter` pattern in Phase 3).
 
 ## Phase 5 — Reports & Export ⬜
 
@@ -201,8 +217,11 @@ lib/
 │   │       └── product_filter_sheet.dart ✅ (modal bottom sheet with search)
 │   ├── expenses/
 │   ├── expenses/
-│   │   ├── expense_list_screen.dart   ⬜ (placeholder)
-│   │   └── expense_form_screen.dart   ⬜ (placeholder)
+│   │   ├── expense_repository.dart    ✅ (enum, filter, CRUD, riverpod provider)
+│   │   ├── expense_provider.dart      ✅ (Riverpod: streams, filtered family, stats)
+│   │   ├── expense_list_screen.dart   ✅ (date filter bar, stats, list with popup menu)
+│   │   ├── expense_form_screen.dart   ✅ (add + edit, amount, category toggle, note, date picker, delete)
+│   │   └── widgets/
 │   └── reports/
 │       └── reports_screen.dart        ⬜ (placeholder)
 ├── services/
