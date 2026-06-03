@@ -1,6 +1,6 @@
 # Completion Status — Inventory & Economy Tracker
 
-Generated: 2026-06-03 (Phase 4 complete)
+Generated: 2026-06-03 (Phase 5 complete)
 
 ---
 
@@ -10,7 +10,7 @@ Generated: 2026-06-03 (Phase 4 complete)
 |--------|--------|
 | Flutter SDK | 3.24.4 (stable), Dart 3.5.4 |
 | Target | Android (min API 24) |
-| Code generation | `build_runner` run — `app_database.g.dart`, `router.g.dart`, `product_repository.g.dart`, `product_provider.g.dart`, `sale_repository.g.dart`, `sale_provider.g.dart`, `alert_service.g.dart`, `expense_repository.g.dart`, `expense_provider.g.dart` |
+| Code generation | `build_runner` run — `app_database.g.dart`, `router.g.dart`, `product_repository.g.dart`, `product_provider.g.dart`, `sale_repository.g.dart`, `sale_provider.g.dart`, `alert_service.g.dart`, `expense_repository.g.dart`, `expense_provider.g.dart`, `dashboard_provider.g.dart`, `report_repository.g.dart` |
 | Analysis | `flutter analyze` — 0 errors, 1 warning (`duplicate_ignore` in `app_database.g.dart:2747`; auto-generated, harmless) |
 | APK build | Not verified (Gradle download requires network not available in this env) |
 | Theme | Liquid Glass — `glass_kit` + `aurora_background`; aurora behind every screen, glass on bottom nav / dialogs / bottom sheets / text fields |
@@ -158,7 +158,27 @@ Generated: 2026-06-03 (Phase 4 complete)
 - Date filter with presets + custom range picker is included in the list screen — spec was silent on filtering; user explicitly requested date-range filtering.
 - `ExpenseFilter`, `DateRangePreset`, and `dateRangePresets()` are defined in `expense_repository.dart` (matching `SaleFilter` pattern in Phase 3).
 
-## Phase 5 — Reports & Export ⬜
+## Phase 5 — Reports & Export ✅
+
+| Task | Status | Notes |
+|------|--------|-------|
+| DashboardSummary model | ✅ | `lib/models/dashboard_summary.dart` — today's stats (sales, revenue, gross/net profit, due, platform breakdown, low stock) |
+| MonthlyReport models | ✅ | `lib/models/monthly_report.dart` — `DailySnapshot`, `MonthlySummary`, `ProductReportRow` |
+| DashboardProvider | ✅ | `lib/features/dashboard/dashboard_provider.dart` — `@riverpod Future<DashboardSummary>` computes today's sales count, revenue, gross/net profit, due amount, Facebook/Offline breakdown, low-stock products |
+| DashboardScreen | ✅ | `lib/features/dashboard/dashboard_screen.dart` — stats grid in `GlassPanel`, platform breakdown with progress bar, low-stock section with `ProductTile` rows, pull-to-refresh |
+| ReportRepository | ✅ | `lib/features/reports/report_repository.dart` — `@Riverpod(keepAlive: true)`; `dailySnapshots(year, month)` (day-by-day revenue/profit/expenses), `monthlySummaries(year)` (month-by-month), `productReport()` (per-product aggregated sales); three `@riverpod` providers |
+| ChartTableToggle | ✅ | `lib/features/reports/widgets/chart_table_toggle.dart` — `AnimatedSwitcher` toggle between chart (`KeyedSubtree`) and table (`KeyedSubtree`) |
+| MonthlyBarChart + YearlyBarChart | ✅ | `lib/features/reports/widgets/bar_chart_widget.dart` — `fl_chart` `BarChart` with dual-rod (revenue/profit), empty-state fallback, day/month labels |
+| ReportsScreen | ✅ | `lib/features/reports/reports_screen.dart` — unified screen with 3-tab segmented control (Daily / Monthly / Products); month/year selector with prev/next chevron; export button; `_SummaryStrip` (Revenue / Profit / Expenses); `_DailyTable`/`_MonthlyTable` glass-panel data tables; `_ProductReport` with per-product rows |
+| ExportService | ✅ | `lib/services/export_service.dart` — `syncfusion_flutter_xlsio` Workbook with Sales + Expenses sheets; saves to temp dir; shares via `share_plus` |
+| Run on device | ⚠️ | Cannot run on device in this env. User must run `flutter run -d <device>` locally. `flutter pub get` + `build_runner` + `flutter analyze` pass with 0 errors. |
+
+**Deviations from `05_implementation.md`:**
+- Reports screen is a single composite screen (Daily/Monthly/Product tabs) instead of 3 separate route-level screens — the `/reports` route stays unchanged, no new router entries needed.
+- `ReportRepository` includes three methods (`dailySnapshots`, `monthlySummaries`, `productReport`) plus three `@riverpod` providers — the spec's checklist mentioned it but gave no code.
+- `YearlyBarChart` was added alongside `MonthlyBarChart` from the spec to support the monthly-overview tab.
+- `dashboard_provider.dart` and `report_repository.dart` are now the only files needing `@riverpod` codegen; the spec's `dashboard_provider` auto-generates as part of the standard project pattern.
+- `ExportService` uses the share_plus API as written in the spec (`Share.shareXFiles`).
 
 ---
 
@@ -194,7 +214,9 @@ lib/
 │       └── stock_movements_table.dart ✅
 ├── features/
 │   ├── dashboard/
-│   │   └── dashboard_screen.dart      ⬜ (placeholder)
+│   │   ├── dashboard_provider.dart    ✅ (today's summary computation)
+│   │   ├── dashboard_provider.g.dart  ✅ (generated)
+│   │   └── dashboard_screen.dart      ✅ (stats grid, platform breakdown, low stock)
 │   ├── products/
 │   │   ├── product_list_screen.dart   ✅ (stats, chip filter, search, list, empty state)
 │   │   ├── product_form_screen.dart   ✅ (add + edit, validation, delete confirm)
@@ -223,9 +245,18 @@ lib/
 │   │   ├── expense_form_screen.dart   ✅ (add + edit, amount, category toggle, note, date picker, delete)
 │   │   └── widgets/
 │   └── reports/
-│       └── reports_screen.dart        ⬜ (placeholder)
+│       ├── report_repository.dart     ✅ (daily / monthly / product queries + providers)
+│       ├── report_repository.g.dart   ✅ (generated)
+│       ├── reports_screen.dart        ✅ (3-tab Daily/Monthly/Products, export)
+│       └── widgets/
+│           ├── bar_chart_widget.dart   ✅ (fl_chart bar charts)
+│           └── chart_table_toggle.dart ✅ (AnimatedSwitcher toggle)
+├── models/
+│   ├── dashboard_summary.dart         ✅ (DashboardSummary)
+│   └── monthly_report.dart            ✅ (DailySnapshot / MonthlySummary / ProductReportRow)
 ├── services/
-│   └── alert_service.dart             ✅ (sealed AppAlert: BelowCost / LowStock / MarginDrop)
+│   ├── alert_service.dart             ✅ (sealed AppAlert: BelowCost / LowStock / MarginDrop)
+│   └── export_service.dart            ✅ (Excel export via syncfusion + share_plus)
 ```
 
 ---

@@ -34,3 +34,12 @@ tracker_app/Thumbs.db
 # Temp / logs
 *.log
 *.tmp
+
+# Tests — run locally, not committed.
+# Ignore the Flutter test tree (and any *_test.dart under any subdir)
+# but keep the repo-root test/ planning docs (test/08*.md) tracked.
+tracker_app/test/
+**/test/**/
+**/*_test.dart
+# Keep the test report itself tracked even though it lives in tracker_app/test/
+!tracker_app/test/REPORT.md
