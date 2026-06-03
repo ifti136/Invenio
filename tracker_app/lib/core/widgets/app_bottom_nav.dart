@@ -38,7 +38,6 @@ class AppScaffold extends StatelessWidget {
   Widget build(BuildContext context) {
     final idx = navigationShell.currentIndex;
     return Scaffold(
-      extendBody: true,
       body: navigationShell,
       bottomNavigationBar: SafeArea(
         top: false,
@@ -48,6 +47,7 @@ class AppScaffold extends StatelessWidget {
             borderRadius: BorderRadius.circular(22),
             child: GlassPanel(
               radius: 22,
+              isFrostedGlass: true,
               padding: EdgeInsets.zero,
               child: NavigationBar(
                 selectedIndex: idx,

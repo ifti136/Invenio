@@ -24,7 +24,7 @@ class GlassPanel extends StatelessWidget {
     this.margin,
     this.padding,
     this.blur = 18,
-    this.isFrostedGlass = true,
+    this.isFrostedGlass = false,
     this.expand = false,
   });
 
@@ -34,7 +34,7 @@ class GlassPanel extends StatelessWidget {
     this.margin = EdgeInsets.zero,
     this.padding = EdgeInsets.zero,
     this.blur = 18,
-    this.isFrostedGlass = true,
+    this.isFrostedGlass = false,
     this.expand = true,
   })  : width = null,
         height = null,

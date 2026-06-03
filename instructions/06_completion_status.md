@@ -1,6 +1,6 @@
 # Completion Status — Inventory & Economy Tracker
 
-Generated: 2026-06-03 (Phase 5 complete, test suite added, all 8 bugs fixed, 3 compilation errors fixed, 3 runtime bugs fixed, 100 tests passing, production release ready)
+Generated: 2026-06-04 (Screen blur fix: GlassPanel defaults to non-frosted; nav bar `extendBody` removed — glass effect limited to nav/dialogs/textfields)
 
 ---
 
@@ -14,7 +14,7 @@ Generated: 2026-06-03 (Phase 5 complete, test suite added, all 8 bugs fixed, 3 c
 | Analysis | `flutter analyze` — 0 errors, 1 warning (generated code `duplicate_ignore`), 21 info (mostly test relative imports) |
 | Bug fixes | All 8 documented bugs in `BUG_REPORT.md` fixed and verified; 3 additional compilation errors fixed (cascade operator, drift API, legacy test) |
 | APK build | See `README.md` — verified locally with `flutter build apk --release` |
-| Theme | Liquid Glass — `glass_kit` + `aurora_background`; aurora behind every screen, glass on bottom nav / dialogs / bottom sheets / text fields |
+ | Theme | Liquid Glass — `glass_kit` + `aurora_background`; aurora behind every screen, glass on bottom nav / dialogs / text fields only (section panels non-frosted) |
 | Test suite | 15 test files (8 unit + 7 widget), **100 tests all passing**. 40 pure-logic tests always pass (alert_service, profit_calculation, chart_toggle, theme). Remaining ~60 require `libsqlite3.so` (native sqlite3). Widget tests use `UncontrolledProviderScope` + manual `ProviderContainer` dispose to avoid pending-timer leaks. |
 | Test fixes | Widget tests updated with `SizedBox` constraints, `pumpAndSettle(Duration)`, `GlassPanel.testOverride = true` (bypasses `BackdropFilter` in headless), `UncontrolledProviderScope` + manual dispose (eliminates pending timer on Riverpod stream providers). Runtime bugs fixed: `ProductRepository.update()` and `ExpenseRepository.update()` now use `Value.absent()` for null note fields, preserving existing values. |
 | Test report | `tracker_app/test/REPORT.md` — per-phase pass/fail breakdown, known limitations |
@@ -62,15 +62,23 @@ Generated: 2026-06-03 (Phase 5 complete, test suite added, all 8 bugs fixed, 3 c
 
 **Glass scope (per Phase 1.5 plan):**
 - ✅ App bar
-- ✅ Bottom nav
-- ✅ Modals / dialogs
-- ✅ Bottom sheets
-- ✅ Text fields
-- ❌ Cards / list tiles (kept as default Material — out of glass scope; per plan, this avoids stacked `BackdropFilter` jank on lists)
+- ✅ Bottom nav (`isFrostedGlass: true` retained)
+- ✅ Modals / dialogs (`isFrostedGlass: true` retained)
+- ✅ Bottom sheets (non-frosted by default, `isFrostedGlass` opt-in per sheet)
+- ✅ Text fields (`isFrostedGlass: true` retained)
+- ❌ Section panels (stats, forms, lists, chart areas — non-frosted via default `isFrostedGlass: false`)
+- ❌ Cards / list tiles (kept as default Material — out of glass scope; per plan, avoids stacked `BackdropFilter` jank)
 - ❌ Buttons (kept as default Material — FilledButton / TextButton themed but not glassified)
 
+**Changes in this session (screen blur + nav fix):**
+- `GlassPanel.default.isFrostedGlass` changed from `true` to `false` to eliminate cumulative `BackdropFilter` blur jank across section panels (dashboard stats, form wrappers, list containers, report tables). The aurora alone provides the ambient liquid glass effect behind all content.
+- `app_bottom_nav.dart`: removed `extendBody: true` so body content no longer shows through the nav bar (fixes "nav floats over content" issue). Added explicit `isFrostedGlass: true` to nav bar's `GlassPanel`.
+- `glass_dialog.dart`: added explicit `isFrostedGlass: true` to retain frosted glass on dialogs.
+- `GlassPanel.flush` default also set to `isFrostedGlass: false`.
+- `GlassTextField` already set `isFrostedGlass: true` explicitly — unchanged.
+
 **New widgets available for upcoming phases:**
-- `GlassPanel` / `GlassPanel.flush` — for any future glass chrome
+- `GlassPanel` / `GlassPanel.flush` — for any future glass chrome (disable frost by default, opt-in via `isFrostedGlass: true`)
 - `GlassTextField` — for all `TextField` / `TextFormField` use
 - `showGlassDialog<T>()` / `GlassDialogAction<T>` — for confirmation dialogs (e.g., delete-sale prompt in Phase 3)
 

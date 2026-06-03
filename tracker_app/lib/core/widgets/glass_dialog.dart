@@ -25,6 +25,7 @@ Future<T?> showGlassDialog<T>({
         ),
         child: GlassPanel(
           radius: 24,
+          isFrostedGlass: true,
           padding: const EdgeInsets.fromLTRB(20, 22, 20, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,
