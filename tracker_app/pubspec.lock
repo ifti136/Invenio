@@ -34,10 +34,10 @@ packages:
     dependency: transitive
     description:
       name: archive
-      sha256: a96e8b390886ee8abb49b7bd3ac8df6f451c621619f52a26e815fdcf568959ff
+      sha256: cb6a278ef2dbb298455e1a713bda08524a175630ec643a242c399c932a0a1f7d
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.9"
+    version: "3.6.1"
   args:
     dependency: transitive
     description:
@@ -298,10 +298,10 @@ packages:
     dependency: "direct main"
     description:
       name: fl_chart
-      sha256: f2e9137f261d0f53a820f6b829c80ba570ac915284c8e32789d973834796eca0
+      sha256: "94307bef3a324a0d329d3ab77b2f0c6e5ed739185ffc029ed28c0f9b019ea7ef"
       url: "https://pub.dev"
     source: hosted
-    version: "0.71.0"
+    version: "0.69.0"
   flutter:
     dependency: "direct main"
     description: flutter
@@ -401,18 +401,18 @@ packages:
     dependency: transitive
     description:
       name: image
-      sha256: f9881ff4998044947ec38d098bc7c8316ae1186fa786eddffdb867b9bc94dfce
+      sha256: f31d52537dc417fdcde36088fdf11d191026fd5e4fae742491ebd40e5a8bea7d
       url: "https://pub.dev"
     source: hosted
-    version: "4.8.0"
+    version: "4.3.0"
   intl:
     dependency: "direct main"
     description:
       name: intl
-      sha256: "3df61194eb431efc39c4ceba583b95633a403f46c9fd341e550ce0bfa50e9aa5"
+      sha256: d6f56758b7d3014a48af9701c085700aac781a92a87a62b1333b46d8879661cf
       url: "https://pub.dev"
     source: hosted
-    version: "0.20.2"
+    version: "0.19.0"
   io:
     dependency: transitive
     description:
@@ -425,10 +425,10 @@ packages:
     dependency: transitive
     description:
       name: jiffy
-      sha256: cabced5ddea4612f5e0c498df065ee8a1bd810f7ed757db910e95d2aba80161d
+      sha256: "1c1b86459969ff9f32dc5b0ffe392f1e08181e66396cf9dd8fa7c90552a691af"
       url: "https://pub.dev"
     source: hosted
-    version: "6.4.5"
+    version: "6.3.2"
   js:
     dependency: transitive
     description:
@@ -521,10 +521,10 @@ packages:
     dependency: transitive
     description:
       name: mime
-      sha256: "41a20518f0cb1256669420fdba0cd90d21561e560ac240f26ef8322e45bb7ed6"
+      sha256: "801fd0b26f14a4a58ccb09d5892c3fbdeff209594300a542492cf13fba9d247a"
       url: "https://pub.dev"
     source: hosted
-    version: "2.0.0"
+    version: "1.0.6"
   mockito:
     dependency: "direct dev"
     description:
@@ -629,14 +629,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.5.2"
-  posix:
-    dependency: transitive
-    description:
-      name: posix
-      sha256: "185ef7606574f789b40f289c233efa52e96dead518aed988e040a10737febb07"
-      url: "https://pub.dev"
-    source: hosted
-    version: "6.5.0"
   pub_semver:
     dependency: transitive
     description:
@@ -653,14 +645,6 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.4.0"
-  quiver:
-    dependency: transitive
-    description:
-      name: quiver
-      sha256: ea0b925899e64ecdfbf9c7becb60d5b50e706ade44a85b2363be2a22d88117d2
-      url: "https://pub.dev"
-    source: hosted
-    version: "3.2.2"
   recase:
     dependency: transitive
     description:
@@ -705,18 +689,18 @@ packages:
     dependency: "direct main"
     description:
       name: share_plus
-      sha256: "223873d106614442ea6f20db5a038685cc5b32a2fba81cdecaefbbae0523f7fa"
+      sha256: "3ef39599b00059db0990ca2e30fca0a29d8b37aae924d60063f8e0184cf20900"
       url: "https://pub.dev"
     source: hosted
-    version: "12.0.2"
+    version: "7.2.2"
   share_plus_platform_interface:
     dependency: transitive
     description:
       name: share_plus_platform_interface
-      sha256: "88023e53a13429bd65d8e85e11a9b484f49d4c190abbd96c7932b74d6927cc9a"
+      sha256: "251eb156a8b5fa9ce033747d73535bf53911071f8d3b6f4f0b578505ce0d4496"
       url: "https://pub.dev"
     source: hosted
-    version: "6.1.0"
+    version: "3.4.0"
   shelf:
     dependency: transitive
     description:
@@ -822,26 +806,26 @@ packages:
     dependency: transitive
     description:
       name: syncfusion_flutter_core
-      sha256: f1d2b52697543e13bdefdc62d15868124a265987577f53224a7dbe176c8448f0
+      sha256: "325f519ce4ad8edd81811c21b853d72018529e353584490824da0555156ba076"
       url: "https://pub.dev"
     source: hosted
-    version: "28.2.12"
+    version: "27.2.5"
   syncfusion_flutter_xlsio:
     dependency: "direct main"
     description:
       name: syncfusion_flutter_xlsio
-      sha256: "3c82b621e80357c89b564771cd25c6f7e9977bcba3d0b7248683dd67e37cdcfc"
+      sha256: "612c9b90f60fb8a08ceb310e1153a077b2387465c026da652e467132e5c494a9"
       url: "https://pub.dev"
     source: hosted
-    version: "28.2.12"
+    version: "27.1.55"
   syncfusion_officecore:
     dependency: transitive
     description:
       name: syncfusion_officecore
-      sha256: "0cebd10708df50f4a7ba19f4d0b5f7beedc30887f8dee9bd69e6cdb6b0d1a38b"
+      sha256: d69d58d9a07b2d980f5758e407c76fdef8d70537f2c9affea1d8e01a6a0c1615
       url: "https://pub.dev"
     source: hosted
-    version: "28.2.12"
+    version: "27.2.5"
   term_glyph:
     dependency: transitive
     description:

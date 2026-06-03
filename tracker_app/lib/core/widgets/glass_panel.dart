@@ -64,38 +64,41 @@ class GlassPanel extends StatelessWidget {
 
     return LayoutBuilder(
       builder: (context, constraints) {
-        return GlassContainer(
-          height: expand ? constraints.maxHeight : height,
-          width: expand ? constraints.maxWidth : width,
-          margin: margin,
-          padding: padding,
-          borderRadius: radius > 0 ? BorderRadius.circular(radius) : null,
-          isFrostedGlass: isFrostedGlass,
-          blur: blur,
-          borderWidth: 1.0,
-          elevation: 0,
-          shadowColor: Colors.black.withOpacity(0.0),
-          frostedOpacity: isDark ? 0.10 : 0.08,
-          gradient: LinearGradient(
-            colors: [
-              Colors.white.withOpacity(fillTop),
-              Colors.white.withOpacity(fillBottom),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+        return ClipRRect(
+          borderRadius: radius > 0 ? BorderRadius.circular(radius) : BorderRadius.zero,
+          child: GlassContainer(
+            height: expand ? constraints.maxHeight : height,
+            width: expand ? constraints.maxWidth : width,
+            margin: margin,
+            padding: padding,
+            borderRadius: radius > 0 ? BorderRadius.circular(radius) : BorderRadius.zero,
+            isFrostedGlass: isFrostedGlass,
+            blur: blur,
+            borderWidth: 1.0,
+            elevation: 0,
+            shadowColor: Colors.black.withOpacity(0.0),
+            frostedOpacity: isDark ? 0.10 : 0.08,
+            gradient: LinearGradient(
+              colors: [
+                Colors.white.withOpacity(fillTop),
+                Colors.white.withOpacity(fillBottom),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderGradient: LinearGradient(
+              colors: [
+                Colors.white.withOpacity(borderTop),
+                Colors.white.withOpacity(borderBottom),
+                AppColors.accent.withOpacity(0.0),
+                AppColors.accent.withOpacity(accent),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              stops: const [0.0, 0.49, 0.50, 1.0],
+            ),
+            child: child,
           ),
-          borderGradient: LinearGradient(
-            colors: [
-              Colors.white.withOpacity(borderTop),
-              Colors.white.withOpacity(borderBottom),
-              AppColors.accent.withOpacity(0.0),
-              AppColors.accent.withOpacity(accent),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: const [0.0, 0.49, 0.50, 1.0],
-          ),
-          child: child,
         );
       },
     );

@@ -19,78 +19,99 @@ GoRouter router(Ref ref) {
   return GoRouter(
     initialLocation: '/dashboard',
     routes: [
-      ShellRoute(
-        builder: (context, state, child) => AppScaffold(child: child),
-        routes: [
-          GoRoute(
-            path: '/dashboard',
-            builder: (_, __) => const DashboardScreen(),
-          ),
-           GoRoute(
-             path: '/products',
-             builder: (_, __) => const ProductListScreen(),
-             routes: [
-               GoRoute(
-                 path: 'add',
-                 builder: (_, __) => const ProductFormScreen(),
-               ),
-               GoRoute(
-                 path: ':id',
-                 builder: (_, s) => ProductDetailScreen(
-                   id: int.parse(s.pathParameters['id']!),
-                 ),
-                 routes: [
-                   GoRoute(
-                     path: 'edit',
-                     builder: (_, s) => ProductFormScreen(
-                       productId: int.parse(s.pathParameters['id']!),
-                     ),
-                   ),
-                 ],
-               ),
-             ],
-           ),
-           GoRoute(
-             path: '/sales',
-             builder: (_, __) => const SaleListScreen(),
-             routes: [
-               GoRoute(
-                 path: 'add',
-                 builder: (_, __) => const SaleFormScreen(),
-               ),
-               GoRoute(
-                 path: ':id',
-                 builder: (_, s) => SaleListScreen(), // placeholder - no detail screen exists yet
-                 routes: [
-                   GoRoute(
-                     path: 'edit',
-                     builder: (_, s) => SaleFormScreen(
-                       saleId: int.parse(s.pathParameters['id']!),
-                     ),
-                   ),
-                 ],
-               ),
-             ],
-           ),
-          GoRoute(
-            path: '/expenses',
-            builder: (_, __) => const ExpenseListScreen(),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) =>
+            AppScaffold(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
             routes: [
               GoRoute(
-                path: 'add',
-                builder: (_, __) => const ExpenseFormScreen(),
-              ),
-              GoRoute(
-                path: ':id/edit',
-                builder: (_, s) => ExpenseFormScreen(
-                  expenseId: int.parse(s.pathParameters['id']!),
-                ),
+                path: '/dashboard',
+                builder: (_, __) => const DashboardScreen(),
               ),
             ],
           ),
-          GoRoute(
-            path: '/reports',
-            builder: (_, __) => const ReportsScreen(),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/products',
+                builder: (_, __) => const ProductListScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'add',
+                    builder: (_, __) => const ProductFormScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, s) => ProductDetailScreen(
+                      id: int.parse(s.pathParameters['id']!),
+                    ),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (_, s) => ProductFormScreen(
+                          productId: int.parse(s.pathParameters['id']!),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/sales',
+                builder: (_, __) => const SaleListScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'add',
+                    builder: (_, __) => const SaleFormScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id',
+                    builder: (_, s) => SaleListScreen(),
+                    routes: [
+                      GoRoute(
+                        path: 'edit',
+                        builder: (_, s) => SaleFormScreen(
+                          saleId: int.parse(s.pathParameters['id']!),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/expenses',
+                builder: (_, __) => const ExpenseListScreen(),
+                routes: [
+                  GoRoute(
+                    path: 'add',
+                    builder: (_, __) => const ExpenseFormScreen(),
+                  ),
+                  GoRoute(
+                    path: ':id/edit',
+                    builder: (_, s) => ExpenseFormScreen(
+                      expenseId: int.parse(s.pathParameters['id']!),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/reports',
+                builder: (_, __) => const ReportsScreen(),
+              ),
+            ],
           ),
         ],
       ),
