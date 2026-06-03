@@ -30,6 +30,12 @@ tracker_app/android/app/debug/
 # macOS / Windows / Linux (we target Android only)
 tracker_app/.DS_Store
 tracker_app/Thumbs.db
+tracker_app/linux/
+tracker_app/macos/
+tracker_app/windows/
+
+# AI agent metadata
+.opencode/
 
 # Temp / logs
 *.log
