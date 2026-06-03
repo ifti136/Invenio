@@ -304,14 +304,14 @@ class _SaleDetailProviderElement extends AutoDisposeFutureProviderElement<Sale?>
   int get id => (origin as SaleDetailProvider).id;
 }
 
-String _$lastSellingPriceHash() => r'3b2ec64fedbe78f6e774492b2d8b7dff232edebb';
+String _$lastSellingPriceHash() => r'de81aff5e79f1c338c4cecc65928b461eedc6674';
 
 /// See also [lastSellingPrice].
 @ProviderFor(lastSellingPrice)
 const lastSellingPriceProvider = LastSellingPriceFamily();
 
 /// See also [lastSellingPrice].
-class LastSellingPriceFamily extends Family<AsyncValue<Sale?>> {
+class LastSellingPriceFamily extends Family<AsyncValue<double?>> {
   /// See also [lastSellingPrice].
   const LastSellingPriceFamily();
 
@@ -349,7 +349,7 @@ class LastSellingPriceFamily extends Family<AsyncValue<Sale?>> {
 }
 
 /// See also [lastSellingPrice].
-class LastSellingPriceProvider extends AutoDisposeFutureProvider<Sale?> {
+class LastSellingPriceProvider extends AutoDisposeFutureProvider<double?> {
   /// See also [lastSellingPrice].
   LastSellingPriceProvider(
     int productId,
@@ -384,7 +384,7 @@ class LastSellingPriceProvider extends AutoDisposeFutureProvider<Sale?> {
 
   @override
   Override overrideWith(
-    FutureOr<Sale?> Function(LastSellingPriceRef provider) create,
+    FutureOr<double?> Function(LastSellingPriceRef provider) create,
   ) {
     return ProviderOverride(
       origin: this,
@@ -401,7 +401,7 @@ class LastSellingPriceProvider extends AutoDisposeFutureProvider<Sale?> {
   }
 
   @override
-  AutoDisposeFutureProviderElement<Sale?> createElement() {
+  AutoDisposeFutureProviderElement<double?> createElement() {
     return _LastSellingPriceProviderElement(this);
   }
 
@@ -421,13 +421,13 @@ class LastSellingPriceProvider extends AutoDisposeFutureProvider<Sale?> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin LastSellingPriceRef on AutoDisposeFutureProviderRef<Sale?> {
+mixin LastSellingPriceRef on AutoDisposeFutureProviderRef<double?> {
   /// The parameter `productId` of this provider.
   int get productId;
 }
 
 class _LastSellingPriceProviderElement
-    extends AutoDisposeFutureProviderElement<Sale?> with LastSellingPriceRef {
+    extends AutoDisposeFutureProviderElement<double?> with LastSellingPriceRef {
   _LastSellingPriceProviderElement(super.provider);
 
   @override

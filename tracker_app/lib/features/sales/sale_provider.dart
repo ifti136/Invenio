@@ -21,8 +21,9 @@ Future<Sale?> saleDetail(Ref ref, int id) {
 }
 
 @riverpod
-Future<Sale?> lastSellingPrice(Ref ref, int productId) {
-  return ref.watch(saleRepositoryProvider).lastSellingPriceFor(productId);
+Future<double?> lastSellingPrice(Ref ref, int productId) async {
+  final sale = await ref.watch(saleRepositoryProvider).lastSellingPriceFor(productId);
+  return sale?.sellingPrice;
 }
 
 class SaleStats {

@@ -81,19 +81,19 @@ class AlertService {
       ));
     }
 
-    if (lastSale != null && lastSale.sellingPrice > 0 && product.costPrice > 0) {
-      final lastMargin =
-          ((lastSale.sellingPrice - product.costPrice) / lastSale.sellingPrice) *
-              100;
-      final currentMargin =
-          ((sellingPrice - product.costPrice) / sellingPrice) * 100;
-      if (currentMargin < lastMargin - 15) {
-        alerts.add(MarginDropAlert(
-          lastMarginPct: lastMargin,
-          currentMarginPct: currentMargin,
-        ));
-      }
-    }
+     if (lastSale != null && lastSale.sellingPrice > 0 && product.costPrice > 0) {
+       final lastMargin =
+           ((lastSale.sellingPrice - product.costPrice) / lastSale.sellingPrice) *
+               100;
+       final currentMargin =
+           ((sellingPrice - product.costPrice) / sellingPrice) * 100;
+       if (currentMargin < lastMargin - 10) {
+         alerts.add(MarginDropAlert(
+           lastMarginPct: lastMargin,
+           currentMarginPct: currentMargin,
+         ));
+       }
+     }
 
     return alerts;
   }

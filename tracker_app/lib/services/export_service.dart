@@ -66,28 +66,76 @@ class ExportService {
       }
     }
 
-    workbook.worksheets.addWithName('Expenses');
-    final expSheet = workbook.worksheets[1];
-    final expHeaders = ['Date', 'Category', 'Amount', 'Note'];
-    for (var i = 0; i < expHeaders.length; i++) {
-      expSheet.getRangeByIndex(1, i + 1).setText(expHeaders[i]);
-    }
-    for (var r = 0; r < expenses.length; r++) {
-      final e = expenses[r];
-      final row = [
-        DateTime.fromMillisecondsSinceEpoch(e.date)
-            .toString()
-            .substring(0, 10),
-        e.category,
-        e.amount.toStringAsFixed(2),
-        e.note ?? '',
-      ];
-      for (var c = 0; c < row.length; c++) {
-        expSheet.getRangeByIndex(r + 2, c + 1).setText(row[c]);
-      }
-    }
+     workbook.worksheets.addWithName('Expenses');
+     final expSheet = workbook.worksheets[1];
+     final expHeaders = ['Date', 'Category', 'Amount', 'Note'];
+     for (var i = 0; i < expHeaders.length; i++) {
+       expSheet.getRangeByIndex(1, i + 1).setText(expHeaders[i]);
+     }
+     for (var r = 0; r < expenses.length; r++) {
+       final e = expenses[r];
+       final row = [
+         DateTime.fromMillisecondsSinceEpoch(e.date)
+             .toString()
+             .substring(0, 10),
+         e.category,
+         e.amount.toStringAsFixed(2),
+         e.note ?? '',
+       ];
+       for (var c = 0; c < row.length; c++) {
+         expSheet.getRangeByIndex(r + 2, c + 1).setText(row[c]);
+       }
+     }
 
-    return workbook;
+     // Add Summary sheet
+     workbook.worksheets.addWithName('Summary');
+     final sumSheet = workbook.worksheets[2];
+
+     // Compute totals from the already-fetched sales/expenses data
+     double grossProfit = 0;
+     double fbProfit = 0;
+     double offlineProfit = 0;
+     for (final s in sales) {
+       final p = productMap[s.productId];
+       final profit = (s.sellingPrice - (p?.costPrice ?? 0)) * s.quantity;
+       grossProfit += profit;
+       if (s.platform == 'facebook') fbProfit += profit;
+       else offlineProfit += profit;
+     }
+     final totalExpenses = expenses.fold(0.0, (sum, e) => sum + e.amount);
+     final netProfit = grossProfit - totalExpenses;
+
+     // Write summary rows
+     final summaryRows = [
+       ['Gross Profit', grossProfit.toStringAsFixed(2)],
+       ['Total Expenses', totalExpenses.toStringAsFixed(2)],
+       ['Net Profit', netProfit.toStringAsFixed(2)],
+       ['Facebook Profit', fbProfit.toStringAsFixed(2)],
+       ['Offline Profit', offlineProfit.toStringAsFixed(2)],
+     ];
+     for (var r = 0; r < summaryRows.length; r++) {
+       sumSheet.getRangeByIndex(r + 1, 1).setText(summaryRows[r][0]);
+       sumSheet.getRangeByIndex(r + 1, 2).setText(summaryRows[r][1]);
+     }
+
+     // Top 5 products by profit (optional but spec-required)
+     final productProfits = <int, double>{};
+     for (final s in sales) {
+       final p = productMap[s.productId];
+       final profit = (s.sellingPrice - (p?.costPrice ?? 0)) * s.quantity;
+       productProfits.update(s.productId, (value) => value + profit, ifAbsent: () => profit);
+     }
+     final topProducts = productProfits.entries.toList()
+       ..sort((a, b) => b.value.compareTo(a.value))
+       .take(5);
+     for (var i = 0; i < topProducts.length; i++) {
+       final entry = topProducts[i];
+       final product = productMap[entry.key];
+       sumSheet.getRangeByIndex(i + 7, 1).setText(product?.name ?? 'Unknown');
+       sumSheet.getRangeByIndex(i + 7, 2).setText(entry.value.toStringAsFixed(2));
+     }
+
+     return workbook;
   }
 
   Future<void> exportMonth(DateTime month) async {

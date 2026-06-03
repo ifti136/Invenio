@@ -151,15 +151,19 @@ class _SaleListScreenState extends ConsumerState<SaleListScreen> {
     );
   }
 
-  Future<void> _markPaid(int id) async {
-    await ref.read(saleRepositoryProvider).markAsPaid(id);
-    if (!mounted) return;
-    ref.invalidate(saleListProvider);
-    ref.invalidate(productSalesProvider(id));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Marked as paid')),
-    );
-  }
+   Future<void> _markPaid(int id) async {
+     // Fetch before marking — need productId for invalidation
+     final sale = await ref.read(saleRepositoryProvider).getById(id);
+     await ref.read(saleRepositoryProvider).markAsPaid(id);
+     if (!mounted) return;
+     ref.invalidate(saleListProvider);
+     if (sale != null) {
+       ref.invalidate(productSalesProvider(sale.productId)); // correct product ID
+     }
+     ScaffoldMessenger.of(context).showSnackBar(
+       const SnackBar(content: Text('Marked as paid')),
+     );
+   }
 
   Future<void> _confirmDelete(Sale sale) async {
     final result = await showGlassDialog<bool>(

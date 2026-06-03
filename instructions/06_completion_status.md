@@ -1,6 +1,6 @@
 # Completion Status — Inventory & Economy Tracker
 
-Generated: 2026-06-03 (Phase 5 complete, test suite added)
+Generated: 2026-06-03 (Phase 5 complete, test suite added, bug fixes applied)
 
 ---
 
@@ -11,7 +11,7 @@ Generated: 2026-06-03 (Phase 5 complete, test suite added)
 | Flutter SDK | 3.24.4 (stable), Dart 3.5.4 |
 | Target | Android (min API 24) |
 | Code generation | `build_runner` run — `app_database.g.dart`, `router.g.dart`, `product_repository.g.dart`, `product_provider.g.dart`, `sale_repository.g.dart`, `sale_provider.g.dart`, `alert_service.g.dart`, `expense_repository.g.dart`, `expense_provider.g.dart`, `dashboard_provider.g.dart`, `report_repository.g.dart` |
-| Analysis | `flutter analyze` — 0 errors, 1 warning (`duplicate_ignore` in `app_database.g.dart:2747`; auto-generated, harmless) |
+| Analysis | `flutter analyze` — 33 issues (mostly test-related env limitations) |
 | APK build | Not verified (Gradle download requires network not available in this env) |
 | Theme | Liquid Glass — `glass_kit` + `aurora_background`; aurora behind every screen, glass on bottom nav / dialogs / bottom sheets / text fields |
 | Test suite | 15 test files (8 unit + 7 widget), ~95 test cases; 41 pass in CI (pure-logic + no-DB widget), 54 fail due to sqlite3 env limitation or glass_kit rendering in headless mode |
@@ -222,6 +222,8 @@ lib/
 │   │   └── stat_card.dart             ✅
 │   ├── utils/
 │   │   └── formatters.dart            ✅ (money / date / date-time / day / quantity)
+│   ├── extensions/
+│   │   └── db_extensions.dart         ✅ (ExpenseX and SaleX dateAsDateTime extensions)
 ├── db/
 │   ├── app_database.dart              ✅
 │   ├── app_database.g.dart            ✅ (generated)

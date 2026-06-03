@@ -208,14 +208,15 @@ class SaleRepository {
             ..where((p) => p.id.equals(sale.productId)))
           .write(ProductsCompanion(
               stock: drift.Value(product.stock + sale.quantity)));
-      await _db.into(_db.stockMovements).insert(
-            StockMovementsCompanion.insert(
-              productId: sale.productId,
-              quantity: sale.quantity,
-              type: 'adjustment',
-              date: DateTime.now().millisecondsSinceEpoch,
-            ),
-          );
+       await _db.into(_db.stockMovements).insert(
+             StockMovementsCompanion.insert(
+               productId: sale.productId,
+               quantity: sale.quantity,
+               type: 'adjustment',
+               note: const drift.Value('Stock restored — sale deleted'),
+               date: DateTime.now().millisecondsSinceEpoch,
+             ),
+           );
     });
   }
 }

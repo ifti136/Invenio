@@ -26,44 +26,52 @@ GoRouter router(Ref ref) {
             path: '/dashboard',
             builder: (_, __) => const DashboardScreen(),
           ),
-          GoRoute(
-            path: '/products',
-            builder: (_, __) => const ProductListScreen(),
-            routes: [
-              GoRoute(
-                path: 'add',
-                builder: (_, __) => const ProductFormScreen(),
-              ),
-              GoRoute(
-                path: ':id',
-                builder: (_, s) => ProductDetailScreen(
-                  id: int.parse(s.pathParameters['id']!),
-                ),
-              ),
-              GoRoute(
-                path: ':id/edit',
-                builder: (_, s) => ProductFormScreen(
-                  productId: int.parse(s.pathParameters['id']!),
-                ),
-              ),
-            ],
-          ),
-          GoRoute(
-            path: '/sales',
-            builder: (_, __) => const SaleListScreen(),
-            routes: [
-              GoRoute(
-                path: 'add',
-                builder: (_, __) => const SaleFormScreen(),
-              ),
-              GoRoute(
-                path: ':id/edit',
-                builder: (_, s) => SaleFormScreen(
-                  saleId: int.parse(s.pathParameters['id']!),
-                ),
-              ),
-            ],
-          ),
+           GoRoute(
+             path: '/products',
+             builder: (_, __) => const ProductListScreen(),
+             routes: [
+               GoRoute(
+                 path: 'add',
+                 builder: (_, __) => const ProductFormScreen(),
+               ),
+               GoRoute(
+                 path: ':id',
+                 builder: (_, s) => ProductDetailScreen(
+                   id: int.parse(s.pathParameters['id']!),
+                 ),
+                 routes: [
+                   GoRoute(
+                     path: 'edit',
+                     builder: (_, s) => ProductFormScreen(
+                       productId: int.parse(s.pathParameters['id']!),
+                     ),
+                   ),
+                 ],
+               ),
+             ],
+           ),
+           GoRoute(
+             path: '/sales',
+             builder: (_, __) => const SaleListScreen(),
+             routes: [
+               GoRoute(
+                 path: 'add',
+                 builder: (_, __) => const SaleFormScreen(),
+               ),
+               GoRoute(
+                 path: ':id',
+                 builder: (_, s) => SaleListScreen(), // placeholder - no detail screen exists yet
+                 routes: [
+                   GoRoute(
+                     path: 'edit',
+                     builder: (_, s) => SaleFormScreen(
+                       saleId: int.parse(s.pathParameters['id']!),
+                     ),
+                   ),
+                 ],
+               ),
+             ],
+           ),
           GoRoute(
             path: '/expenses',
             builder: (_, __) => const ExpenseListScreen(),

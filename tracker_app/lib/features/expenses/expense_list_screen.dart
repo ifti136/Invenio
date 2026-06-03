@@ -7,6 +7,7 @@ import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/db/app_database.dart';
+import 'package:tracker/core/extensions/db_extensions.dart';
 import 'package:tracker/features/expenses/expense_provider.dart';
 import 'package:tracker/features/expenses/expense_repository.dart';
 
@@ -424,7 +425,4 @@ class _Stat extends StatelessWidget {
   }
 }
 
-extension on Expense {
-  DateTime get dateAsDateTime =>
-      DateTime.fromMillisecondsSinceEpoch(date);
-}
+

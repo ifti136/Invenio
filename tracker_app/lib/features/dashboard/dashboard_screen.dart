@@ -243,12 +243,12 @@ class _PlatformRow extends StatelessWidget {
   }
 }
 
-class _LowStockSection extends ConsumerWidget {
+class _LowStockSection extends StatelessWidget {
   final List<Product> products;
   const _LowStockSection({required this.products});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return GlassPanel(
       padding: const EdgeInsets.all(16),
       child: Column(
