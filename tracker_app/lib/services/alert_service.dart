@@ -74,7 +74,9 @@ class AlertService {
     }
 
     final newStock = product.stock - quantity;
-    if (newStock >= 0 && newStock <= product.lowStockThreshold) {
+    if (newStock >= 0 &&
+        newStock <= product.lowStockThreshold &&
+        product.alertEnabled) {
       alerts.add(LowStockAlert(
         newStock: newStock,
         threshold: product.lowStockThreshold,
@@ -96,5 +98,14 @@ class AlertService {
      }
 
     return alerts;
+  }
+
+  List<Product> checkLowStock(List<Product> products) {
+    return products
+        .where((p) =>
+            p.stock <= p.lowStockThreshold &&
+            p.alertEnabled)
+        .toList()
+      ..sort((a, b) => a.name.compareTo(b.name));
   }
 }
