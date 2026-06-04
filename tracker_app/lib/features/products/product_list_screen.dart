@@ -98,10 +98,10 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
               child: Row(
                 children: [
                   for (final f in StockFilter.values) ...[
-                    ChoiceChip(
-                      label: Text(_chipLabel(f)),
+                    _FilterChip(
+                      label: _chipLabel(f),
                       selected: ref.watch(productFilterProvider).stock == f,
-                      onSelected: (_) => ref
+                      onSelected: () => ref
                           .read(productFilterProvider.notifier)
                           .setStockFilter(f),
                     ),
@@ -204,6 +204,40 @@ class _StatPill extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+class _FilterChip extends StatelessWidget {
+  final String label;
+  final bool selected;
+  final VoidCallback onSelected;
+  const _FilterChip({
+    required this.label,
+    required this.selected,
+    required this.onSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return ChoiceChip(
+      label: Text(
+        label,
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+          color: selected ? scheme.primary : scheme.onSurface,
+        ),
+      ),
+      selected: selected,
+      onSelected: (_) => onSelected(),
+      side: BorderSide(
+        color: selected
+            ? scheme.primary.withOpacity(0.5)
+            : scheme.onSurfaceVariant.withOpacity(0.18),
+        width: 0.6,
+      ),
     );
   }
 }

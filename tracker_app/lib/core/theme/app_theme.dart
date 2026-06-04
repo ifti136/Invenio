@@ -94,6 +94,30 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
+      chipTheme: ChipThemeData(
+        backgroundColor: Colors.white.withOpacity(0.04),
+        selectedColor: scheme.primary.withOpacity(isDark ? 0.22 : 0.18),
+        side: BorderSide(
+          color: scheme.onSurfaceVariant.withOpacity(0.18),
+          width: 0.6,
+        ),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(999),
+        ),
+        labelStyle: TextStyle(
+          color: scheme.onSurface,
+          fontSize: 12,
+          fontWeight: FontWeight.w500,
+        ),
+        secondaryLabelStyle: TextStyle(
+          color: scheme.primary,
+          fontSize: 12,
+          fontWeight: FontWeight.w700,
+        ),
+        checkmarkColor: scheme.primary,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        showCheckmark: false,
+      ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),

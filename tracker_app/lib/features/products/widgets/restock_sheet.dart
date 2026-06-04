@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/widgets/glass_dialog.dart';
 import '../../../core/widgets/glass_panel.dart';
 import '../../../core/widgets/glass_text_field.dart';
+import '../../../core/widgets/sheet_drag_handle.dart';
 import '../product_repository.dart';
 
 class RestockSheet extends ConsumerStatefulWidget {
@@ -110,17 +111,7 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 14),
-                decoration: BoxDecoration(
-                  color: scheme.onSurfaceVariant.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
+            const SheetDragHandle(),
             Text(
               'Restock — ${widget.productName}',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(

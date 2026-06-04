@@ -5,6 +5,7 @@ import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
+import 'package:tracker/core/widgets/sheet_drag_handle.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/products/product_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
@@ -119,14 +120,16 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
   Widget build(BuildContext context) {
     final product = _product;
     return GlassPanel(
-      margin: EdgeInsets.zero,
-      padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+      radius: 28,
+      margin: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
       child: Form(
         key: _form,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
+            const SheetDragHandle(),
             Row(
               children: [
                 const Expanded(
@@ -354,11 +357,13 @@ class _ProductPickerSheet extends StatelessWidget {
         maxHeight: MediaQuery.of(context).size.height * 0.5,
       ),
       child: GlassPanel(
-        margin: EdgeInsets.zero,
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 24),
+        radius: 28,
+        margin: const EdgeInsets.all(12),
+        padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
         child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const SheetDragHandle(),
           Row(
             children: [
               const Expanded(

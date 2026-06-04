@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
+import 'package:tracker/core/widgets/sheet_drag_handle.dart';
 import 'package:tracker/features/products/product_provider.dart';
 
 class ProductFilterSheet extends ConsumerStatefulWidget {
@@ -52,20 +53,7 @@ class _ProductFilterSheetState extends ConsumerState<ProductFilterSheet> {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Center(
-              child: Container(
-                width: 40,
-                height: 4,
-                margin: const EdgeInsets.only(bottom: 14),
-                decoration: BoxDecoration(
-                  color: Theme.of(context)
-                      .colorScheme
-                      .onSurfaceVariant
-                      .withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-            ),
+            const SheetDragHandle(),
             Text(
               'Filter by product',
               style: Theme.of(context).textTheme.titleLarge?.copyWith(
