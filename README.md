@@ -180,7 +180,7 @@ flutter test --reporter expanded
 
 ## Documentation
 
-Detailed specs live in `instructions/`:
+Detailed specs live in `docs/instructions/`:
 
 | File | Content |
 |------|---------|

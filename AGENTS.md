@@ -8,7 +8,7 @@ This file is read by opencode (and any other AI agent) at the start of every ses
 
 After **any** set of file changes (edits, new files, deletions) made in this session:
 
-1. Open `instructions/06_completion_status.md`.
+1. Open `docs/instructions/06_completion_status.md`.
 2. Update the relevant phase table(s) to reflect what was completed in this session.
 3. If a new design-system, infrastructure, or cross-cutting piece was added that does not fit an existing phase, add a new sub-section (e.g. `## Phase 1.5 — …`) with its own task table.
 4. Update the **Folder Structure** block: add new files, remove deleted ones, mark each with its symbol (✅ / ⚠️ / ⬜).
@@ -23,7 +23,7 @@ This is the canonical progress checklist. **Do not skip this step.** If you make
 ## Project overview
 
 - **Invenio** is a Flutter Android app (lives in `tracker_app/`) for a single owner-operator small reseller to manage inventory, log sales, track expenses, and view profit analytics. Fully offline; no auth.
-- Spec / docs live in `instructions/`:
+- Spec / docs live in `docs/instructions/`:
   - `01_requirements.md` — functional + non-functional requirements
   - `02_system_design.md` — architecture
   - `03_code_specs.md` — per-file code contracts
@@ -64,7 +64,7 @@ After **any** set of file changes that completes a logical unit of work (a phase
      - `expenses` — expenses (future)
      - `reports` — reports & export (future)
      - `agent` — AGENTS.md / opencode workflow
-     - `instructions` — specs in `instructions/`
+     - `instructions` — specs in `docs/instructions/`
      - `repo` — gitignore, gradle, ci, repo-level config
 2. **One logical change per commit.** Don't mix Phase 1 with Phase 1.5; don't mix a feature with an unrelated bug fix.
 3. **`*.g.dart` files are committed alongside their source change.** Drift's `app_database.g.dart` and Riverpod's `*.g.dart` are part of the change set — `git add` them in the same commit.

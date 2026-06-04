@@ -53,7 +53,7 @@ Dart: 3.5.4
 
 ## Manual Verification Required
 
-Refer to `instructions/06_completion_status.md` and the original phase gate checklists:
+Refer to `docs/instructions/06_completion_status.md` and the original phase gate checklists:
 
 - [ ] Phase 1: app launch, aurora visibility, bottom nav glass
 - [ ] Phase 2: product CRUD, restock sheet, search filter

@@ -12,9 +12,10 @@ Generated: 2026-06-04 (Screen blur fix: GlassPanel defaults to non-frosted; nav 
 | Target | Android (min API 24) |
 | Code generation | `build_runner` run — `app_database.g.dart`, `router.g.dart`, `product_repository.g.dart`, `product_provider.g.dart`, `sale_repository.g.dart`, `sale_provider.g.dart`, `alert_service.g.dart`, `expense_repository.g.dart`, `expense_provider.g.dart`, `dashboard_provider.g.dart`, `report_repository.g.dart` |
 | Analysis | `flutter analyze` — 0 errors, 1 warning (generated code `duplicate_ignore`), 21 info (mostly test relative imports) |
-| Bug fixes | All 8 documented bugs in `BUG_REPORT.md` fixed and verified; 3 additional compilation errors fixed (cascade operator, drift API, legacy test) |
+| Bug fixes | All 8 documented bugs in `docs/BUG_REPORT.md` fixed and verified; 3 additional compilation errors fixed (cascade operator, drift API, legacy test) |
 | APK build | See `README.md` — verified locally with `flutter build apk --release` |
- | Theme | Liquid Glass — `glass_kit` + `aurora_background`; aurora behind every screen, glass on bottom nav / dialogs / text fields only (section panels non-frosted) |
+| Docs reorganization | `instructions/`, `BUG_REPORT.md`, `error.md`, `REDESIGN.md` moved to `docs/`; paths updated in `AGENTS.md`, `README.md`, `REPORT.md` |
+| Theme | Liquid Glass — `glass_kit` + `aurora_background`; aurora behind every screen, glass on bottom nav / dialogs / text fields only (section panels non-frosted) |
 | Test suite | 15 test files (8 unit + 7 widget), **100 tests all passing**. 40 pure-logic tests always pass (alert_service, profit_calculation, chart_toggle, theme). Remaining ~60 require `libsqlite3.so` (native sqlite3). Widget tests use `UncontrolledProviderScope` + manual `ProviderContainer` dispose to avoid pending-timer leaks. |
 | Test fixes | Widget tests updated with `SizedBox` constraints, `pumpAndSettle(Duration)`, `GlassPanel.testOverride = true` (bypasses `BackdropFilter` in headless), `UncontrolledProviderScope` + manual dispose (eliminates pending timer on Riverpod stream providers). Runtime bugs fixed: `ProductRepository.update()` and `ExpenseRepository.update()` now use `Value.absent()` for null note fields, preserving existing values. |
 | Test report | `tracker_app/test/REPORT.md` — per-phase pass/fail breakdown, known limitations |
@@ -218,6 +219,17 @@ Generated: 2026-06-04 (Screen blur fix: GlassPanel defaults to non-frosted; nav 
 ## Folder Structure
 
 ```
+docs/
+├── instructions/                        ✅ (6 spec files — moved from root)
+│   ├── 01_requirements.md
+│   ├── 02_system_design.md
+│   ├── 03_code_specs.md
+│   ├── 04_scaffolding.md
+│   ├── 05_implementation.md
+│   └── 06_completion_status.md
+├── BUG_REPORT.md                        ✅ (moved from root)
+├── error.md                             ✅ (moved from root)
+└── REDESIGN.md                          ✅ (moved from root)
 lib/
 ├── main.dart                          ✅
 ├── app.dart                           ✅ (Liquid Glass: aurora mounted behind router)
