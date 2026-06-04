@@ -95,6 +95,8 @@ class SaleRepository {
     required String paymentStatus,
     String? customerName,
     DateTime? date,
+    bool isDiscounted = false,
+    double? normalPrice,
   }) {
     return _db.transaction(() async {
       final product = await (_db.select(_db.products)
@@ -116,6 +118,8 @@ class SaleRepository {
               platform: platform,
               paymentStatus: paymentStatus,
               customerName: drift.Value(customerName),
+              isDiscounted: drift.Value(isDiscounted),
+              normalPrice: drift.Value(normalPrice),
               date: effectiveDate.millisecondsSinceEpoch,
               createdAt: DateTime.now().millisecondsSinceEpoch,
             ),

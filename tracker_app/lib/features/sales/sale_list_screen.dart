@@ -1,43 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
-import 'package:tracker/core/widgets/empty_state.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
-import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/products/product_provider.dart';
-import 'package:tracker/features/products/widgets/sale_list_item.dart';
+import 'package:tracker/features/products/widgets/product_tile.dart';
+import 'package:tracker/features/products/widgets/stock_badge.dart';
 import 'package:tracker/features/sales/sale_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
-import 'package:tracker/features/sales/widgets/sale_filter_bar.dart';
+import 'package:tracker/features/sales/widgets/discount_sheet.dart';
+import 'package:tracker/features/sales/widgets/quick_sell_sheet.dart';
 
-class SaleListScreen extends ConsumerStatefulWidget {
+class SaleListScreen extends ConsumerWidget {
   const SaleListScreen({super.key});
 
   @override
-  ConsumerState<SaleListScreen> createState() => _SaleListScreenState();
-}
+  Widget build(BuildContext context, WidgetRef ref) {
+    final products = ref.watch(productListProvider).value ?? [];
+    final active = products.where((p) => p.stock > 0).toList();
+    final outOfStock = products.where((p) => p.stock <= 0).toList();
 
-class _SaleListScreenState extends ConsumerState<SaleListScreen> {
-  SaleFilter _filter = const SaleFilter();
-
-  @override
-  Widget build(BuildContext context) {
-    final allSales = ref.watch(saleListProvider);
-    final filteredSales = ref.watch(filteredSaleListProvider(_filter));
-    final costMapAsync = ref.watch(productCostMapProvider);
-    final costMap = costMapAsync.value ?? const <int, double>{};
-    final scheme = Theme.of(context).colorScheme;
-
-    final products = ref.watch(productListProvider).value ?? const [];
-    final productName = {for (final p in products) p.id: p.name};
-
-    final stats = computeSaleStats(
-      filteredSales.value ?? const [],
-      costMap,
-    );
+    final allSales = ref.watch(saleListProvider).value ?? [];
+    final discountedSales = allSales.where((s) => s.isDiscounted).toList();
 
     return Scaffold(
       body: CustomScrollView(
@@ -51,233 +38,234 @@ class _SaleListScreenState extends ConsumerState<SaleListScreen> {
             ),
             actions: [
               IconButton(
-                tooltip: 'Add sale',
+                tooltip: 'Log full sale',
                 onPressed: () => context.push('/sales/add'),
                 icon: const Icon(Icons.add_rounded),
               ),
             ],
           ),
           SliverToBoxAdapter(
-            child: SaleFilterBar(
-              filter: _filter,
-              onFilterChanged: (f) => setState(() => _filter = f),
-            ),
-          ),
-          SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
+              child: Text(
+                'Active Products',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                ),
+              ),
+            ),
+          ),
+          if (products.isEmpty)
+            const SliverToBoxAdapter(child: SizedBox())
+          else
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, i) => _ProductSellCard(product: active[i]),
+                childCount: active.length,
+              ),
+            ),
+          if (outOfStock.isNotEmpty) ...[
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+                child: Text(
+                  'Out of Stock',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 13,
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+            SliverList(
+              delegate: SliverChildBuilderDelegate(
+                (context, i) => _ProductSellCard(product: outOfStock[i]),
+                childCount: outOfStock.length,
+              ),
+            ),
+          ],
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: GlassPanel(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                child: Row(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    Expanded(
-                      child: _Stat(
-                        label: 'Sales',
-                        value: stats.count.toString(),
-                        color: scheme.primary,
+                    InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => showDiscountSheet(context),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            Icon(Icons.local_offer_outlined,
+                                color: AppColors.warning, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Log discounted sale',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.warning,
+                              ),
+                            ),
+                            const Spacer(),
+                            Icon(Icons.chevron_right_rounded,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          ],
+                        ),
                       ),
                     ),
-                    Expanded(
-                      child: _Stat(
-                        label: 'Revenue',
-                        value: formatMoney(stats.revenue),
-                        color: AppColors.success,
-                        small: true,
-                      ),
-                    ),
-                    Expanded(
-                      child: _Stat(
-                        label: 'Est. profit',
-                        value: formatMoney(stats.estimatedProfit),
-                        color: scheme.primary,
-                        small: true,
-                      ),
-                    ),
-                    Expanded(
-                      child: _Stat(
-                        label: 'Due',
-                        value: stats.dueCount.toString(),
-                        color: AppColors.warning,
-                      ),
-                    ),
+                    if (discountedSales.isNotEmpty) ...[
+                      const Divider(height: 16),
+                      ...discountedSales.take(5).map((s) => _DiscountedSaleRow(sale: s)),
+                    ],
                   ],
                 ),
               ),
             ),
           ),
-          if (filteredSales.isLoading || allSales.isLoading)
-            const SliverFillRemaining(
-              hasScrollBody: false,
-              child: Center(child: CircularProgressIndicator()),
-            )
-          else if ((filteredSales.value ?? []).isEmpty)
-            SliverFillRemaining(
-              hasScrollBody: false,
-              child: EmptyState(
-                icon: Icons.receipt_long_outlined,
-                title: (allSales.value ?? []).isEmpty
-                    ? 'No sales yet'
-                    : 'No sales match the filter',
-                message: (allSales.value ?? []).isEmpty
-                    ? 'Tap the + button to log your first sale.'
-                    : 'Try widening the date range or removing a filter.',
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+              child: OutlinedButton.icon(
+                onPressed: () => context.push('/sales/add'),
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Full sale form'),
               ),
-            )
-          else
-            SliverList.separated(
-              itemCount: (filteredSales.value ?? []).length,
-              separatorBuilder: (_, __) => Divider(
-                height: 0,
-                thickness: 0.5,
-                color: scheme.onSurfaceVariant.withOpacity(0.12),
-                indent: 70,
-              ),
-              itemBuilder: (_, i) {
-                final s = (filteredSales.value ?? [])[i];
-                return _SaleRow(
-                  sale: s,
-                  productName: productName[s.productId],
-                  onEdit: () => context.push('/sales/${s.id}/edit'),
-                  onMarkPaid: () => _markPaid(s.id),
-                  onDelete: () => _confirmDelete(s),
-                );
-              },
             ),
+          ),
           const SliverToBoxAdapter(child: SizedBox(height: 96)),
         ],
       ),
     );
   }
-
-   Future<void> _markPaid(int id) async {
-     // Fetch before marking — need productId for invalidation
-     final sale = await ref.read(saleRepositoryProvider).getById(id);
-     await ref.read(saleRepositoryProvider).markAsPaid(id);
-     if (!mounted) return;
-     ref.invalidate(saleListProvider);
-     if (sale != null) {
-       ref.invalidate(productSalesProvider(sale.productId)); // correct product ID
-     }
-     ScaffoldMessenger.of(context).showSnackBar(
-       const SnackBar(content: Text('Marked as paid')),
-     );
-   }
-
-  Future<void> _confirmDelete(Sale sale) async {
-    final result = await showGlassDialog<bool>(
-      context: context,
-      title: 'Delete sale?',
-      message:
-          'This removes the sale and restores ${sale.quantity} unit(s) to stock. Stock movement history is kept.',
-      actions: [
-        GlassDialogAction(
-          label: 'Cancel',
-          onPressed: () => Navigator.of(context).pop(false),
-        ),
-        GlassDialogAction(
-          label: 'Delete',
-          isDestructive: true,
-          isPrimary: true,
-          onPressed: () => Navigator.of(context).pop(true),
-        ),
-      ],
-    );
-    if (result != true) return;
-    await ref.read(saleRepositoryProvider).deleteSale(sale.id);
-    if (!mounted) return;
-    ref.invalidate(saleListProvider);
-    ref.invalidate(productListProvider);
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Sale deleted')),
-    );
-  }
 }
 
-class _SaleRow extends StatelessWidget {
-  final Sale sale;
-  final String? productName;
-  final VoidCallback onEdit;
-  final VoidCallback onMarkPaid;
-  final VoidCallback onDelete;
-  const _SaleRow({
-    required this.sale,
-    required this.productName,
-    required this.onEdit,
-    required this.onMarkPaid,
-    required this.onDelete,
-  });
+class _ProductSellCard extends ConsumerWidget {
+  final Product product;
+  const _ProductSellCard({required this.product});
 
   @override
-  Widget build(BuildContext context) {
-    return PopupMenuButton<String>(
-      tooltip: 'More',
-      icon: const Icon(Icons.more_vert_rounded),
-      onSelected: (v) {
-        switch (v) {
-          case 'edit':
-            onEdit();
-            break;
-          case 'paid':
-            onMarkPaid();
-            break;
-          case 'delete':
-            onDelete();
-            break;
-        }
-      },
-      itemBuilder: (_) => [
-        const PopupMenuItem(value: 'edit', child: Text('Edit')),
-        if (sale.paymentStatus != 'paid')
-          const PopupMenuItem(value: 'paid', child: Text('Mark as paid')),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Text('Delete', style: TextStyle(color: AppColors.danger)),
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    final inStock = product.stock > 0;
+
+    return GlassPanel(
+      margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
+      padding: const EdgeInsets.all(14),
+      isFrostedGlass: inStock,
+      child: Opacity(
+        opacity: inStock ? 1 : 0.45,
+        child: Row(
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Flexible(
+                        child: Text(
+                          product.name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 6),
+                      StockBadge(
+                        stock: product.stock,
+                        threshold: product.lowStockThreshold,
+                        compact: true,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Cost ${formatMoney(product.costPrice)}  |  Est. profit +${formatMoney(product.costPrice * 0.2)}/unit',
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: cs.onSurfaceVariant,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 8),
+            FilledButton.tonalIcon(
+              onPressed: inStock
+                  ? () => _sell(context, ref)
+                  : null,
+              icon: const Icon(Icons.point_of_sale_rounded, size: 18),
+              label: const Text('Sell'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+              ),
+            ),
+          ],
         ),
-      ],
-      child: SaleListItem(
-        sale: sale,
-        productName: productName,
       ),
     );
   }
+
+  Future<void> _sell(BuildContext context, WidgetRef ref) async {
+    final lastSale = await ref
+        .read(saleRepositoryProvider)
+        .lastSellingPriceFor(product.id);
+    if (!context.mounted) return;
+    showQuickSellSheet(
+      context,
+      product: product,
+      lastSellingPrice: lastSale?.sellingPrice,
+    );
+  }
 }
 
-class _Stat extends StatelessWidget {
-  final String label;
-  final String value;
-  final Color color;
-  final bool small;
-  const _Stat({
-    required this.label,
-    required this.value,
-    required this.color,
-    this.small = false,
-  });
+class _DiscountedSaleRow extends StatelessWidget {
+  final Sale sale;
+  const _DiscountedSaleRow({required this.sale});
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            color: color,
-            fontWeight: FontWeight.w700,
-            fontSize: small ? 13 : 18,
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${sale.quantity} × ${formatMoney(sale.sellingPrice)}',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                if (sale.normalPrice != null)
+                  Text(
+                    'Normal ${formatMoney(sale.normalPrice!)} → Discount ${formatMoney(sale.sellingPrice)}',
+                    style: TextStyle(fontSize: 12, color: cs.onSurfaceVariant),
+                  ),
+              ],
+            ),
           ),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          label,
-          style: TextStyle(
-            fontSize: 11,
-            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          Icon(
+            sale.paymentStatus == 'paid'
+                ? Icons.check_circle_rounded
+                : Icons.access_time_rounded,
+            size: 18,
+            color: sale.paymentStatus == 'paid'
+                ? AppColors.success
+                : AppColors.warning,
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
