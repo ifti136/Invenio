@@ -10,6 +10,8 @@ class Sales extends Table {
   TextColumn get platform => text()();
   TextColumn get paymentStatus => text()();
   TextColumn get customerName => text().nullable()();
+  BoolColumn get isDiscounted => boolean().withDefault(const Constant(false))();
+  RealColumn get normalPrice => real().nullable()();
   IntColumn get date => integer()();
   IntColumn get createdAt => integer()();
 }

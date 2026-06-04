@@ -46,6 +46,16 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       type: DriftSqlType.int,
       requiredDuringInsert: false,
       defaultValue: const Constant(3));
+  static const VerificationMeta _alertEnabledMeta =
+      const VerificationMeta('alertEnabled');
+  @override
+  late final GeneratedColumn<bool> alertEnabled = GeneratedColumn<bool>(
+      'alert_enabled', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("alert_enabled" IN (0, 1))'),
+      defaultValue: const Constant(true));
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
   late final GeneratedColumn<String> note = GeneratedColumn<String>(
@@ -58,8 +68,16 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
       'created_at', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, name, stock, costPrice, lowStockThreshold, note, createdAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        name,
+        stock,
+        costPrice,
+        lowStockThreshold,
+        alertEnabled,
+        note,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -95,6 +113,12 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
           lowStockThreshold.isAcceptableOrUnknown(
               data['low_stock_threshold']!, _lowStockThresholdMeta));
     }
+    if (data.containsKey('alert_enabled')) {
+      context.handle(
+          _alertEnabledMeta,
+          alertEnabled.isAcceptableOrUnknown(
+              data['alert_enabled']!, _alertEnabledMeta));
+    }
     if (data.containsKey('note')) {
       context.handle(
           _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
@@ -124,6 +148,8 @@ class $ProductsTable extends Products with TableInfo<$ProductsTable, Product> {
           .read(DriftSqlType.double, data['${effectivePrefix}cost_price'])!,
       lowStockThreshold: attachedDatabase.typeMapping.read(
           DriftSqlType.int, data['${effectivePrefix}low_stock_threshold'])!,
+      alertEnabled: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}alert_enabled'])!,
       note: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}note']),
       createdAt: attachedDatabase.typeMapping
@@ -143,6 +169,7 @@ class Product extends DataClass implements Insertable<Product> {
   final int stock;
   final double costPrice;
   final int lowStockThreshold;
+  final bool alertEnabled;
   final String? note;
   final int createdAt;
   const Product(
@@ -151,6 +178,7 @@ class Product extends DataClass implements Insertable<Product> {
       required this.stock,
       required this.costPrice,
       required this.lowStockThreshold,
+      required this.alertEnabled,
       this.note,
       required this.createdAt});
   @override
@@ -161,6 +189,7 @@ class Product extends DataClass implements Insertable<Product> {
     map['stock'] = Variable<int>(stock);
     map['cost_price'] = Variable<double>(costPrice);
     map['low_stock_threshold'] = Variable<int>(lowStockThreshold);
+    map['alert_enabled'] = Variable<bool>(alertEnabled);
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
@@ -175,6 +204,7 @@ class Product extends DataClass implements Insertable<Product> {
       stock: Value(stock),
       costPrice: Value(costPrice),
       lowStockThreshold: Value(lowStockThreshold),
+      alertEnabled: Value(alertEnabled),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       createdAt: Value(createdAt),
     );
@@ -189,6 +219,7 @@ class Product extends DataClass implements Insertable<Product> {
       stock: serializer.fromJson<int>(json['stock']),
       costPrice: serializer.fromJson<double>(json['costPrice']),
       lowStockThreshold: serializer.fromJson<int>(json['lowStockThreshold']),
+      alertEnabled: serializer.fromJson<bool>(json['alertEnabled']),
       note: serializer.fromJson<String?>(json['note']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
     );
@@ -202,6 +233,7 @@ class Product extends DataClass implements Insertable<Product> {
       'stock': serializer.toJson<int>(stock),
       'costPrice': serializer.toJson<double>(costPrice),
       'lowStockThreshold': serializer.toJson<int>(lowStockThreshold),
+      'alertEnabled': serializer.toJson<bool>(alertEnabled),
       'note': serializer.toJson<String?>(note),
       'createdAt': serializer.toJson<int>(createdAt),
     };
@@ -213,6 +245,7 @@ class Product extends DataClass implements Insertable<Product> {
           int? stock,
           double? costPrice,
           int? lowStockThreshold,
+          bool? alertEnabled,
           Value<String?> note = const Value.absent(),
           int? createdAt}) =>
       Product(
@@ -221,6 +254,7 @@ class Product extends DataClass implements Insertable<Product> {
         stock: stock ?? this.stock,
         costPrice: costPrice ?? this.costPrice,
         lowStockThreshold: lowStockThreshold ?? this.lowStockThreshold,
+        alertEnabled: alertEnabled ?? this.alertEnabled,
         note: note.present ? note.value : this.note,
         createdAt: createdAt ?? this.createdAt,
       );
@@ -233,6 +267,9 @@ class Product extends DataClass implements Insertable<Product> {
       lowStockThreshold: data.lowStockThreshold.present
           ? data.lowStockThreshold.value
           : this.lowStockThreshold,
+      alertEnabled: data.alertEnabled.present
+          ? data.alertEnabled.value
+          : this.alertEnabled,
       note: data.note.present ? data.note.value : this.note,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -246,6 +283,7 @@ class Product extends DataClass implements Insertable<Product> {
           ..write('stock: $stock, ')
           ..write('costPrice: $costPrice, ')
           ..write('lowStockThreshold: $lowStockThreshold, ')
+          ..write('alertEnabled: $alertEnabled, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -253,8 +291,8 @@ class Product extends DataClass implements Insertable<Product> {
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, name, stock, costPrice, lowStockThreshold, note, createdAt);
+  int get hashCode => Object.hash(id, name, stock, costPrice, lowStockThreshold,
+      alertEnabled, note, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -264,6 +302,7 @@ class Product extends DataClass implements Insertable<Product> {
           other.stock == this.stock &&
           other.costPrice == this.costPrice &&
           other.lowStockThreshold == this.lowStockThreshold &&
+          other.alertEnabled == this.alertEnabled &&
           other.note == this.note &&
           other.createdAt == this.createdAt);
 }
@@ -274,6 +313,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
   final Value<int> stock;
   final Value<double> costPrice;
   final Value<int> lowStockThreshold;
+  final Value<bool> alertEnabled;
   final Value<String?> note;
   final Value<int> createdAt;
   const ProductsCompanion({
@@ -282,6 +322,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.stock = const Value.absent(),
     this.costPrice = const Value.absent(),
     this.lowStockThreshold = const Value.absent(),
+    this.alertEnabled = const Value.absent(),
     this.note = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
@@ -291,6 +332,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     this.stock = const Value.absent(),
     required double costPrice,
     this.lowStockThreshold = const Value.absent(),
+    this.alertEnabled = const Value.absent(),
     this.note = const Value.absent(),
     required int createdAt,
   })  : name = Value(name),
@@ -302,6 +344,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     Expression<int>? stock,
     Expression<double>? costPrice,
     Expression<int>? lowStockThreshold,
+    Expression<bool>? alertEnabled,
     Expression<String>? note,
     Expression<int>? createdAt,
   }) {
@@ -311,6 +354,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       if (stock != null) 'stock': stock,
       if (costPrice != null) 'cost_price': costPrice,
       if (lowStockThreshold != null) 'low_stock_threshold': lowStockThreshold,
+      if (alertEnabled != null) 'alert_enabled': alertEnabled,
       if (note != null) 'note': note,
       if (createdAt != null) 'created_at': createdAt,
     });
@@ -322,6 +366,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       Value<int>? stock,
       Value<double>? costPrice,
       Value<int>? lowStockThreshold,
+      Value<bool>? alertEnabled,
       Value<String?>? note,
       Value<int>? createdAt}) {
     return ProductsCompanion(
@@ -330,6 +375,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
       stock: stock ?? this.stock,
       costPrice: costPrice ?? this.costPrice,
       lowStockThreshold: lowStockThreshold ?? this.lowStockThreshold,
+      alertEnabled: alertEnabled ?? this.alertEnabled,
       note: note ?? this.note,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -353,6 +399,9 @@ class ProductsCompanion extends UpdateCompanion<Product> {
     if (lowStockThreshold.present) {
       map['low_stock_threshold'] = Variable<int>(lowStockThreshold.value);
     }
+    if (alertEnabled.present) {
+      map['alert_enabled'] = Variable<bool>(alertEnabled.value);
+    }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
@@ -370,6 +419,7 @@ class ProductsCompanion extends UpdateCompanion<Product> {
           ..write('stock: $stock, ')
           ..write('costPrice: $costPrice, ')
           ..write('lowStockThreshold: $lowStockThreshold, ')
+          ..write('alertEnabled: $alertEnabled, ')
           ..write('note: $note, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -435,6 +485,22 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, Sale> {
   late final GeneratedColumn<String> customerName = GeneratedColumn<String>(
       'customer_name', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _isDiscountedMeta =
+      const VerificationMeta('isDiscounted');
+  @override
+  late final GeneratedColumn<bool> isDiscounted = GeneratedColumn<bool>(
+      'is_discounted', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("is_discounted" IN (0, 1))'),
+      defaultValue: const Constant(false));
+  static const VerificationMeta _normalPriceMeta =
+      const VerificationMeta('normalPrice');
+  @override
+  late final GeneratedColumn<double> normalPrice = GeneratedColumn<double>(
+      'normal_price', aliasedName, true,
+      type: DriftSqlType.double, requiredDuringInsert: false);
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<int> date = GeneratedColumn<int>(
@@ -456,6 +522,8 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, Sale> {
         platform,
         paymentStatus,
         customerName,
+        isDiscounted,
+        normalPrice,
         date,
         createdAt
       ];
@@ -518,6 +586,18 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, Sale> {
           customerName.isAcceptableOrUnknown(
               data['customer_name']!, _customerNameMeta));
     }
+    if (data.containsKey('is_discounted')) {
+      context.handle(
+          _isDiscountedMeta,
+          isDiscounted.isAcceptableOrUnknown(
+              data['is_discounted']!, _isDiscountedMeta));
+    }
+    if (data.containsKey('normal_price')) {
+      context.handle(
+          _normalPriceMeta,
+          normalPrice.isAcceptableOrUnknown(
+              data['normal_price']!, _normalPriceMeta));
+    }
     if (data.containsKey('date')) {
       context.handle(
           _dateMeta, date.isAcceptableOrUnknown(data['date']!, _dateMeta));
@@ -555,6 +635,10 @@ class $SalesTable extends Sales with TableInfo<$SalesTable, Sale> {
           .read(DriftSqlType.string, data['${effectivePrefix}payment_status'])!,
       customerName: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}customer_name']),
+      isDiscounted: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_discounted'])!,
+      normalPrice: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}normal_price']),
       date: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}date'])!,
       createdAt: attachedDatabase.typeMapping
@@ -577,6 +661,8 @@ class Sale extends DataClass implements Insertable<Sale> {
   final String platform;
   final String paymentStatus;
   final String? customerName;
+  final bool isDiscounted;
+  final double? normalPrice;
   final int date;
   final int createdAt;
   const Sale(
@@ -588,6 +674,8 @@ class Sale extends DataClass implements Insertable<Sale> {
       required this.platform,
       required this.paymentStatus,
       this.customerName,
+      required this.isDiscounted,
+      this.normalPrice,
       required this.date,
       required this.createdAt});
   @override
@@ -602,6 +690,10 @@ class Sale extends DataClass implements Insertable<Sale> {
     map['payment_status'] = Variable<String>(paymentStatus);
     if (!nullToAbsent || customerName != null) {
       map['customer_name'] = Variable<String>(customerName);
+    }
+    map['is_discounted'] = Variable<bool>(isDiscounted);
+    if (!nullToAbsent || normalPrice != null) {
+      map['normal_price'] = Variable<double>(normalPrice);
     }
     map['date'] = Variable<int>(date);
     map['created_at'] = Variable<int>(createdAt);
@@ -620,6 +712,10 @@ class Sale extends DataClass implements Insertable<Sale> {
       customerName: customerName == null && nullToAbsent
           ? const Value.absent()
           : Value(customerName),
+      isDiscounted: Value(isDiscounted),
+      normalPrice: normalPrice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(normalPrice),
       date: Value(date),
       createdAt: Value(createdAt),
     );
@@ -637,6 +733,8 @@ class Sale extends DataClass implements Insertable<Sale> {
       platform: serializer.fromJson<String>(json['platform']),
       paymentStatus: serializer.fromJson<String>(json['paymentStatus']),
       customerName: serializer.fromJson<String?>(json['customerName']),
+      isDiscounted: serializer.fromJson<bool>(json['isDiscounted']),
+      normalPrice: serializer.fromJson<double?>(json['normalPrice']),
       date: serializer.fromJson<int>(json['date']),
       createdAt: serializer.fromJson<int>(json['createdAt']),
     );
@@ -653,6 +751,8 @@ class Sale extends DataClass implements Insertable<Sale> {
       'platform': serializer.toJson<String>(platform),
       'paymentStatus': serializer.toJson<String>(paymentStatus),
       'customerName': serializer.toJson<String?>(customerName),
+      'isDiscounted': serializer.toJson<bool>(isDiscounted),
+      'normalPrice': serializer.toJson<double?>(normalPrice),
       'date': serializer.toJson<int>(date),
       'createdAt': serializer.toJson<int>(createdAt),
     };
@@ -667,6 +767,8 @@ class Sale extends DataClass implements Insertable<Sale> {
           String? platform,
           String? paymentStatus,
           Value<String?> customerName = const Value.absent(),
+          bool? isDiscounted,
+          Value<double?> normalPrice = const Value.absent(),
           int? date,
           int? createdAt}) =>
       Sale(
@@ -679,6 +781,8 @@ class Sale extends DataClass implements Insertable<Sale> {
         paymentStatus: paymentStatus ?? this.paymentStatus,
         customerName:
             customerName.present ? customerName.value : this.customerName,
+        isDiscounted: isDiscounted ?? this.isDiscounted,
+        normalPrice: normalPrice.present ? normalPrice.value : this.normalPrice,
         date: date ?? this.date,
         createdAt: createdAt ?? this.createdAt,
       );
@@ -698,6 +802,11 @@ class Sale extends DataClass implements Insertable<Sale> {
       customerName: data.customerName.present
           ? data.customerName.value
           : this.customerName,
+      isDiscounted: data.isDiscounted.present
+          ? data.isDiscounted.value
+          : this.isDiscounted,
+      normalPrice:
+          data.normalPrice.present ? data.normalPrice.value : this.normalPrice,
       date: data.date.present ? data.date.value : this.date,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
@@ -714,6 +823,8 @@ class Sale extends DataClass implements Insertable<Sale> {
           ..write('platform: $platform, ')
           ..write('paymentStatus: $paymentStatus, ')
           ..write('customerName: $customerName, ')
+          ..write('isDiscounted: $isDiscounted, ')
+          ..write('normalPrice: $normalPrice, ')
           ..write('date: $date, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -721,8 +832,19 @@ class Sale extends DataClass implements Insertable<Sale> {
   }
 
   @override
-  int get hashCode => Object.hash(id, productId, quantity, sellingPrice, total,
-      platform, paymentStatus, customerName, date, createdAt);
+  int get hashCode => Object.hash(
+      id,
+      productId,
+      quantity,
+      sellingPrice,
+      total,
+      platform,
+      paymentStatus,
+      customerName,
+      isDiscounted,
+      normalPrice,
+      date,
+      createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -735,6 +857,8 @@ class Sale extends DataClass implements Insertable<Sale> {
           other.platform == this.platform &&
           other.paymentStatus == this.paymentStatus &&
           other.customerName == this.customerName &&
+          other.isDiscounted == this.isDiscounted &&
+          other.normalPrice == this.normalPrice &&
           other.date == this.date &&
           other.createdAt == this.createdAt);
 }
@@ -748,6 +872,8 @@ class SalesCompanion extends UpdateCompanion<Sale> {
   final Value<String> platform;
   final Value<String> paymentStatus;
   final Value<String?> customerName;
+  final Value<bool> isDiscounted;
+  final Value<double?> normalPrice;
   final Value<int> date;
   final Value<int> createdAt;
   const SalesCompanion({
@@ -759,6 +885,8 @@ class SalesCompanion extends UpdateCompanion<Sale> {
     this.platform = const Value.absent(),
     this.paymentStatus = const Value.absent(),
     this.customerName = const Value.absent(),
+    this.isDiscounted = const Value.absent(),
+    this.normalPrice = const Value.absent(),
     this.date = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
@@ -771,6 +899,8 @@ class SalesCompanion extends UpdateCompanion<Sale> {
     required String platform,
     required String paymentStatus,
     this.customerName = const Value.absent(),
+    this.isDiscounted = const Value.absent(),
+    this.normalPrice = const Value.absent(),
     required int date,
     required int createdAt,
   })  : productId = Value(productId),
@@ -790,6 +920,8 @@ class SalesCompanion extends UpdateCompanion<Sale> {
     Expression<String>? platform,
     Expression<String>? paymentStatus,
     Expression<String>? customerName,
+    Expression<bool>? isDiscounted,
+    Expression<double>? normalPrice,
     Expression<int>? date,
     Expression<int>? createdAt,
   }) {
@@ -802,6 +934,8 @@ class SalesCompanion extends UpdateCompanion<Sale> {
       if (platform != null) 'platform': platform,
       if (paymentStatus != null) 'payment_status': paymentStatus,
       if (customerName != null) 'customer_name': customerName,
+      if (isDiscounted != null) 'is_discounted': isDiscounted,
+      if (normalPrice != null) 'normal_price': normalPrice,
       if (date != null) 'date': date,
       if (createdAt != null) 'created_at': createdAt,
     });
@@ -816,6 +950,8 @@ class SalesCompanion extends UpdateCompanion<Sale> {
       Value<String>? platform,
       Value<String>? paymentStatus,
       Value<String?>? customerName,
+      Value<bool>? isDiscounted,
+      Value<double?>? normalPrice,
       Value<int>? date,
       Value<int>? createdAt}) {
     return SalesCompanion(
@@ -827,6 +963,8 @@ class SalesCompanion extends UpdateCompanion<Sale> {
       platform: platform ?? this.platform,
       paymentStatus: paymentStatus ?? this.paymentStatus,
       customerName: customerName ?? this.customerName,
+      isDiscounted: isDiscounted ?? this.isDiscounted,
+      normalPrice: normalPrice ?? this.normalPrice,
       date: date ?? this.date,
       createdAt: createdAt ?? this.createdAt,
     );
@@ -859,6 +997,12 @@ class SalesCompanion extends UpdateCompanion<Sale> {
     if (customerName.present) {
       map['customer_name'] = Variable<String>(customerName.value);
     }
+    if (isDiscounted.present) {
+      map['is_discounted'] = Variable<bool>(isDiscounted.value);
+    }
+    if (normalPrice.present) {
+      map['normal_price'] = Variable<double>(normalPrice.value);
+    }
     if (date.present) {
       map['date'] = Variable<int>(date.value);
     }
@@ -879,6 +1023,8 @@ class SalesCompanion extends UpdateCompanion<Sale> {
           ..write('platform: $platform, ')
           ..write('paymentStatus: $paymentStatus, ')
           ..write('customerName: $customerName, ')
+          ..write('isDiscounted: $isDiscounted, ')
+          ..write('normalPrice: $normalPrice, ')
           ..write('date: $date, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
@@ -1573,6 +1719,7 @@ typedef $$ProductsTableCreateCompanionBuilder = ProductsCompanion Function({
   Value<int> stock,
   required double costPrice,
   Value<int> lowStockThreshold,
+  Value<bool> alertEnabled,
   Value<String?> note,
   required int createdAt,
 });
@@ -1582,6 +1729,7 @@ typedef $$ProductsTableUpdateCompanionBuilder = ProductsCompanion Function({
   Value<int> stock,
   Value<double> costPrice,
   Value<int> lowStockThreshold,
+  Value<bool> alertEnabled,
   Value<String?> note,
   Value<int> createdAt,
 });
@@ -1644,6 +1792,9 @@ class $$ProductsTableFilterComposer
   ColumnFilters<int> get lowStockThreshold => $composableBuilder(
       column: $table.lowStockThreshold,
       builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get alertEnabled => $composableBuilder(
+      column: $table.alertEnabled, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get note => $composableBuilder(
       column: $table.note, builder: (column) => ColumnFilters(column));
@@ -1719,6 +1870,10 @@ class $$ProductsTableOrderingComposer
       column: $table.lowStockThreshold,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get alertEnabled => $composableBuilder(
+      column: $table.alertEnabled,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get note => $composableBuilder(
       column: $table.note, builder: (column) => ColumnOrderings(column));
 
@@ -1749,6 +1904,9 @@ class $$ProductsTableAnnotationComposer
 
   GeneratedColumn<int> get lowStockThreshold => $composableBuilder(
       column: $table.lowStockThreshold, builder: (column) => column);
+
+  GeneratedColumn<bool> get alertEnabled => $composableBuilder(
+      column: $table.alertEnabled, builder: (column) => column);
 
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
@@ -1827,6 +1985,7 @@ class $$ProductsTableTableManager extends RootTableManager<
             Value<int> stock = const Value.absent(),
             Value<double> costPrice = const Value.absent(),
             Value<int> lowStockThreshold = const Value.absent(),
+            Value<bool> alertEnabled = const Value.absent(),
             Value<String?> note = const Value.absent(),
             Value<int> createdAt = const Value.absent(),
           }) =>
@@ -1836,6 +1995,7 @@ class $$ProductsTableTableManager extends RootTableManager<
             stock: stock,
             costPrice: costPrice,
             lowStockThreshold: lowStockThreshold,
+            alertEnabled: alertEnabled,
             note: note,
             createdAt: createdAt,
           ),
@@ -1845,6 +2005,7 @@ class $$ProductsTableTableManager extends RootTableManager<
             Value<int> stock = const Value.absent(),
             required double costPrice,
             Value<int> lowStockThreshold = const Value.absent(),
+            Value<bool> alertEnabled = const Value.absent(),
             Value<String?> note = const Value.absent(),
             required int createdAt,
           }) =>
@@ -1854,6 +2015,7 @@ class $$ProductsTableTableManager extends RootTableManager<
             stock: stock,
             costPrice: costPrice,
             lowStockThreshold: lowStockThreshold,
+            alertEnabled: alertEnabled,
             note: note,
             createdAt: createdAt,
           ),
@@ -1923,6 +2085,8 @@ typedef $$SalesTableCreateCompanionBuilder = SalesCompanion Function({
   required String platform,
   required String paymentStatus,
   Value<String?> customerName,
+  Value<bool> isDiscounted,
+  Value<double?> normalPrice,
   required int date,
   required int createdAt,
 });
@@ -1935,6 +2099,8 @@ typedef $$SalesTableUpdateCompanionBuilder = SalesCompanion Function({
   Value<String> platform,
   Value<String> paymentStatus,
   Value<String?> customerName,
+  Value<bool> isDiscounted,
+  Value<double?> normalPrice,
   Value<int> date,
   Value<int> createdAt,
 });
@@ -1984,6 +2150,12 @@ class $$SalesTableFilterComposer extends Composer<_$AppDatabase, $SalesTable> {
 
   ColumnFilters<String> get customerName => $composableBuilder(
       column: $table.customerName, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isDiscounted => $composableBuilder(
+      column: $table.isDiscounted, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get normalPrice => $composableBuilder(
+      column: $table.normalPrice, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get date => $composableBuilder(
       column: $table.date, builder: (column) => ColumnFilters(column));
@@ -2045,6 +2217,13 @@ class $$SalesTableOrderingComposer
       column: $table.customerName,
       builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<bool> get isDiscounted => $composableBuilder(
+      column: $table.isDiscounted,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get normalPrice => $composableBuilder(
+      column: $table.normalPrice, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get date => $composableBuilder(
       column: $table.date, builder: (column) => ColumnOrderings(column));
 
@@ -2101,6 +2280,12 @@ class $$SalesTableAnnotationComposer
 
   GeneratedColumn<String> get customerName => $composableBuilder(
       column: $table.customerName, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDiscounted => $composableBuilder(
+      column: $table.isDiscounted, builder: (column) => column);
+
+  GeneratedColumn<double> get normalPrice => $composableBuilder(
+      column: $table.normalPrice, builder: (column) => column);
 
   GeneratedColumn<int> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
@@ -2160,6 +2345,8 @@ class $$SalesTableTableManager extends RootTableManager<
             Value<String> platform = const Value.absent(),
             Value<String> paymentStatus = const Value.absent(),
             Value<String?> customerName = const Value.absent(),
+            Value<bool> isDiscounted = const Value.absent(),
+            Value<double?> normalPrice = const Value.absent(),
             Value<int> date = const Value.absent(),
             Value<int> createdAt = const Value.absent(),
           }) =>
@@ -2172,6 +2359,8 @@ class $$SalesTableTableManager extends RootTableManager<
             platform: platform,
             paymentStatus: paymentStatus,
             customerName: customerName,
+            isDiscounted: isDiscounted,
+            normalPrice: normalPrice,
             date: date,
             createdAt: createdAt,
           ),
@@ -2184,6 +2373,8 @@ class $$SalesTableTableManager extends RootTableManager<
             required String platform,
             required String paymentStatus,
             Value<String?> customerName = const Value.absent(),
+            Value<bool> isDiscounted = const Value.absent(),
+            Value<double?> normalPrice = const Value.absent(),
             required int date,
             required int createdAt,
           }) =>
@@ -2196,6 +2387,8 @@ class $$SalesTableTableManager extends RootTableManager<
             platform: platform,
             paymentStatus: paymentStatus,
             customerName: customerName,
+            isDiscounted: isDiscounted,
+            normalPrice: normalPrice,
             date: date,
             createdAt: createdAt,
           ),

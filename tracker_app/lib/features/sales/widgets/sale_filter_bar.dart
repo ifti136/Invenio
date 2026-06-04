@@ -134,6 +134,7 @@ class SaleFilterBar extends ConsumerWidget {
         stock: 0,
         costPrice: 0,
         lowStockThreshold: 0,
+        alertEnabled: true,
         note: null,
         createdAt: 0,
       ),
