@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/utils/formatters.dart';
-import '../../core/widgets/glass_panel.dart';
-import '../../db/app_database.dart';
-import '../../models/dashboard_summary.dart';
-import '../products/widgets/product_tile.dart';
+import 'package:tracker/core/theme/app_colors.dart';
+import 'package:tracker/core/utils/formatters.dart';
+import 'package:tracker/core/widgets/glass_panel.dart';
+import 'package:tracker/db/app_database.dart';
+import 'package:tracker/models/dashboard_summary.dart';
+import 'package:tracker/features/products/widgets/product_tile.dart';
+import 'package:tracker/features/products/widgets/stock_badge.dart';
+import 'package:tracker/features/sales/sale_repository.dart';
+import 'package:tracker/features/sales/widgets/quick_sell_sheet.dart';
 import 'dashboard_provider.dart';
 
 class DashboardScreen extends ConsumerWidget {
@@ -244,12 +247,12 @@ class _PlatformRow extends StatelessWidget {
   }
 }
 
-class _LowStockSection extends StatelessWidget {
+class _LowStockSection extends ConsumerWidget {
   final List<Product> products;
   const _LowStockSection({required this.products});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return GlassPanel(
       padding: const EdgeInsets.all(16),
       child: Column(
@@ -267,12 +270,52 @@ class _LowStockSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          ...products.map((p) => ProductTile(
-                product: p,
-                onTap: () => context.push('/products/${p.id}'),
-              )),
+          ...products.map((p) => _LowStockRow(product: p)),
         ],
       ),
+    );
+  }
+}
+
+class _LowStockRow extends ConsumerWidget {
+  final Product product;
+  const _LowStockRow({required this.product});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final cs = Theme.of(context).colorScheme;
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: Row(
+        children: [
+          Expanded(
+            child: ProductTile(
+              product: product,
+              onTap: () => context.push('/products/${product.id}'),
+            ),
+          ),
+          FilledButton.tonalIcon(
+            onPressed: () => _sell(context, ref),
+            icon: const Icon(Icons.point_of_sale_rounded, size: 16),
+            label: const Text('Sell', style: TextStyle(fontSize: 12)),
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 10),
+              visualDensity: VisualDensity.compact,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _sell(BuildContext context, WidgetRef ref) async {
+    final repo = ref.read(saleRepositoryProvider);
+    final lastSale = await repo.lastSellingPriceFor(product.id);
+    if (!context.mounted) return;
+    showQuickSellSheet(
+      context,
+      product: product,
+      lastSellingPrice: lastSale?.sellingPrice,
     );
   }
 }
