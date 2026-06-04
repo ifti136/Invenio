@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tracker/core/utils/formatters.dart';
+import 'package:tracker/core/widgets/debug_app_bar.dart';
+import 'package:tracker/core/widgets/debug_borders.dart';
 import 'package:tracker/core/widgets/empty_state.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/features/products/product_provider.dart';
@@ -20,8 +22,8 @@ class ProductDetailScreen extends ConsumerWidget {
     final movementsAsync = ref.watch(productMovementsProvider(id));
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Product'),
+      appBar: DebugAppBar(
+        title: 'Product',
         actions: [
           IconButton(
             tooltip: 'Edit',
@@ -36,85 +38,93 @@ class ProductDetailScreen extends ConsumerWidget {
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (p) {
           if (p == null) {
-            return const EmptyState(
-              icon: Icons.error_outline,
-              title: 'Product not found',
-              message: 'It may have been deleted.',
+            return DebugBorders(
+              label: 'PANEL: not found',
+              color: Colors.orange,
+              child: const EmptyState(
+                icon: Icons.error_outline,
+                title: 'Product not found',
+                message: 'It may have been deleted.',
+              ),
             );
           }
           return ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
             children: [
-              GlassPanel(
-                padding: const EdgeInsets.all(18),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      p.name,
-                      style: Theme.of(context)
-                          .textTheme
-                          .headlineSmall
-                          ?.copyWith(fontWeight: FontWeight.w700),
-                    ),
-                    const SizedBox(height: 4),
-                    if (p.note != null && p.note!.isNotEmpty)
+              DebugBorders(
+                label: 'PANEL: product header',
+                color: Colors.orange,
+                child: GlassPanel(
+                  padding: const EdgeInsets.all(18),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        p.note!,
-                        style: TextStyle(
-                          color: scheme.onSurfaceVariant,
-                          fontSize: 13,
-                        ),
+                        p.name,
+                        style: Theme.of(context)
+                            .textTheme
+                            .headlineSmall
+                            ?.copyWith(fontWeight: FontWeight.w700),
                       ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _Metric(
-                            label: 'Cost',
-                            value: formatMoney(p.costPrice),
+                      const SizedBox(height: 4),
+                      if (p.note != null && p.note!.isNotEmpty)
+                        Text(
+                          p.note!,
+                          style: TextStyle(
+                            color: scheme.onSurfaceVariant,
+                            fontSize: 13,
                           ),
                         ),
-                        Expanded(
-                          child: _Metric(
-                            label: 'Stock',
-                            value: formatQuantity(p.stock.toDouble()),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _Metric(
+                              label: 'Cost',
+                              value: formatMoney(p.costPrice),
+                            ),
                           ),
-                        ),
-                        Expanded(
-                          child: _Metric(
-                            label: 'Alert at',
-                            value: p.lowStockThreshold.toString(),
+                          Expanded(
+                            child: _Metric(
+                              label: 'Stock',
+                              value: formatQuantity(p.stock.toDouble()),
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    Row(
-                      children: [
-                        StockBadge(
-                          stock: p.stock,
-                          threshold: p.lowStockThreshold,
-                        ),
-                        const Spacer(),
-                        FilledButton.icon(
-                          onPressed: () async {
-                            final ok = await RestockSheet.show(
-                              context,
-                              productId: p.id,
-                              productName: p.name,
-                              currentStock: p.stock,
-                            );
-                            if (ok == true && context.mounted) {
-                              ref.invalidate(productListProvider);
-                            }
-                          },
-                          icon: const Icon(Icons.add_rounded),
-                          label: const Text('Restock'),
-                        ),
-                      ],
-                    ),
-                  ],
+                          Expanded(
+                            child: _Metric(
+                              label: 'Alert at',
+                              value: p.lowStockThreshold.toString(),
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 14),
+                      Row(
+                        children: [
+                          StockBadge(
+                            stock: p.stock,
+                            threshold: p.lowStockThreshold,
+                          ),
+                          const Spacer(),
+                          FilledButton.icon(
+                            onPressed: () async {
+                              final ok = await RestockSheet.show(
+                                context,
+                                productId: p.id,
+                                productName: p.name,
+                                currentStock: p.stock,
+                              );
+                              if (ok == true && context.mounted) {
+                                ref.invalidate(productListProvider);
+                              }
+                            },
+                            icon: const Icon(Icons.add_rounded),
+                            label: const Text('Restock'),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 16),
@@ -125,7 +135,11 @@ class ProductDetailScreen extends ConsumerWidget {
                     ),
               ),
               const SizedBox(height: 8),
-              _RecentSalesPanel(productId: id, productName: p.name),
+              DebugBorders(
+                label: 'PANEL: recent sales',
+                color: Colors.orange,
+                child: _RecentSalesPanel(productId: id, productName: p.name),
+              ),
               const SizedBox(height: 16),
               Text(
                 'Stock movements',
@@ -134,42 +148,46 @@ class ProductDetailScreen extends ConsumerWidget {
                     ),
               ),
               const SizedBox(height: 8),
-              movementsAsync.when(
-                loading: () => const Padding(
-                  padding: EdgeInsets.all(24),
-                  child: Center(child: CircularProgressIndicator()),
-                ),
-                error: (e, _) => Padding(
-                  padding: const EdgeInsets.all(24),
-                  child: Center(child: Text('Error: $e')),
-                ),
-                data: (movements) {
-                  if (movements.isEmpty) {
-                    return const EmptyState(
-                      icon: Icons.timeline_outlined,
-                      title: 'No movements yet',
-                      message: 'Stock changes will appear here.',
-                    );
-                  }
-                  return GlassPanel(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Column(
-                      children: [
-                        for (var i = 0; i < movements.length; i++) ...[
-                          StockMovementItem(movement: movements[i]),
-                          if (i < movements.length - 1)
-                            Divider(
-                              height: 0,
-                              thickness: 0.5,
-                              color: scheme.onSurfaceVariant
-                                  .withOpacity(0.12),
-                              indent: 64,
-                            ),
+              DebugBorders(
+                label: 'PANEL: stock movements',
+                color: Colors.orange,
+                child: movementsAsync.when(
+                  loading: () => const Padding(
+                    padding: EdgeInsets.all(24),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                  error: (e, _) => Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Center(child: Text('Error: $e')),
+                  ),
+                  data: (movements) {
+                    if (movements.isEmpty) {
+                      return const EmptyState(
+                        icon: Icons.timeline_outlined,
+                        title: 'No movements yet',
+                        message: 'Stock changes will appear here.',
+                      );
+                    }
+                    return GlassPanel(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      child: Column(
+                        children: [
+                          for (var i = 0; i < movements.length; i++) ...[
+                            StockMovementItem(movement: movements[i]),
+                            if (i < movements.length - 1)
+                              Divider(
+                                height: 0,
+                                thickness: 0.5,
+                                color: scheme.onSurfaceVariant
+                                    .withOpacity(0.12),
+                                indent: 64,
+                              ),
+                          ],
                         ],
-                      ],
-                    ),
-                  );
-                },
+                      ),
+                    );
+                  },
+                ),
               ),
             ],
           );

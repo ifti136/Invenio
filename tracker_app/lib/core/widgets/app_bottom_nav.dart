@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tracker/features/products/product_provider.dart';
+import 'debug_borders.dart';
 import 'glass_panel.dart';
 
 const double kBottomNavHeight = 76;
@@ -85,29 +86,37 @@ class AppScaffold extends ConsumerWidget {
 
     return Scaffold(
       extendBody: true,
-      body: navigationShell,
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-          child: SizedBox(
-            height: kBottomNavHeight,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(22),
-              child: GlassPanel(
-                radius: 22,
-                isFrostedGlass: true,
-                padding: EdgeInsets.zero,
-                child: NavigationBar(
-                  selectedIndex: idx,
-                  onDestinationSelected: (i) => navigationShell.goBranch(
-                    i,
-                    initialLocation: i == idx,
+      body: DebugBorders(
+        label: 'BODY',
+        color: Colors.green,
+        child: navigationShell,
+      ),
+      bottomNavigationBar: DebugBorders(
+        label: 'BOTTOM NAV',
+        color: Colors.blue,
+        child: SafeArea(
+          top: false,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
+            child: SizedBox(
+              height: kBottomNavHeight,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(22),
+                child: GlassPanel(
+                  radius: 22,
+                  isFrostedGlass: true,
+                  padding: EdgeInsets.zero,
+                  child: NavigationBar(
+                    selectedIndex: idx,
+                    onDestinationSelected: (i) => navigationShell.goBranch(
+                      i,
+                      initialLocation: i == idx,
+                    ),
+                    backgroundColor: Colors.transparent,
+                    surfaceTintColor: Colors.transparent,
+                    indicatorColor: Colors.transparent,
+                    destinations: destinations,
                   ),
-                  backgroundColor: Colors.transparent,
-                  surfaceTintColor: Colors.transparent,
-                  indicatorColor: Colors.transparent,
-                  destinations: destinations,
                 ),
               ),
             ),

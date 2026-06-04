@@ -4,11 +4,12 @@ import 'package:go_router/go_router.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
+import 'package:tracker/core/widgets/debug_app_bar.dart';
+import 'package:tracker/core/widgets/debug_borders.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/models/dashboard_summary.dart';
 import 'package:tracker/features/products/widgets/product_tile.dart';
-import 'package:tracker/features/products/widgets/stock_badge.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/features/sales/widgets/quick_sell_sheet.dart';
 import 'dashboard_provider.dart';
@@ -49,7 +50,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     });
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard')),
+      appBar: const DebugAppBar(title: 'Dashboard'),
       body: summaryAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -58,15 +59,38 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, kBottomNavClearance),
             children: [
-              _StatGrid(summary: s),
+              FilledButton(
+                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('TEST TAP ✓ — body is interactive')),
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text('TEST TAP — am I tappable?'),
+              ),
+              const SizedBox(height: 12),
+              DebugBorders(
+                label: 'PANEL: stat grid',
+                color: Colors.orange,
+                child: _StatGrid(summary: s),
+              ),
               const SizedBox(height: 16),
-              _PlatformBreakdown(
-                fbProfit: s.facebookProfit,
-                offlineProfit: s.offlineProfit,
+              DebugBorders(
+                label: 'PANEL: platform',
+                color: Colors.orange,
+                child: _PlatformBreakdown(
+                  fbProfit: s.facebookProfit,
+                  offlineProfit: s.offlineProfit,
+                ),
               ),
               if (s.lowStockProducts.isNotEmpty) ...[
                 const SizedBox(height: 16),
-                _LowStockSection(products: s.lowStockProducts),
+                DebugBorders(
+                  label: 'PANEL: low stock',
+                  color: Colors.orange,
+                  child: _LowStockSection(products: s.lowStockProducts),
+                ),
               ],
             ],
           ),
@@ -312,7 +336,6 @@ class _LowStockRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cs = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(

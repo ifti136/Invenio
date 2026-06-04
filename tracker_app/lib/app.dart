@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
 import 'core/background/aurora_backdrop.dart';
 import 'core/theme/app_theme.dart';
+import 'core/widgets/debug_borders.dart';
 
 class TrackerApp extends ConsumerWidget {
   const TrackerApp({super.key});
@@ -32,14 +33,18 @@ class TrackerApp extends ConsumerWidget {
                   systemNavigationBarColor: Colors.transparent,
                 ),
         );
-        return Stack(
-          fit: StackFit.expand,
-          children: [
-            Positioned.fill(
-              child: AuroraBackdrop(brightness: brightness),
-            ),
-            Positioned.fill(child: child ?? const SizedBox.shrink()),
-          ],
+        return DebugBorders(
+          label: 'STACK',
+          color: Colors.red,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              Positioned.fill(
+                child: AuroraBackdrop(brightness: brightness),
+              ),
+              Positioned.fill(child: child ?? const SizedBox.shrink()),
+            ],
+          ),
         );
       },
     );

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
+import 'package:tracker/core/widgets/debug_borders.dart';
 import 'package:tracker/core/widgets/empty_state.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
@@ -43,42 +44,77 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
             ),
             actions: [
-              IconButton(
-                tooltip: 'Add expense',
-                onPressed: () => context.push('/expenses/add'),
-                icon: const Icon(Icons.add_rounded),
+              DebugBorders(
+                label: 'APPBAR ACTION',
+                color: Colors.yellow,
+                child: FilledButton.icon(
+                  onPressed: () => context.push('/expenses/add'),
+                  icon: const Icon(Icons.add_rounded, color: Colors.white),
+                  label: const Text(
+                    '+ ADD',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                ),
               ),
+              const SizedBox(width: 8),
             ],
           ),
           SliverToBoxAdapter(
-            child: _DateFilterBar(
-              filter: _filter,
-              onChanged: (f) => setState(() => _filter = f),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: FilledButton(
+                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('TEST TAP ✓ — body is interactive')),
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text('TEST TAP — am I tappable?'),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: DebugBorders(
+              label: 'PANEL: date filter',
+              color: Colors.orange,
+              child: _DateFilterBar(
+                filter: _filter,
+                onChanged: (f) => setState(() => _filter = f),
+              ),
             ),
           ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
-              child: GlassPanel(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _Stat(
-                        label: 'Entries',
-                        value: stats.count.toString(),
-                        color: scheme.primary,
+              child: DebugBorders(
+                label: 'PANEL: stats',
+                color: Colors.orange,
+                child: GlassPanel(
+                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _Stat(
+                          label: 'Entries',
+                          value: stats.count.toString(),
+                          color: scheme.primary,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _Stat(
-                        label: 'Total',
-                        value: formatMoney(stats.total),
-                        color: AppColors.warning,
-                        small: true,
+                      Expanded(
+                        child: _Stat(
+                          label: 'Total',
+                          value: formatMoney(stats.total),
+                          color: AppColors.warning,
+                          small: true,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -91,14 +127,18 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
           else if ((filteredAsync.value ?? []).isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
-              child: EmptyState(
-                icon: Icons.wallet_outlined,
-                title: (allAsync.value ?? []).isEmpty
-                    ? 'No expenses yet'
-                    : 'No expenses match the filter',
-                message: (allAsync.value ?? []).isEmpty
-                    ? 'Tap the + button to add your first expense.'
-                    : 'Try widening the date range.',
+              child: DebugBorders(
+                label: 'PANEL: empty state',
+                color: Colors.orange,
+                child: EmptyState(
+                  icon: Icons.wallet_outlined,
+                  title: (allAsync.value ?? []).isEmpty
+                      ? 'No expenses yet'
+                      : 'No expenses match the filter',
+                  message: (allAsync.value ?? []).isEmpty
+                      ? 'Tap the + button to add your first expense.'
+                      : 'Try widening the date range.',
+                ),
               ),
             )
           else
@@ -112,10 +152,14 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
               ),
               itemBuilder: (_, i) {
                 final e = (filteredAsync.value ?? [])[i];
-                return _ExpenseRow(
-                  expense: e,
-                  onEdit: () => context.push('/expenses/${e.id}/edit'),
-                  onDelete: () => _confirmDelete(e),
+                return DebugBorders(
+                  label: 'PANEL: row #${i + 1}',
+                  color: Colors.orange,
+                  child: _ExpenseRow(
+                    expense: e,
+                    onEdit: () => context.push('/expenses/${e.id}/edit'),
+                    onDelete: () => _confirmDelete(e),
+                  ),
                 );
               },
             ),

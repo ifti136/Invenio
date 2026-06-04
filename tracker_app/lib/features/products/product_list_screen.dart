@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
+import 'package:tracker/core/widgets/debug_borders.dart';
 import 'package:tracker/core/widgets/empty_state.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
@@ -43,51 +44,82 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
             ),
             actions: [
-              IconButton(
-                tooltip: 'Add product',
-                onPressed: () => context.push('/products/add'),
-                icon: const Icon(Icons.add_rounded),
+              DebugBorders(
+                label: 'APPBAR ACTION',
+                color: Colors.yellow,
+                child: FilledButton.icon(
+                  onPressed: () => context.push('/products/add'),
+                  icon: const Icon(Icons.add_rounded, color: Colors.white),
+                  label: const Text(
+                    '+ ADD',
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
+                  ),
+                  style: FilledButton.styleFrom(
+                    backgroundColor: Colors.teal,
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                ),
               ),
+              const SizedBox(width: 8),
             ],
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: FilledButton(
+                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('TEST TAP ✓ — body is interactive')),
+                ),
+                style: FilledButton.styleFrom(
+                  backgroundColor: Colors.teal,
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: const Text('TEST TAP — am I tappable?'),
+              ),
+            ),
           ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             sliver: SliverToBoxAdapter(
-              child: GlassPanel(
-                radius: 20,
-                padding: const EdgeInsets.all(14),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _StatPill(
-                        label: 'Products',
-                        value: stats.totalProducts.toString(),
-                        color: scheme.primary,
+              child: DebugBorders(
+                label: 'PANEL: 4-stat strip',
+                color: Colors.orange,
+                child: GlassPanel(
+                  radius: 20,
+                  padding: const EdgeInsets.all(14),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: _StatPill(
+                          label: 'Products',
+                          value: stats.totalProducts.toString(),
+                          color: scheme.primary,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _StatPill(
-                        label: 'Low',
-                        value: stats.lowStock.toString(),
-                        color: AppColors.warning,
+                      Expanded(
+                        child: _StatPill(
+                          label: 'Low',
+                          value: stats.lowStock.toString(),
+                          color: AppColors.warning,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _StatPill(
-                        label: 'Out',
-                        value: stats.outOfStock.toString(),
-                        color: AppColors.danger,
+                      Expanded(
+                        child: _StatPill(
+                          label: 'Out',
+                          value: stats.outOfStock.toString(),
+                          color: AppColors.danger,
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _StatPill(
-                        label: 'Stock value',
-                        value: formatMoney(stats.totalStockValue),
-                        color: AppColors.success,
-                        small: true,
+                      Expanded(
+                        child: _StatPill(
+                          label: 'Stock value',
+                          value: formatMoney(stats.totalStockValue),
+                          color: AppColors.success,
+                          small: true,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -95,52 +127,68 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
             sliver: SliverToBoxAdapter(
-              child: Row(
-                children: [
-                  for (final f in StockFilter.values) ...[
-                    _FilterChip(
-                      label: _chipLabel(f),
-                      selected: ref.watch(productFilterProvider).stock == f,
-                      onSelected: () => ref
-                          .read(productFilterProvider.notifier)
-                          .setStockFilter(f),
-                    ),
-                    const SizedBox(width: 6),
+              child: DebugBorders(
+                label: 'PANEL: filter chips',
+                color: Colors.orange,
+                child: Row(
+                  children: [
+                    for (final f in StockFilter.values) ...[
+                      _FilterChip(
+                        label: _chipLabel(f),
+                        selected: ref.watch(productFilterProvider).stock == f,
+                        onSelected: () => ref
+                            .read(productFilterProvider.notifier)
+                            .setStockFilter(f),
+                      ),
+                      const SizedBox(width: 6),
+                    ],
                   ],
-                ],
+                ),
               ),
             ),
           ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             sliver: SliverToBoxAdapter(
-              child: GlassTextField(
-                controller: _search,
-                hint: 'Search by name…',
-                prefixIcon: Icons.search_rounded,
-                onChanged: (v) =>
-                    ref.read(productFilterProvider.notifier).setSearch(v),
+              child: DebugBorders(
+                label: 'PANEL: search',
+                color: Colors.orange,
+                child: GlassTextField(
+                  controller: _search,
+                  hint: 'Search by name…',
+                  prefixIcon: Icons.search_rounded,
+                  onChanged: (v) =>
+                      ref.read(productFilterProvider.notifier).setSearch(v),
+                ),
               ),
             ),
           ),
           if (products.isEmpty)
             SliverFillRemaining(
               hasScrollBody: false,
-              child: EmptyState(
-                icon: Icons.inventory_2_outlined,
-                title: all.isEmpty
-                    ? 'No products yet'
-                    : 'No products match the filter',
-                message: all.isEmpty
-                    ? 'Tap the + button to add your first product.'
-                    : 'Try a different filter or search term.',
+              child: DebugBorders(
+                label: 'PANEL: empty state',
+                color: Colors.orange,
+                child: EmptyState(
+                  icon: Icons.inventory_2_outlined,
+                  title: all.isEmpty
+                      ? 'No products yet'
+                      : 'No products match the filter',
+                  message: all.isEmpty
+                      ? 'Tap the + button to add your first product.'
+                      : 'Try a different filter or search term.',
+                ),
               ),
             )
           else
             SliverList.separated(
-              itemBuilder: (_, i) => ProductTile(
-                product: products[i],
-                onTap: () => context.push('/products/${products[i].id}'),
+              itemBuilder: (_, i) => DebugBorders(
+                label: 'PANEL: tile #${i + 1}',
+                color: Colors.orange,
+                child: ProductTile(
+                  product: products[i],
+                  onTap: () => context.push('/products/${products[i].id}'),
+                ),
               ),
               separatorBuilder: (_, __) => Divider(
                 height: 0,
