@@ -70,16 +70,10 @@ GoRouter router(Ref ref) {
                     builder: (_, __) => const SaleFormScreen(),
                   ),
                   GoRoute(
-                    path: ':id',
-                    builder: (_, s) => SaleListScreen(),
-                    routes: [
-                      GoRoute(
-                        path: 'edit',
-                        builder: (_, s) => SaleFormScreen(
-                          saleId: int.parse(s.pathParameters['id']!),
-                        ),
-                      ),
-                    ],
+                    path: ':id/edit',
+                    builder: (_, s) => SaleFormScreen(
+                      saleId: int.parse(s.pathParameters['id']!),
+                    ),
                   ),
                 ],
               ),

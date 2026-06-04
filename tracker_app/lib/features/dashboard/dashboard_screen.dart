@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/glass_panel.dart';
@@ -266,7 +267,10 @@ class _LowStockSection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 8),
-          ...products.map((p) => ProductTile(product: p)),
+          ...products.map((p) => ProductTile(
+                product: p,
+                onTap: () => context.push('/products/${p.id}'),
+              )),
         ],
       ),
     );

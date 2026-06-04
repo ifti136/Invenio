@@ -5,6 +5,7 @@ import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/empty_state.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
+import 'package:tracker/core/widgets/glass_text_field.dart';
 import 'package:tracker/features/products/product_provider.dart';
 import 'package:tracker/features/products/widgets/product_tile.dart';
 
@@ -112,14 +113,12 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             sliver: SliverToBoxAdapter(
-              child: TextField(
+              child: GlassTextField(
                 controller: _search,
+                hint: 'Search by name…',
+                prefixIcon: Icons.search_rounded,
                 onChanged: (v) =>
                     ref.read(productFilterProvider.notifier).setSearch(v),
-                decoration: const InputDecoration(
-                  hintText: 'Search by name…',
-                  prefixIcon: Icon(Icons.search_rounded),
-                ),
               ),
             ),
           ),

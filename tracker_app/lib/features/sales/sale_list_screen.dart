@@ -89,9 +89,7 @@ class _SaleListScreenState extends ConsumerState<SaleListScreen> {
                       child: _Stat(
                         label: 'Est. profit',
                         value: formatMoney(stats.estimatedProfit),
-                        color: AppColors.accentLight == AppColors.accentLight
-                            ? scheme.primary
-                            : AppColors.info,
+                        color: scheme.primary,
                         small: true,
                       ),
                     ),

@@ -134,20 +134,22 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               constraints: const BoxConstraints(),
             ),
           ],
-          const SizedBox(width: 8),
-          IconButton(
-            icon: _exporting
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2))
-                : const Icon(Icons.file_download_outlined),
-            onPressed: _exporting ? null : _export,
-            tooltip: 'Export month',
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-            color: cs.primary,
-          ),
+          if (_tab == _ReportTab.daily) ...[
+            const SizedBox(width: 8),
+            IconButton(
+              icon: _exporting
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(strokeWidth: 2))
+                  : const Icon(Icons.file_download_outlined),
+              onPressed: _exporting ? null : _export,
+              tooltip: 'Export month',
+              padding: EdgeInsets.zero,
+              constraints: const BoxConstraints(),
+              color: cs.primary,
+            ),
+          ],
         ],
       ),
     );
