@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/widgets/app_bottom_nav.dart';
 import '../../core/widgets/glass_panel.dart';
 import '../../db/app_database.dart';
 import '../../models/monthly_report.dart';
@@ -71,7 +72,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     return Scaffold(
       appBar: AppBar(title: const Text('Reports')),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, kBottomNavClearance),
         children: [
           _buildMonthSelector(context),
           const SizedBox(height: 12),

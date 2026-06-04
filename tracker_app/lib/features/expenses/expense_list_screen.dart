@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tracker/core/utils/formatters.dart';
+import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/empty_state.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
@@ -118,7 +119,7 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
                 );
               },
             ),
-          const SliverToBoxAdapter(child: SizedBox(height: 96)),
+          const SliverToBoxAdapter(child: SizedBox(height: kBottomNavClearance)),
         ],
       ),
     );
