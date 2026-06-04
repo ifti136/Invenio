@@ -75,6 +75,15 @@ class ProductTile extends StatelessWidget {
                   ],
                 ),
               ),
+              if (!product.alertEnabled)
+                Padding(
+                  padding: const EdgeInsets.only(right: 4),
+                  child: Icon(
+                    Icons.notifications_off_outlined,
+                    size: 18,
+                    color: scheme.onSurfaceVariant.withOpacity(0.5),
+                  ),
+                ),
               Icon(
                 Icons.chevron_right_rounded,
                 color: scheme.onSurfaceVariant,

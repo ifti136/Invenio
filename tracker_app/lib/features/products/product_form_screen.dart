@@ -20,6 +20,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
   final _stock = TextEditingController();
   final _threshold = TextEditingController(text: '5');
   final _note = TextEditingController();
+  bool _alertEnabled = true;
   bool _saving = false;
   bool _loaded = false;
 
@@ -47,6 +48,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     _cost.text = p.costPrice.toStringAsFixed(2);
     _stock.text = p.stock.toString();
     _threshold.text = p.lowStockThreshold.toString();
+    _alertEnabled = p.alertEnabled;
     _note.text = p.note ?? '';
     if (mounted) setState(() => _loaded = true);
   }
@@ -67,6 +69,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     final stock = int.parse(_stock.text.trim());
     final threshold = int.tryParse(_threshold.text.trim()) ?? 5;
     final name = _name.text.trim();
+    final alertEnabled = _alertEnabled;
     final note = _note.text.trim().isEmpty ? null : _note.text.trim();
 
     setState(() => _saving = true);
@@ -77,6 +80,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           id: widget.productId!,
           name: name,
           lowStockThreshold: threshold,
+          alertEnabled: alertEnabled,
           note: note,
         );
         await repo.adjustStock(
@@ -90,6 +94,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           stock: stock,
           costPrice: cost,
           lowStockThreshold: threshold,
+          alertEnabled: alertEnabled,
           note: note,
         );
       }
@@ -241,6 +246,36 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                       if (n == null || n < 0) return 'Enter a whole number';
                       return null;
                     },
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Low-stock alerts',
+                              style: Theme.of(context).textTheme.labelMedium,
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              _alertEnabled
+                                  ? 'Banner & popup enabled'
+                                  : 'Visual badge only (no banner)',
+                              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Switch(
+                        value: _alertEnabled,
+                        onChanged: (v) => setState(() => _alertEnabled = v),
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 12),
                   GlassTextField(

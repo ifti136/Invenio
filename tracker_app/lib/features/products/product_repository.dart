@@ -31,6 +31,7 @@ class ProductRepository {
     required int stock,
     required double costPrice,
     int? lowStockThreshold,
+    bool alertEnabled = true,
     String? note,
   }) {
     return _db.transaction(() async {
@@ -40,6 +41,7 @@ class ProductRepository {
               costPrice: costPrice,
               stock: Value(stock),
               lowStockThreshold: Value(lowStockThreshold ?? 5),
+              alertEnabled: Value(alertEnabled),
               note: Value(note),
               createdAt: DateTime.now().millisecondsSinceEpoch,
             ),
@@ -62,12 +64,14 @@ class ProductRepository {
     required int id,
     required String name,
     required int lowStockThreshold,
+    required bool alertEnabled,
     String? note,
   }) async {
     await (_db.update(_db.products)..where((p) => p.id.equals(id))).write(
       ProductsCompanion(
         name: Value(name),
         lowStockThreshold: Value(lowStockThreshold),
+        alertEnabled: Value(alertEnabled),
         note: note != null ? Value(note) : Value.absent(),
       ),
     );
