@@ -14,6 +14,7 @@ class GlassPanel extends StatelessWidget {
   final double blur;
   final bool isFrostedGlass;
   final bool expand;
+  final bool noBlur;
 
   const GlassPanel({
     super.key,
@@ -26,6 +27,7 @@ class GlassPanel extends StatelessWidget {
     this.blur = 18,
     this.isFrostedGlass = false,
     this.expand = false,
+    this.noBlur = false,
   });
 
   const GlassPanel.flush({
@@ -36,6 +38,7 @@ class GlassPanel extends StatelessWidget {
     this.blur = 18,
     this.isFrostedGlass = false,
     this.expand = true,
+    this.noBlur = false,
   })  : width = null,
         height = null,
         radius = 0;
@@ -61,6 +64,33 @@ class GlassPanel extends StatelessWidget {
     final borderTop = isDark ? 0.30 : 0.55;
     final borderBottom = isDark ? 0.10 : 0.18;
     final accent = isDark ? 0.18 : 0.10;
+
+    if (noBlur) {
+      return Container(
+        height: expand ? double.infinity : height,
+        width: expand ? double.infinity : width,
+        margin: margin,
+        padding: padding,
+        decoration: BoxDecoration(
+          borderRadius: radius > 0 ? BorderRadius.circular(radius) : null,
+          gradient: LinearGradient(
+            colors: [
+              Colors.white.withOpacity(fillTop),
+              Colors.white.withOpacity(fillBottom),
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          border: radius > 0
+              ? Border.all(
+                  color: Colors.white.withOpacity(borderTop),
+                  width: 1.0,
+                )
+              : null,
+        ),
+        child: child,
+      );
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {

@@ -43,6 +43,27 @@ class DebugBorders extends StatelessWidget {
   }
 }
 
+class DebugContainer extends StatelessWidget {
+  final Widget child;
+  final Color color;
+  final double borderWidth;
+
+  const DebugContainer({
+    super.key,
+    required this.child,
+    required this.color,
+    this.borderWidth = 2,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(border: Border.all(color: color, width: borderWidth)),
+      child: child,
+    );
+  }
+}
+
 const Color kDebugFieldColor = Color(0xFFFF00FF);
 const Color kDebugPanelColor = Colors.orange;
 const Color kDebugAppBarColor = Colors.yellow;
@@ -50,3 +71,5 @@ const Color kDebugBodyColor = Colors.green;
 const Color kDebugNavColor = Colors.blue;
 const Color kDebugStackColor = Colors.red;
 const Color kDebugButtonColor = Colors.teal;
+const Color kDebugFormColor = Colors.purple;
+const Color kDebugListColor = Colors.cyan;

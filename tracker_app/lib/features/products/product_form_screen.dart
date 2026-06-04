@@ -195,159 +195,178 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             ),
         ],
       ),
-      body: Form(
-        key: _form,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-          children: [
-            DebugBorders(
-              label: 'PANEL: form',
-              color: Colors.orange,
-              child: GlassPanel(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    DebugBorders(
-                      label: 'FIELD: name',
-                      color: kDebugFieldColor,
-                      child: GlassTextField(
-                        controller: _name,
-                        label: 'Name',
-                        hint: 'e.g. Wireless mouse',
-                        validator: (v) => v == null || v.trim().isEmpty
-                            ? 'Required'
-                            : null,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    DebugBorders(
-                      label: 'FIELD: cost',
-                      color: kDebugFieldColor,
-                      child: GlassTextField(
-                        controller: _cost,
-                        label: 'Cost price (৳)',
-                        hint: '0.00',
-                        keyboardType: const TextInputType.numberWithOptions(
-                            decimal: true),
-                        validator: (v) {
-                          final d = double.tryParse(v?.trim() ?? '');
-                          if (d == null || d < 0) return 'Enter a valid amount';
-                          return null;
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    DebugBorders(
-                      label: 'FIELD: stock',
-                      color: kDebugFieldColor,
-                      child: GlassTextField(
-                        controller: _stock,
-                        label: isEdit ? 'Current stock' : 'Initial stock',
-                        hint: '0',
-                        keyboardType: TextInputType.number,
-                        validator: (v) {
-                          final n = int.tryParse(v?.trim() ?? '');
-                          if (n == null || n < 0) return 'Enter a whole number';
-                          return null;
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    DebugBorders(
-                      label: 'FIELD: threshold',
-                      color: kDebugFieldColor,
-                      child: GlassTextField(
-                        controller: _threshold,
-                        label: 'Low-stock alert at',
-                        hint: '5',
-                        keyboardType: TextInputType.number,
-                        validator: (v) {
-                          final n = int.tryParse(v?.trim() ?? '');
-                          if (n == null || n < 0) return 'Enter a whole number';
-                          return null;
-                        },
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
+      body: DebugBorders(
+        label: 'FORM',
+        color: kDebugFormColor,
+        child: Form(
+          key: _form,
+          child: DebugBorders(
+            label: 'LIST',
+            color: kDebugListColor,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+              children: [
+                DebugBorders(
+                  label: 'PANEL: form',
+                  color: Colors.orange,
+                  child: GlassPanel(
+                    noBlur: true,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Low-stock alerts',
-                                style: Theme.of(context).textTheme.labelMedium,
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                _alertEnabled
-                                    ? 'Banner & popup enabled'
-                                    : 'Visual badge only (no banner)',
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                                ),
-                              ),
-                            ],
+                        SizedBox(
+                          width: double.infinity,
+                          child: DebugContainer(
+                            color: kDebugFieldColor,
+                            child: GlassTextField(
+                              controller: _name,
+                              label: 'Name',
+                              hint: 'e.g. Wireless mouse',
+                              validator: (v) => v == null || v.trim().isEmpty
+                                  ? 'Required'
+                                  : null,
+                            ),
                           ),
                         ),
-                        Switch(
-                          value: _alertEnabled,
-                          onChanged: (v) => setState(() => _alertEnabled = v),
-                          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: DebugContainer(
+                            color: kDebugFieldColor,
+                            child: GlassTextField(
+                              controller: _cost,
+                              label: 'Cost price (৳)',
+                              hint: '0.00',
+                              keyboardType: const TextInputType.numberWithOptions(
+                                  decimal: true),
+                              validator: (v) {
+                                final d = double.tryParse(v?.trim() ?? '');
+                                if (d == null || d < 0) return 'Enter a valid amount';
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: DebugContainer(
+                            color: kDebugFieldColor,
+                            child: GlassTextField(
+                              controller: _stock,
+                              label: isEdit ? 'Current stock' : 'Initial stock',
+                              hint: '0',
+                              keyboardType: TextInputType.number,
+                              validator: (v) {
+                                final n = int.tryParse(v?.trim() ?? '');
+                                if (n == null || n < 0) return 'Enter a whole number';
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: DebugContainer(
+                            color: kDebugFieldColor,
+                            child: GlassTextField(
+                              controller: _threshold,
+                              label: 'Low-stock alert at',
+                              hint: '5',
+                              keyboardType: TextInputType.number,
+                              validator: (v) {
+                                final n = int.tryParse(v?.trim() ?? '');
+                                if (n == null || n < 0) return 'Enter a whole number';
+                                return null;
+                              },
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Low-stock alerts',
+                                    style: Theme.of(context).textTheme.labelMedium,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    _alertEnabled
+                                        ? 'Banner & popup enabled'
+                                        : 'Visual badge only (no banner)',
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: Theme.of(context).colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Switch(
+                              value: _alertEnabled,
+                              onChanged: (v) => setState(() => _alertEnabled = v),
+                              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: DebugContainer(
+                            color: kDebugFieldColor,
+                            child: GlassTextField(
+                              controller: _note,
+                              label: 'Note (optional)',
+                              hint: 'SKU, supplier, location…',
+                              minLines: 1,
+                              maxLines: 3,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    DebugBorders(
-                      label: 'FIELD: note',
-                      color: kDebugFieldColor,
-                      child: GlassTextField(
-                        controller: _note,
-                        label: 'Note (optional)',
-                        hint: 'SKU, supplier, location…',
-                        minLines: 1,
-                        maxLines: 3,
-                      ),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                DebugBorders(
+                  label: 'BUTTON: ${isEdit ? 'save' : 'add'}',
+                  color: Colors.teal,
+                  borderWidth: 3,
+                  child: FilledButton(
+                    onPressed: _saving ? null : _save,
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
                     ),
-                  ],
+                    child: _saving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(isEdit ? 'Save changes' : 'Add product'),
+                  ),
                 ),
-              ),
+                if (isEdit) ...[
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: _saving ? null : _delete,
+                    style: TextButton.styleFrom(
+                      foregroundColor: Theme.of(context).colorScheme.error,
+                    ),
+                    child: const Text('Delete product'),
+                  ),
+                ],
+              ],
             ),
-            const SizedBox(height: 16),
-            DebugBorders(
-              label: 'BUTTON: ${isEdit ? 'save' : 'add'}',
-              color: Colors.teal,
-              borderWidth: 3,
-              child: FilledButton(
-                onPressed: _saving ? null : _save,
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: _saving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(isEdit ? 'Save changes' : 'Add product'),
-              ),
-            ),
-            if (isEdit) ...[
-              const SizedBox(height: 8),
-              TextButton(
-                onPressed: _saving ? null : _delete,
-                style: TextButton.styleFrom(
-                  foregroundColor: Theme.of(context).colorScheme.error,
-                ),
-                child: const Text('Delete product'),
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );

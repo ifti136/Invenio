@@ -168,173 +168,189 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       appBar: DebugAppBar(
         title: _isEdit ? 'Edit Expense' : 'Add Expense',
       ),
-      body: Form(
-        key: _form,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-          children: [
-            DebugBorders(
-              label: 'PANEL: amount',
-              color: Colors.orange,
-              child: GlassPanel(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    DebugBorders(
-                      label: 'FIELD: amount',
-                      color: kDebugFieldColor,
-                      child: GlassTextField(
-                        controller: _amountCtrl,
-                        label: 'Amount (৳)',
-                        hint: '0.00',
-                        keyboardType:
-                            const TextInputType.numberWithOptions(decimal: true),
-                        prefixIcon: Icons.monetization_on_outlined,
-                        inputFormatters: [
-                          FilteringTextInputFormatter.allow(
-                              RegExp(r'^\d*\.?\d{0,2}')),
-                        ],
-                        onChanged: (_) => setState(() {}),
-                        validator: (v) {
-                          final d = double.tryParse(v?.trim() ?? '');
-                          if (d == null || d <= 0) return 'Enter a valid amount greater than 0';
-                          return null;
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            DebugBorders(
-              label: 'PANEL: category',
-              color: Colors.orange,
-              child: GlassPanel(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Category',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    _ToggleGroup<ExpenseCategory>(
-                      value: _category,
-                      values: ExpenseCategory.values,
-                      labelOf: (v) => v.label,
-                      onChanged: (v) => setState(() => _category = v),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            DebugBorders(
-              label: 'PANEL: note',
-              color: Colors.orange,
-              child: GlassPanel(
-                padding: const EdgeInsets.all(16),
-                child: DebugBorders(
-                  label: 'FIELD: note',
-                  color: kDebugFieldColor,
-                  child: GlassTextField(
-                    controller: _noteCtrl,
-                    label: 'Note (optional)',
-                    hint: 'What was this for?',
-                    prefixIcon: Icons.edit_note_rounded,
-                    maxLines: 2,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            DebugBorders(
-              label: 'PANEL: date',
-              color: Colors.orange,
-              child: GlassPanel(
-                padding: const EdgeInsets.all(16),
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(14),
-                  onTap: _pickDate,
-                  child: InputDecorator(
-                    decoration: InputDecoration(
-                      labelText: 'Date',
-                      prefixIcon: Icon(
-                        Icons.calendar_month_outlined,
-                        color: scheme.primary,
-                        size: 20,
-                      ),
-                      border: InputBorder.none,
-                      labelStyle: TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w600,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                    child: Text(
-                      formatDate(_date),
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
+      body: DebugBorders(
+        label: 'FORM',
+        color: kDebugFormColor,
+        child: Form(
+          key: _form,
+          child: DebugBorders(
+            label: 'LIST',
+            color: kDebugListColor,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
               children: [
-                if (_isEdit) ...[
-                  Expanded(
-                    child: DebugBorders(
-                      label: 'BUTTON: delete',
-                      color: AppColors.danger,
-                      borderWidth: 3,
-                      child: OutlinedButton(
-                        onPressed: _saving ? null : _delete,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: AppColors.danger,
-                          side: BorderSide(color: AppColors.danger.withOpacity(0.4)),
-                          padding: const EdgeInsets.symmetric(vertical: 16),
+                DebugBorders(
+                  label: 'PANEL: amount',
+                  color: Colors.orange,
+                  child: GlassPanel(
+                    noBlur: true,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: double.infinity,
+                          child: DebugContainer(
+                            color: kDebugFieldColor,
+                            child: GlassTextField(
+                              controller: _amountCtrl,
+                              label: 'Amount (৳)',
+                              hint: '0.00',
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(decimal: true),
+                              prefixIcon: Icons.monetization_on_outlined,
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(
+                                    RegExp(r'^\d*\.?\d{0,2}')),
+                              ],
+                              onChanged: (_) => setState(() {}),
+                              validator: (v) {
+                                final d = double.tryParse(v?.trim() ?? '');
+                                if (d == null || d <= 0) return 'Enter a valid amount greater than 0';
+                                return null;
+                              },
+                            ),
+                          ),
                         ),
-                        child: const Text('Delete'),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                DebugBorders(
+                  label: 'PANEL: category',
+                  color: Colors.orange,
+                  child: GlassPanel(
+                    noBlur: true,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Category',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        _ToggleGroup<ExpenseCategory>(
+                          value: _category,
+                          values: ExpenseCategory.values,
+                          labelOf: (v) => v.label,
+                          onChanged: (v) => setState(() => _category = v),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                DebugBorders(
+                  label: 'PANEL: note',
+                  color: Colors.orange,
+                  child: GlassPanel(
+                    noBlur: true,
+                    padding: const EdgeInsets.all(16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: DebugContainer(
+                        color: kDebugFieldColor,
+                        child: GlassTextField(
+                          controller: _noteCtrl,
+                          label: 'Note (optional)',
+                          hint: 'What was this for?',
+                          prefixIcon: Icons.edit_note_rounded,
+                          maxLines: 2,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                ],
-                Expanded(
-                  flex: _isEdit ? 2 : 1,
-                  child: DebugBorders(
-                    label: 'BUTTON: ${_isEdit ? 'save' : 'record'}',
-                    color: Colors.teal,
-                    borderWidth: 3,
-                    child: FilledButton(
-                      onPressed: _saving ? null : _save,
-                      style: FilledButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                const SizedBox(height: 12),
+                DebugBorders(
+                  label: 'PANEL: date',
+                  color: Colors.orange,
+                  child: GlassPanel(
+                    noBlur: true,
+                    padding: const EdgeInsets.all(16),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(14),
+                      onTap: _pickDate,
+                      child: InputDecorator(
+                        decoration: InputDecoration(
+                          labelText: 'Date',
+                          prefixIcon: Icon(
+                            Icons.calendar_month_outlined,
+                            color: scheme.primary,
+                            size: 20,
+                          ),
+                          border: InputBorder.none,
+                          labelStyle: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: scheme.onSurfaceVariant,
+                          ),
+                        ),
+                        child: Text(
+                          formatDate(_date),
+                          style: const TextStyle(fontWeight: FontWeight.w600),
+                        ),
                       ),
-                      child: _saving
-                          ? const SizedBox(
-                              width: 20,
-                              height: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                color: Colors.white,
-                              ),
-                            )
-                          : Text(_isEdit ? 'Save changes' : 'Record expense'),
                     ),
                   ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  children: [
+                    if (_isEdit) ...[
+                      Expanded(
+                        child: DebugBorders(
+                          label: 'BUTTON: delete',
+                          color: AppColors.danger,
+                          borderWidth: 3,
+                          child: OutlinedButton(
+                            onPressed: _saving ? null : _delete,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: AppColors.danger,
+                              side: BorderSide(color: AppColors.danger.withOpacity(0.4)),
+                              padding: const EdgeInsets.symmetric(vertical: 16),
+                            ),
+                            child: const Text('Delete'),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                    ],
+                    Expanded(
+                      flex: _isEdit ? 2 : 1,
+                      child: DebugBorders(
+                        label: 'BUTTON: ${_isEdit ? 'save' : 'record'}',
+                        color: Colors.teal,
+                        borderWidth: 3,
+                        child: FilledButton(
+                          onPressed: _saving ? null : _save,
+                          style: FilledButton.styleFrom(
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          child: _saving
+                              ? const SizedBox(
+                                  width: 20,
+                                  height: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : Text(_isEdit ? 'Save changes' : 'Record expense'),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
-          ],
+          ),
         ),
       ),
     );

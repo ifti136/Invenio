@@ -239,251 +239,262 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       appBar: DebugAppBar(
         title: _isEdit ? 'Edit Sale' : 'Log Sale',
       ),
-      body: Form(
-        key: _form,
-        child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
-          children: [
-            DebugBorders(
-              label: 'PANEL: product',
-              color: Colors.orange,
-              child: GlassPanel(
-                padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Product',
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: scheme.onSurfaceVariant,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    if (_isEdit || _product != null)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 14, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.05),
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                            color: scheme.onSurfaceVariant.withOpacity(0.18),
-                            width: 0.6,
+      body: DebugBorders(
+        label: 'FORM',
+        color: kDebugFormColor,
+        child: Form(
+          key: _form,
+          child: DebugBorders(
+            label: 'LIST',
+            color: kDebugListColor,
+            child: ListView(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+              children: [
+                DebugBorders(
+                  label: 'PANEL: product',
+                  color: Colors.orange,
+                  child: GlassPanel(
+                    noBlur: true,
+                    padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Product',
+                          style: TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                            color: scheme.onSurfaceVariant,
                           ),
                         ),
-                        child: Row(
+                        const SizedBox(height: 8),
+                        if (_isEdit || _product != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.05),
+                              borderRadius: BorderRadius.circular(14),
+                              border: Border.all(
+                                color: scheme.onSurfaceVariant.withOpacity(0.18),
+                                width: 0.6,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.lock_outline_rounded, size: 16),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _product?.name ?? '—',
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ),
+                                Text(
+                                  'Stock: ${_product?.stock ?? 0}',
+                                  style: TextStyle(
+                                    color: scheme.onSurfaceVariant,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        else
+                          DropdownButtonFormField<int>(
+                            decoration: const InputDecoration(
+                              hintText: 'Choose a product…',
+                              prefixIcon: Icon(Icons.inventory_2_outlined),
+                            ),
+                            items: products
+                                .map((p) => DropdownMenuItem(
+                                      value: p.id,
+                                      child: Text(
+                                        '${p.name} (${p.stock})',
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ))
+                                .toList(),
+                            onChanged: (id) {
+                              if (id != null) _selectProduct(id);
+                            },
+                            validator: (v) => v == null ? 'Required' : null,
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                DebugBorders(
+                  label: 'PANEL: details',
+                  color: Colors.orange,
+                  child: GlassPanel(
+                    noBlur: true,
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
                           children: [
-                            const Icon(Icons.lock_outline_rounded, size: 16),
-                            const SizedBox(width: 8),
                             Expanded(
-                              child: Text(
-                                _product?.name ?? '—',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 15,
+                              child: DebugContainer(
+                                color: kDebugFieldColor,
+                                child: GlassTextField(
+                                  controller: _qty,
+                                  label: 'Quantity',
+                                  hint: '1',
+                                  keyboardType: TextInputType.number,
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.digitsOnly,
+                                  ],
+                                  onChanged: (_) => setState(() {}),
+                                  validator: (v) {
+                                    final n = int.tryParse(v?.trim() ?? '');
+                                    if (n == null || n <= 0) {
+                                      return 'Enter a whole number';
+                                    }
+                                    if (_product != null && n > _product!.stock) {
+                                      return 'Only ${_product!.stock} in stock';
+                                    }
+                                    return null;
+                                  },
                                 ),
                               ),
                             ),
-                            Text(
-                              'Stock: ${_product?.stock ?? 0}',
-                              style: TextStyle(
-                                color: scheme.onSurfaceVariant,
-                                fontSize: 12,
+                            const SizedBox(width: 10),
+                            Expanded(
+                              flex: 2,
+                              child: DebugContainer(
+                                color: kDebugFieldColor,
+                                child: GlassTextField(
+                                  controller: _price,
+                                  label: 'Selling price (৳)',
+                                  hint: '0.00',
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(decimal: true),
+                                  inputFormatters: [
+                                    FilteringTextInputFormatter.allow(
+                                        RegExp(r'^\d*\.?\d{0,2}')),
+                                  ],
+                                  onChanged: (_) => setState(() {}),
+                                  validator: (v) {
+                                    final d = double.tryParse(v?.trim() ?? '');
+                                    if (d == null || d <= 0) {
+                                      return 'Enter a price';
+                                    }
+                                    return null;
+                                  },
+                                ),
                               ),
                             ),
                           ],
                         ),
-                      )
-                    else
-                      DropdownButtonFormField<int>(
-                        decoration: const InputDecoration(
-                          hintText: 'Choose a product…',
-                          prefixIcon: Icon(Icons.inventory_2_outlined),
-                        ),
-                        items: products
-                            .map((p) => DropdownMenuItem(
-                                  value: p.id,
-                                  child: Text(
-                                    '${p.name} (${p.stock})',
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ))
-                            .toList(),
-                        onChanged: (id) {
-                          if (id != null) _selectProduct(id);
-                        },
-                        validator: (v) => v == null ? 'Required' : null,
-                      ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            DebugBorders(
-              label: 'PANEL: details',
-              color: Colors.orange,
-              child: GlassPanel(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DebugBorders(
-                            label: 'FIELD: qty',
-                            color: kDebugFieldColor,
-                            child: GlassTextField(
-                              controller: _qty,
-                              label: 'Quantity',
-                              hint: '1',
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter.digitsOnly,
-                              ],
-                              onChanged: (_) => setState(() {}),
-                              validator: (v) {
-                                final n = int.tryParse(v?.trim() ?? '');
-                                if (n == null || n <= 0) {
-                                  return 'Enter a whole number';
-                                }
-                                if (_product != null && n > _product!.stock) {
-                                  return 'Only ${_product!.stock} in stock';
-                                }
-                                return null;
-                              },
+                        if (_lastPrice != null && !_isEdit) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'Last sold at ${formatMoney(_lastPrice!)}',
+                            style: TextStyle(
+                              color: scheme.onSurfaceVariant,
+                              fontSize: 12,
                             ),
                           ),
+                        ],
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            _ToggleGroup<SalePlatform>(
+                              label: 'Platform',
+                              value: _platform,
+                              values: SalePlatform.values,
+                              labelOf: (v) => v.label,
+                              onChanged: (v) => setState(() => _platform = v),
+                            ),
+                            const SizedBox(width: 12),
+                            _ToggleGroup<PaymentStatus>(
+                              label: 'Payment',
+                              value: _payment,
+                              values: PaymentStatus.values,
+                              labelOf: (v) => v.label,
+                              onChanged: (v) => setState(() => _payment = v),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          flex: 2,
-                          child: DebugBorders(
-                            label: 'FIELD: price',
+                        const SizedBox(height: 12),
+                        SizedBox(
+                          width: double.infinity,
+                          child: DebugContainer(
                             color: kDebugFieldColor,
                             child: GlassTextField(
-                              controller: _price,
-                              label: 'Selling price (৳)',
-                              hint: '0.00',
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(decimal: true),
-                              inputFormatters: [
-                                FilteringTextInputFormatter.allow(
-                                    RegExp(r'^\d*\.?\d{0,2}')),
-                              ],
-                              onChanged: (_) => setState(() {}),
-                              validator: (v) {
-                                final d = double.tryParse(v?.trim() ?? '');
-                                if (d == null || d <= 0) {
-                                  return 'Enter a price';
-                                }
-                                return null;
-                              },
+                              controller: _customer,
+                              label: 'Customer (optional)',
+                              hint: 'Name or note',
+                              prefixIcon: Icons.person_outline_rounded,
                             ),
                           ),
                         ),
                       ],
                     ),
-                    if (_lastPrice != null && !_isEdit) ...[
-                      const SizedBox(height: 8),
-                      Text(
-                        'Last sold at ${formatMoney(_lastPrice!)}',
-                        style: TextStyle(
-                          color: scheme.onSurfaceVariant,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                    const SizedBox(height: 12),
-                    Row(
-                      children: [
-                        _ToggleGroup<SalePlatform>(
-                          label: 'Platform',
-                          value: _platform,
-                          values: SalePlatform.values,
-                          labelOf: (v) => v.label,
-                          onChanged: (v) => setState(() => _platform = v),
-                        ),
-                        const SizedBox(width: 12),
-                        _ToggleGroup<PaymentStatus>(
-                          label: 'Payment',
-                          value: _payment,
-                          values: PaymentStatus.values,
-                          labelOf: (v) => v.label,
-                          onChanged: (v) => setState(() => _payment = v),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    DebugBorders(
-                      label: 'FIELD: customer',
-                      color: kDebugFieldColor,
-                      child: GlassTextField(
-                        controller: _customer,
-                        label: 'Customer (optional)',
-                        hint: 'Name or note',
-                        prefixIcon: Icons.person_outline_rounded,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (_total != null)
-              DebugBorders(
-                label: 'PANEL: total',
-                color: Colors.orange,
-                child: GlassPanel(
-                  padding: const EdgeInsets.all(14),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: _Metric(
-                          label: 'Total',
-                          value: formatMoney(_total!),
-                          color: AppColors.success,
-                        ),
-                      ),
-                      if (_profit != null)
-                        Expanded(
-                          child: _Metric(
-                            label: 'Est. profit',
-                            value: formatMoney(_profit!),
-                            color: (_profit! < 0)
-                                ? AppColors.danger
-                                : AppColors.info,
-                          ),
-                        ),
-                    ],
                   ),
                 ),
-              ),
-            const SizedBox(height: 16),
-            DebugBorders(
-              label: 'BUTTON: ${_isEdit ? 'save' : 'record'}',
-              color: Colors.teal,
-              borderWidth: 3,
-              child: FilledButton(
-                onPressed: _saving ? null : _save,
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 16),
+                const SizedBox(height: 12),
+                if (_total != null)
+                  DebugBorders(
+                    label: 'PANEL: total',
+                    color: Colors.orange,
+                    child: GlassPanel(
+                      noBlur: true,
+                      padding: const EdgeInsets.all(14),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _Metric(
+                              label: 'Total',
+                              value: formatMoney(_total!),
+                              color: AppColors.success,
+                            ),
+                          ),
+                          if (_profit != null)
+                            Expanded(
+                              child: _Metric(
+                                label: 'Est. profit',
+                                value: formatMoney(_profit!),
+                                color: (_profit! < 0)
+                                    ? AppColors.danger
+                                    : AppColors.info,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ),
+                const SizedBox(height: 16),
+                DebugBorders(
+                  label: 'BUTTON: ${_isEdit ? 'save' : 'record'}',
+                  color: Colors.teal,
+                  borderWidth: 3,
+                  child: FilledButton(
+                    onPressed: _saving ? null : _save,
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: _saving
+                        ? const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : Text(_isEdit ? 'Save changes' : 'Record sale'),
+                  ),
                 ),
-                child: _saving
-                    ? const SizedBox(
-                        width: 20,
-                        height: 20,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: Colors.white,
-                        ),
-                      )
-                    : Text(_isEdit ? 'Save changes' : 'Record sale'),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
