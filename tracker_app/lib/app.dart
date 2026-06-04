@@ -32,27 +32,15 @@ class TrackerApp extends ConsumerWidget {
                   systemNavigationBarColor: Colors.transparent,
                 ),
         );
-        return Material(
-          type: MaterialType.transparency,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              Positioned.fill(
-                child: AuroraBackdrop(brightness: brightness),
-              ),
-              Positioned.fill(child: child ?? const SizedBox.shrink()),
-            ],
-          ),
+        return Stack(
+          fit: StackFit.expand,
+          children: [
+            Positioned.fill(
+              child: AuroraBackdrop(brightness: brightness),
+            ),
+            Positioned.fill(child: child ?? const SizedBox.shrink()),
+          ],
         );
-        // return Stack(
-        //   fit: StackFit.expand, 
-        //   children: [
-        //     Positioned.fill(
-        //       child: AuroraBackdrop(brightness: brightness),
-        //     ),
-        //     Positioned.fill(child: child ?? const SizedBox.shrink()),
-        //   ],
-        // );
       },
     );
   }
