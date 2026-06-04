@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:tracker/features/products/product_provider.dart';
 import 'glass_panel.dart';
 
+const double kBottomNavClearance = 100;
+
 class AppScaffold extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
   const AppScaffold({super.key, required this.navigationShell});
@@ -81,6 +83,7 @@ class AppScaffold extends ConsumerWidget {
     ];
 
     return Scaffold(
+      extendBody: true,
       body: navigationShell,
       bottomNavigationBar: SafeArea(
         top: false,
