@@ -3,16 +3,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
-import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/products/product_provider.dart';
-import 'package:tracker/features/products/widgets/product_tile.dart';
 import 'package:tracker/features/products/widgets/stock_badge.dart';
 import 'package:tracker/features/sales/sale_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/features/sales/widgets/discount_sheet.dart';
 import 'package:tracker/features/sales/widgets/quick_sell_sheet.dart';
+import 'package:tracker/features/products/widgets/sale_list_item.dart';
 
 class SaleListScreen extends ConsumerWidget {
   const SaleListScreen({super.key});
@@ -130,6 +129,50 @@ class SaleListScreen extends ConsumerWidget {
           ),
           SliverToBoxAdapter(
             child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: GlassPanel(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.history_rounded, size: 18, color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Recent Sales',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.primary,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    if (allSales.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          'No sales yet',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontSize: 13,
+                          ),
+                        ),
+                      )
+                    else
+                      ...allSales.take(5).map((s) => SaleListItem(
+                        sale: s,
+                        productName: products.where((p) => p.id == s.productId).firstOrNull?.name,
+                      )),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
               child: OutlinedButton.icon(
                 onPressed: () => context.push('/sales/add'),
@@ -153,6 +196,9 @@ class _ProductSellCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final cs = Theme.of(context).colorScheme;
     final inStock = product.stock > 0;
+    final lastPriceAsync = ref.watch(lastSellingPriceProvider(product.id));
+    final lastPrice = lastPriceAsync.valueOrNull;
+    final estProfit = lastPrice != null ? lastPrice - product.costPrice : null;
 
     return GlassPanel(
       margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
@@ -189,7 +235,7 @@ class _ProductSellCard extends ConsumerWidget {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Cost ${formatMoney(product.costPrice)}  |  Est. profit +${formatMoney(product.costPrice * 0.2)}/unit',
+                    'Cost ${formatMoney(product.costPrice)}  |  ${estProfit != null ? 'Est. profit ${estProfit >= 0 ? '+' : ''}${formatMoney(estProfit)}' : 'Last: ${lastPrice != null ? formatMoney(lastPrice) : '—'}'}/unit',
                     style: TextStyle(
                       fontSize: 12,
                       color: cs.onSurfaceVariant,

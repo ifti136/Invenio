@@ -190,7 +190,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                     onChanged: (_) => setState(() {}),
                     validator: (v) {
                       final d = double.tryParse(v?.trim() ?? '');
-                      if (d == null || d <= 0) return 'Enter a valid amount';
+                      if (d == null || d <= 0) return 'Enter a valid amount greater than 0';
                       return null;
                     },
                   ),

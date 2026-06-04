@@ -50,8 +50,8 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
   double get _normal => double.tryParse(_normalPrice.text.trim()) ?? 0;
   double get _discount => double.tryParse(_discountPrice.text.trim()) ?? 0;
   double get _discountAmt => (_normal - _discount) * _quantity;
-  double get _loss => _product != null
-      ? (_product!.costPrice - _discount) * _quantity
+  double get _grossProfit => _product != null
+      ? (_discount - _product!.costPrice) * _quantity
       : 0;
 
   Future<void> _confirm() async {
@@ -117,7 +117,6 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     final product = _product;
     return GlassPanel(
       margin: EdgeInsets.zero,
@@ -234,10 +233,12 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                         ),
                         if (product != null && _discount > 0)
                           Text(
-                            'Margin loss: ${_loss > 0 ? '-' : ''}${formatMoney(_loss)}',
+                            _grossProfit >= 0
+                                ? 'Profit: +${formatMoney(_grossProfit)}'
+                                : 'Loss: -${formatMoney(_grossProfit.abs())}',
                             style: TextStyle(
                               fontSize: 13,
-                              color: _loss > 0 ? AppColors.danger : cs.onSurfaceVariant,
+                              color: _grossProfit >= 0 ? AppColors.success : AppColors.danger,
                             ),
                           ),
                       ],

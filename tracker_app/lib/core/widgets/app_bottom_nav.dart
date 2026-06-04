@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:tracker/features/products/product_provider.dart';
 import 'glass_panel.dart';
 
-class AppScaffold extends StatelessWidget {
+class AppScaffold extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
   const AppScaffold({super.key, required this.navigationShell});
 
@@ -35,8 +37,49 @@ class AppScaffold extends StatelessWidget {
   ];
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final idx = navigationShell.currentIndex;
+    final products = ref.watch(productListProvider).valueOrNull ?? [];
+    final lowStockCount = products.where(
+      (p) => p.stock > 0 && p.stock <= p.lowStockThreshold,
+    ).length;
+
+    final destinations = [
+      NavigationDestination(
+        icon: Icon(_tabs[0].icon),
+        selectedIcon: Icon(_tabs[0].selectedIcon),
+        label: _tabs[0].label,
+      ),
+      NavigationDestination(
+        icon: Badge(
+          isLabelVisible: lowStockCount > 0,
+          label: Text('$lowStockCount'),
+          child: Icon(_tabs[1].icon),
+        ),
+        selectedIcon: Badge(
+          isLabelVisible: lowStockCount > 0,
+          label: Text('$lowStockCount'),
+          child: Icon(_tabs[1].selectedIcon),
+        ),
+        label: _tabs[1].label,
+      ),
+      NavigationDestination(
+        icon: Icon(_tabs[2].icon),
+        selectedIcon: Icon(_tabs[2].selectedIcon),
+        label: _tabs[2].label,
+      ),
+      NavigationDestination(
+        icon: Icon(_tabs[3].icon),
+        selectedIcon: Icon(_tabs[3].selectedIcon),
+        label: _tabs[3].label,
+      ),
+      NavigationDestination(
+        icon: Icon(_tabs[4].icon),
+        selectedIcon: Icon(_tabs[4].selectedIcon),
+        label: _tabs[4].label,
+      ),
+    ];
+
     return Scaffold(
       body: navigationShell,
       bottomNavigationBar: SafeArea(
@@ -58,11 +101,7 @@ class AppScaffold extends StatelessWidget {
                 backgroundColor: Colors.transparent,
                 surfaceTintColor: Colors.transparent,
                 indicatorColor: Colors.transparent,
-                destinations: _tabs.map((t) => NavigationDestination(
-                  icon: Icon(t.icon),
-                  selectedIcon: Icon(t.selectedIcon),
-                  label: t.label,
-                )).toList(),
+                destinations: destinations,
               ),
             ),
           ),

@@ -12,12 +12,40 @@ import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/features/sales/widgets/quick_sell_sheet.dart';
 import 'dashboard_provider.dart';
 
-class DashboardScreen extends ConsumerWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+}
+
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  bool _bannerShown = false;
+
+  @override
+  Widget build(BuildContext context) {
     final summaryAsync = ref.watch(dashboardProvider);
+
+    summaryAsync.whenData((s) {
+      if (!_bannerShown && mounted) {
+        _bannerShown = true;
+        final lowStockCount = s.lowStockProducts.length;
+        if (lowStockCount > 0) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('$lowStockCount product${lowStockCount == 1 ? '' : 's'} low on stock'),
+                action: SnackBarAction(
+                  label: 'View',
+                  onPressed: () => context.go('/products'),
+                ),
+              ),
+            );
+          });
+        }
+      }
+    });
 
     return Scaffold(
       appBar: AppBar(title: const Text('Dashboard')),

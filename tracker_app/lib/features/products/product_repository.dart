@@ -63,6 +63,7 @@ class ProductRepository {
   Future<void> update({
     required int id,
     required String name,
+    required double costPrice,
     required int lowStockThreshold,
     required bool alertEnabled,
     String? note,
@@ -70,6 +71,7 @@ class ProductRepository {
     await (_db.update(_db.products)..where((p) => p.id.equals(id))).write(
       ProductsCompanion(
         name: Value(name),
+        costPrice: Value(costPrice),
         lowStockThreshold: Value(lowStockThreshold),
         alertEnabled: Value(alertEnabled),
         note: note != null ? Value(note) : Value.absent(),

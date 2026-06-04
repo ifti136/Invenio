@@ -79,6 +79,7 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         await repo.update(
           id: widget.productId!,
           name: name,
+          costPrice: cost,
           lowStockThreshold: threshold,
           alertEnabled: alertEnabled,
           note: note,
