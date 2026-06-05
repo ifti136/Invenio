@@ -4,7 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
-import 'package:tracker/core/widgets/debug_borders.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/products/product_provider.dart';
@@ -28,6 +27,13 @@ class SaleListScreen extends ConsumerWidget {
     final discountedSales = allSales.where((s) => s.isDiscounted).toList();
 
     return Scaffold(
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => context.push('/sales/add'),
+        backgroundColor: AppColors.accent,
+        foregroundColor: Colors.white,
+        tooltip: 'Log sale',
+        child: const Icon(Icons.add_rounded),
+      ),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -37,44 +43,10 @@ class SaleListScreen extends ConsumerWidget {
               'Sales',
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
             ),
-            actions: [
-              DebugBorders(
-                label: 'APPBAR ACTION',
-                color: Colors.yellow,
-                child: FilledButton.icon(
-                  onPressed: () => context.push('/sales/add'),
-                  icon: const Icon(Icons.add_rounded, color: Colors.white),
-                  label: const Text(
-                    '+ ADD',
-                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.w700),
-                  ),
-                  style: FilledButton.styleFrom(
-                    backgroundColor: Colors.teal,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-            ],
           ),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: FilledButton(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('TEST TAP ✓ — body is interactive')),
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('TEST TAP — am I tappable?'),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
               child: Text(
                 'Active Products',
                 style: TextStyle(
@@ -90,11 +62,7 @@ class SaleListScreen extends ConsumerWidget {
           else
             SliverList(
               delegate: SliverChildBuilderDelegate(
-                (context, i) => DebugBorders(
-                  label: 'PANEL: sell card #${i + 1}',
-                  color: Colors.orange,
-                  child: _ProductSellCard(product: active[i]),
-                ),
+                (context, i) => _ProductSellCard(product: active[i]),
                 childCount: active.length,
               ),
             ),
@@ -114,11 +82,7 @@ class SaleListScreen extends ConsumerWidget {
             ),
             SliverList(
               delegate: SliverChildBuilderDelegate(
-                (context, i) => DebugBorders(
-                  label: 'PANEL: oos card #${i + 1}',
-                  color: Colors.orange,
-                  child: _ProductSellCard(product: outOfStock[i]),
-                ),
+                (context, i) => _ProductSellCard(product: outOfStock[i]),
                 childCount: outOfStock.length,
               ),
             ),
@@ -126,44 +90,40 @@ class SaleListScreen extends ConsumerWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: DebugBorders(
-                label: 'PANEL: discount',
-                color: Colors.orange,
-                child: GlassPanel(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      InkWell(
-                        borderRadius: BorderRadius.circular(12),
-                        onTap: () => showDiscountSheet(context),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Row(
-                            children: [
-                              Icon(Icons.local_offer_outlined,
-                                  color: AppColors.warning, size: 20),
-                              const SizedBox(width: 8),
-                              Text(
-                                'Log discounted sale',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.warning,
-                                ),
+              child: GlassPanel(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () => showDiscountSheet(context),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Row(
+                          children: [
+                            Icon(Icons.local_offer_outlined,
+                                color: AppColors.warning, size: 20),
+                            const SizedBox(width: 8),
+                            Text(
+                              'Log discounted sale',
+                              style: TextStyle(
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.warning,
                               ),
-                              const Spacer(),
-                              Icon(Icons.chevron_right_rounded,
-                                  color: Theme.of(context).colorScheme.onSurfaceVariant),
-                            ],
-                          ),
+                            ),
+                            const Spacer(),
+                            Icon(Icons.chevron_right_rounded,
+                                color: Theme.of(context).colorScheme.onSurfaceVariant),
+                          ],
                         ),
                       ),
-                      if (discountedSales.isNotEmpty) ...[
-                        const Divider(height: 16),
-                        ...discountedSales.take(5).map((s) => _DiscountedSaleRow(sale: s)),
-                      ],
+                    ),
+                    if (discountedSales.isNotEmpty) ...[
+                      const Divider(height: 16),
+                      ...discountedSales.take(5).map((s) => _DiscountedSaleRow(sale: s)),
                     ],
-                  ),
+                  ],
                 ),
               ),
             ),
@@ -171,47 +131,43 @@ class SaleListScreen extends ConsumerWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: DebugBorders(
-                label: 'PANEL: recent',
-                color: Colors.orange,
-                child: GlassPanel(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          Icon(Icons.history_rounded, size: 18, color: Theme.of(context).colorScheme.primary),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Recent Sales',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+              child: GlassPanel(
+                padding: const EdgeInsets.all(12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Icon(Icons.history_rounded, size: 18, color: Theme.of(context).colorScheme.primary),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Recent Sales',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Theme.of(context).colorScheme.primary,
                           ),
-                        ],
-                      ),
-                      const SizedBox(height: 8),
-                      if (allSales.isEmpty)
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            'No sales yet',
-                            style: TextStyle(
-                              color: Theme.of(context).colorScheme.onSurfaceVariant,
-                              fontSize: 13,
-                            ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    if (allSales.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          'No sales yet',
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.onSurfaceVariant,
+                            fontSize: 13,
                           ),
-                        )
-                      else
-                        ...allSales.take(5).map((s) => SaleListItem(
-                          sale: s,
-                          productName: products.where((p) => p.id == s.productId).firstOrNull?.name,
-                        )),
-                    ],
-                  ),
+                        ),
+                      )
+                    else
+                      ...allSales.take(5).map((s) => SaleListItem(
+                        sale: s,
+                        productName: products.where((p) => p.id == s.productId).firstOrNull?.name,
+                      )),
+                  ],
                 ),
               ),
             ),
@@ -219,15 +175,10 @@ class SaleListScreen extends ConsumerWidget {
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-              child: DebugBorders(
-                label: 'BUTTON: full form',
-                color: Colors.teal,
-                borderWidth: 3,
-                child: OutlinedButton.icon(
-                  onPressed: () => context.push('/sales/add'),
-                  icon: const Icon(Icons.add_rounded),
-                  label: const Text('Full sale form'),
-                ),
+              child: OutlinedButton.icon(
+                onPressed: () => context.push('/sales/add'),
+                icon: const Icon(Icons.add_rounded),
+                label: const Text('Full sale form'),
               ),
             ),
           ),

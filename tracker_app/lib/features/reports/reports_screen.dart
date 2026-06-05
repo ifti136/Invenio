@@ -3,8 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_bottom_nav.dart';
-import '../../core/widgets/debug_app_bar.dart';
-import '../../core/widgets/debug_borders.dart';
 import '../../core/widgets/glass_panel.dart';
 import '../../db/app_database.dart';
 import '../../models/monthly_report.dart';
@@ -72,40 +70,20 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const DebugAppBar(title: 'Reports'),
+      appBar: AppBar(
+        title: const Text(
+          'Reports',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
+        ),
+      ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, kBottomNavClearance),
         children: [
-          Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: FilledButton(
-              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('TEST TAP ✓ — body is interactive')),
-              ),
-              style: FilledButton.styleFrom(
-                backgroundColor: Colors.teal,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: const Text('TEST TAP — am I tappable?'),
-            ),
-          ),
-          DebugBorders(
-            label: 'PANEL: month selector',
-            color: Colors.orange,
-            child: _buildMonthSelector(context),
-          ),
+          _buildMonthSelector(context),
           const SizedBox(height: 12),
-          DebugBorders(
-            label: 'PANEL: tabs',
-            color: Colors.orange,
-            child: _buildTabSelector(context),
-          ),
+          _buildTabSelector(context),
           const SizedBox(height: 12),
-          DebugBorders(
-            label: 'PANEL: content (${_tab.name})',
-            color: Colors.orange,
-            child: _buildContent(context),
-          ),
+          _buildContent(context),
         ],
       ),
     );

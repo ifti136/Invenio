@@ -4,8 +4,6 @@ import 'package:go_router/go_router.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
-import 'package:tracker/core/widgets/debug_app_bar.dart';
-import 'package:tracker/core/widgets/debug_borders.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/models/dashboard_summary.dart';
@@ -50,7 +48,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     });
 
     return Scaffold(
-      appBar: const DebugAppBar(title: 'Dashboard'),
+      appBar: AppBar(
+        title: const Text(
+          'Dashboard',
+          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
+        ),
+      ),
       body: summaryAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
@@ -59,38 +62,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, kBottomNavClearance),
             children: [
-              FilledButton(
-                onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('TEST TAP ✓ — body is interactive')),
-                ),
-                style: FilledButton.styleFrom(
-                  backgroundColor: Colors.teal,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('TEST TAP — am I tappable?'),
-              ),
-              const SizedBox(height: 12),
-              DebugBorders(
-                label: 'PANEL: stat grid',
-                color: Colors.orange,
-                child: _StatGrid(summary: s),
-              ),
+              _StatGrid(summary: s),
               const SizedBox(height: 16),
-              DebugBorders(
-                label: 'PANEL: platform',
-                color: Colors.orange,
-                child: _PlatformBreakdown(
-                  fbProfit: s.facebookProfit,
-                  offlineProfit: s.offlineProfit,
-                ),
+              _PlatformBreakdown(
+                fbProfit: s.facebookProfit,
+                offlineProfit: s.offlineProfit,
               ),
               if (s.lowStockProducts.isNotEmpty) ...[
                 const SizedBox(height: 16),
-                DebugBorders(
-                  label: 'PANEL: low stock',
-                  color: Colors.orange,
-                  child: _LowStockSection(products: s.lowStockProducts),
-                ),
+                _LowStockSection(products: s.lowStockProducts),
               ],
             ],
           ),
