@@ -34,13 +34,6 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
     );
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/expenses/add'),
-        backgroundColor: AppColors.accent,
-        foregroundColor: Colors.white,
-        tooltip: 'Add expense',
-        child: const Icon(Icons.add_rounded),
-      ),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -50,6 +43,14 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
               'Expenses',
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
             ),
+            actions: [
+              IconButton(
+                tooltip: 'Add expense',
+                onPressed: () => context.push('/expenses/add'),
+                icon: const Icon(Icons.add_rounded, color: AppColors.accent),
+              ),
+              const SizedBox(width: 4),
+            ],
           ),
           SliverToBoxAdapter(
             child: _DateFilterBar(

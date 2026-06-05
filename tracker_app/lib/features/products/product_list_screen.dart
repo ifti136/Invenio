@@ -33,13 +33,6 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
     final stats = computeProductStats(all);
     final scheme = Theme.of(context).colorScheme;
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/products/add'),
-        backgroundColor: AppColors.accent,
-        foregroundColor: Colors.white,
-        tooltip: 'Add product',
-        child: const Icon(Icons.add_rounded),
-      ),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -49,6 +42,14 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
               'Products',
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
             ),
+            actions: [
+              IconButton(
+                tooltip: 'Add product',
+                onPressed: () => context.push('/products/add'),
+                icon: const Icon(Icons.add_rounded, color: AppColors.accent),
+              ),
+              const SizedBox(width: 4),
+            ],
           ),
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),

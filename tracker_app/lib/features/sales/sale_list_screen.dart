@@ -27,13 +27,6 @@ class SaleListScreen extends ConsumerWidget {
     final discountedSales = allSales.where((s) => s.isDiscounted).toList();
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => context.push('/sales/add'),
-        backgroundColor: AppColors.accent,
-        foregroundColor: Colors.white,
-        tooltip: 'Log sale',
-        child: const Icon(Icons.add_rounded),
-      ),
       body: CustomScrollView(
         slivers: [
           SliverAppBar(
@@ -43,6 +36,14 @@ class SaleListScreen extends ConsumerWidget {
               'Sales',
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
             ),
+            actions: [
+              IconButton(
+                tooltip: 'Log sale',
+                onPressed: () => context.push('/sales/add'),
+                icon: const Icon(Icons.add_rounded, color: AppColors.accent),
+              ),
+              const SizedBox(width: 4),
+            ],
           ),
           SliverToBoxAdapter(
             child: Padding(
