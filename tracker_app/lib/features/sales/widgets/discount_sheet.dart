@@ -7,8 +7,11 @@ import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
 import 'package:tracker/core/widgets/sheet_drag_handle.dart';
 import 'package:tracker/db/app_database.dart';
+import 'package:tracker/features/dashboard/dashboard_provider.dart';
 import 'package:tracker/features/products/product_provider.dart';
+import 'package:tracker/features/sales/sale_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
+import 'package:tracker/features/sales/widgets/product_picker_sheet.dart';
 import 'package:tracker/services/alert_service.dart';
 
 class DiscountSheet extends ConsumerStatefulWidget {
@@ -103,6 +106,10 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
         normalPrice: _normal,
       );
 
+      ref.invalidate(saleListProvider);
+      ref.invalidate(productListProvider);
+      ref.invalidate(dashboardProvider);
+
       if (mounted) {
         Navigator.of(context).pop(true);
       }
@@ -124,6 +131,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
       noBlur: true,
+      solid: true,
       child: Form(
         key: _form,
         child: Column(
@@ -290,6 +298,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
         margin: EdgeInsets.zero,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         noBlur: true,
+        solid: true,
         child: Row(
           children: [
             Expanded(
@@ -312,11 +321,10 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
   }
 
   Future<void> _pickProduct(BuildContext context, List<Product> inStock) async {
-    final result = await showModalBottomSheet<int>(
-      context: context,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      builder: (_) => _ProductPickerSheet(products: inStock),
+    final result = await showProductPicker(
+      context,
+      products: inStock,
+      selectedId: _selectedProductId,
     );
     if (result != null) setState(() => _selectedProductId = result);
   }
@@ -350,74 +358,24 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
   }
 }
 
-class _ProductPickerSheet extends StatelessWidget {
-  final List<Product> products;
-  const _ProductPickerSheet({required this.products});
-
-  @override
-  Widget build(BuildContext context) {
-    return ConstrainedBox(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.of(context).size.height * 0.5,
-      ),
-      child: GlassPanel(
-        radius: 28,
-        margin: const EdgeInsets.all(12),
-        padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
-        noBlur: true,
-        child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SheetDragHandle(),
-          Row(
-            children: [
-              const Expanded(
-                child: Text(
-                  'Select product',
-                  style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
-                ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.close_rounded),
-                onPressed: () => Navigator.of(context).pop(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Flexible(
-            child: ListView.separated(
-              shrinkWrap: true,
-              itemCount: products.length,
-              separatorBuilder: (_, __) => const Divider(height: 1),
-              itemBuilder: (_, i) {
-                final p = products[i];
-                return ListTile(
-                  title: Text(p.name),
-                  subtitle: Text('Stock: ${p.stock} — ${formatMoney(p.costPrice)}'),
-                  dense: true,
-                  onTap: () => Navigator.of(context).pop(p.id),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    ),
-    );
-  }
-}
-
 void showDiscountSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     backgroundColor: Colors.transparent,
     elevation: 0,
-    builder: (_) => Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: const DiscountSheet(),
+    barrierColor: Colors.black.withOpacity(0.5),
+    builder: (_) => Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: const DiscountSheet(),
+        ),
+      ],
     ),
   );
 }

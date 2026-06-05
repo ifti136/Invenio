@@ -12,6 +12,7 @@ import 'package:tracker/features/products/product_provider.dart';
 import 'package:tracker/features/products/product_repository.dart';
 import 'package:tracker/features/sales/sale_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
+import 'package:tracker/features/sales/widgets/product_picker_sheet.dart';
 import 'package:tracker/services/alert_service.dart';
 
 class SaleFormScreen extends ConsumerStatefulWidget {
@@ -242,10 +243,11 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       body: Form(
         key: _form,
         child: ListView(
-          padding: const EdgeInsets.fromLTRB(16, 8, 16, 100),
+          padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
           children: [
             GlassPanel(
               noBlur: true,
+              solid: true,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -259,67 +261,14 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  if (_isEdit || _product != null)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 12),
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.05),
-                        borderRadius: BorderRadius.circular(14),
-                        border: Border.all(
-                          color: scheme.onSurfaceVariant.withOpacity(0.18),
-                          width: 0.6,
-                        ),
-                      ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.lock_outline_rounded, size: 16),
-                          const SizedBox(width: 8),
-                          Expanded(
-                            child: Text(
-                              _product?.name ?? '—',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 15,
-                              ),
-                            ),
-                          ),
-                          Text(
-                            'Stock: ${_product?.stock ?? 0}',
-                            style: TextStyle(
-                              color: scheme.onSurfaceVariant,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  else
-                    DropdownButtonFormField<int>(
-                      decoration: const InputDecoration(
-                        hintText: 'Choose a product…',
-                        prefixIcon: Icon(Icons.inventory_2_outlined),
-                      ),
-                      items: products
-                          .map((p) => DropdownMenuItem(
-                                value: p.id,
-                                child: Text(
-                                  '${p.name} (${p.stock})',
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ))
-                          .toList(),
-                      onChanged: (id) {
-                        if (id != null) _selectProduct(id);
-                      },
-                      validator: (v) => v == null ? 'Required' : null,
-                    ),
+                  _buildProductTile(products),
                 ],
               ),
             ),
             const SizedBox(height: 12),
             GlassPanel(
               noBlur: true,
+              solid: true,
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -417,6 +366,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
             if (_total != null)
               GlassPanel(
                 noBlur: true,
+                solid: true,
                 padding: const EdgeInsets.all(14),
                 child: Row(
                   children: [
@@ -456,6 +406,86 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                       ),
                     )
                   : Text(_isEdit ? 'Save changes' : 'Record sale'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildProductTile(List<Product> products) {
+    final scheme = Theme.of(context).colorScheme;
+    final selected = _product;
+    final isLocked = _isEdit;
+    return InkWell(
+      borderRadius: BorderRadius.circular(14),
+      onTap: isLocked
+          ? null
+          : () async {
+              final id = await showProductPicker(
+                context,
+                products: products,
+                selectedId: selected?.id,
+                inStockOnly: false,
+              );
+              if (id != null) {
+                await _selectProduct(id);
+              }
+            },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+        decoration: BoxDecoration(
+          color: selected != null
+              ? scheme.primaryContainer.withOpacity(0.35)
+              : scheme.surfaceContainerHighest.withOpacity(0.6),
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: selected != null
+                ? scheme.primary.withOpacity(0.5)
+                : scheme.outline.withOpacity(0.3),
+            width: selected != null ? 1.0 : 0.6,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              isLocked
+                  ? Icons.lock_outline_rounded
+                  : (selected != null
+                      ? Icons.inventory_2_outlined
+                      : Icons.add_box_outlined),
+              size: 18,
+              color: scheme.onSurfaceVariant,
+            ),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Text(
+                selected?.name ?? 'Choose a product…',
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 15,
+                  color: selected != null
+                      ? scheme.onSurface
+                      : scheme.onSurfaceVariant,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+            if (selected != null)
+              Padding(
+                padding: const EdgeInsets.only(right: 6),
+                child: Text(
+                  'Stock: ${selected.stock}',
+                  style: TextStyle(
+                    color: scheme.onSurfaceVariant,
+                    fontSize: 12,
+                  ),
+                ),
+              ),
+            Icon(
+              isLocked ? Icons.lock : Icons.expand_more_rounded,
+              size: 20,
+              color: scheme.onSurfaceVariant,
             ),
           ],
         ),

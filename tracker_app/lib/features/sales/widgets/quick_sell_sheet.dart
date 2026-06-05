@@ -7,7 +7,9 @@ import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
 import 'package:tracker/core/widgets/sheet_drag_handle.dart';
 import 'package:tracker/db/app_database.dart';
+import 'package:tracker/features/dashboard/dashboard_provider.dart';
 import 'package:tracker/features/products/product_provider.dart';
+import 'package:tracker/features/sales/sale_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/services/alert_service.dart';
 
@@ -94,6 +96,10 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
             : _customer.text.trim(),
       );
 
+      ref.invalidate(saleListProvider);
+      ref.invalidate(productListProvider);
+      ref.invalidate(dashboardProvider);
+
       final infoAlerts = alerts.whereType<MarginDropAlert>().toList();
       if (mounted) {
         Navigator.of(context).pop(true);
@@ -120,6 +126,8 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
       radius: 28,
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+      noBlur: true,
+      solid: true,
       child: Form(
         key: _form,
         child: Column(
@@ -292,16 +300,23 @@ void showQuickSellSheet(BuildContext context, {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
+    useSafeArea: true,
     backgroundColor: Colors.transparent,
     elevation: 0,
-    builder: (_) => Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
-      child: QuickSellSheet(
-        product: product,
-        lastSellingPrice: lastSellingPrice,
-      ),
+    barrierColor: Colors.black.withOpacity(0.5),
+    builder: (_) => Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(context).viewInsets.bottom,
+          ),
+          child: QuickSellSheet(
+            product: product,
+            lastSellingPrice: lastSellingPrice,
+          ),
+        ),
+      ],
     ),
   );
 }

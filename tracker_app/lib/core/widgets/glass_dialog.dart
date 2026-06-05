@@ -13,7 +13,7 @@ Future<T?> showGlassDialog<T>({
   return showDialog<T>(
     context: context,
     barrierDismissible: barrierDismissible,
-    barrierColor: Colors.black.withOpacity(0.35),
+    barrierColor: Colors.black.withOpacity(0.6),
     builder: (ctx) {
       final actionWidgets = actionsBuilder?.call(ctx) ?? const <Widget>[];
       return Dialog(
@@ -28,6 +28,7 @@ Future<T?> showGlassDialog<T>({
           radius: 24,
           isFrostedGlass: true,
           noBlur: true,
+          solid: true,
           padding: const EdgeInsets.fromLTRB(20, 22, 20, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,

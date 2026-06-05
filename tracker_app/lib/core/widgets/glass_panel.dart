@@ -15,6 +15,7 @@ class GlassPanel extends StatelessWidget {
   final bool isFrostedGlass;
   final bool expand;
   final bool noBlur;
+  final bool solid;
 
   const GlassPanel({
     super.key,
@@ -28,6 +29,7 @@ class GlassPanel extends StatelessWidget {
     this.isFrostedGlass = false,
     this.expand = false,
     this.noBlur = false,
+    this.solid = false,
   });
 
   const GlassPanel.flush({
@@ -39,6 +41,7 @@ class GlassPanel extends StatelessWidget {
     this.isFrostedGlass = false,
     this.expand = true,
     this.noBlur = false,
+    this.solid = false,
   })  : width = null,
         height = null,
         radius = 0;
@@ -64,26 +67,34 @@ class GlassPanel extends StatelessWidget {
     final borderTop = isDark ? 0.30 : 0.55;
     final borderBottom = isDark ? 0.10 : 0.18;
     final accent = isDark ? 0.18 : 0.10;
+    final scheme = Theme.of(context).colorScheme;
 
-    if (noBlur) {
+    if (noBlur || solid) {
       return Container(
         height: expand ? double.infinity : height,
         width: expand ? double.infinity : width,
         margin: margin,
         padding: padding,
         decoration: BoxDecoration(
+          color: solid
+              ? scheme.surface.withOpacity(isDark ? 0.92 : 0.95)
+              : null,
           borderRadius: radius > 0 ? BorderRadius.circular(radius) : null,
-          gradient: LinearGradient(
-            colors: [
-              Colors.white.withOpacity(fillTop),
-              Colors.white.withOpacity(fillBottom),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          gradient: solid
+              ? null
+              : LinearGradient(
+                  colors: [
+                    Colors.white.withOpacity(fillTop),
+                    Colors.white.withOpacity(fillBottom),
+                  ],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
           border: radius > 0
               ? Border.all(
-                  color: Colors.white.withOpacity(borderTop),
+                  color: solid
+                      ? scheme.outline.withOpacity(0.20)
+                      : Colors.white.withOpacity(borderTop),
                   width: 1.0,
                 )
               : null,
