@@ -56,6 +56,7 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
             sliver: SliverToBoxAdapter(
               child: GlassPanel(
                 radius: 20,
+                noBlur: true,
                 padding: const EdgeInsets.all(14),
                 child: Row(
                   children: [

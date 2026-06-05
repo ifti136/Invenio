@@ -93,6 +93,7 @@ class SaleListScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: GlassPanel(
                 padding: const EdgeInsets.all(12),
+                noBlur: true,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -134,6 +135,7 @@ class SaleListScreen extends ConsumerWidget {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: GlassPanel(
                 padding: const EdgeInsets.all(12),
+                noBlur: true,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

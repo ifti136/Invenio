@@ -6,7 +6,7 @@ import '../../models/dashboard_summary.dart';
 
 part 'dashboard_provider.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 Future<DashboardSummary> dashboard(Ref ref) async {
   final db = ref.watch(appDatabaseProvider);
   final now = DateTime.now();

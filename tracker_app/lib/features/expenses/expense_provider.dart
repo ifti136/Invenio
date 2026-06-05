@@ -5,12 +5,12 @@ import 'expense_repository.dart';
 
 part 'expense_provider.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 Stream<List<Expense>> expenseList(Ref ref) {
   return ref.watch(expenseRepositoryProvider).watchAll();
 }
 
-@Riverpod(keepAlive: true)
+@riverpod
 Stream<List<Expense>> filteredExpenseList(Ref ref, ExpenseFilter filter) {
   return ref.watch(expenseRepositoryProvider).watchFiltered(filter);
 }

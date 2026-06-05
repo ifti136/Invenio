@@ -6,11 +6,11 @@ part of 'alert_service.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$alertServiceHash() => r'20ebe34f9ba45ba388fe7024952aa79e2dcf053a';
+String _$alertServiceHash() => r'328e86d32f7eba2151203b31beac0ea75917ef9f';
 
 /// See also [alertService].
 @ProviderFor(alertService)
-final alertServiceProvider = Provider<AlertService>.internal(
+final alertServiceProvider = AutoDisposeProvider<AlertService>.internal(
   alertService,
   name: r'alertServiceProvider',
   debugGetCreateSourceHash:
@@ -21,6 +21,6 @@ final alertServiceProvider = Provider<AlertService>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef AlertServiceRef = ProviderRef<AlertService>;
+typedef AlertServiceRef = AutoDisposeProviderRef<AlertService>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

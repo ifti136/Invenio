@@ -4,7 +4,7 @@ import '../db/app_database.dart';
 
 part 'alert_service.g.dart';
 
-@Riverpod(keepAlive: true)
+@riverpod
 AlertService alertService(Ref ref) => AlertService();
 
 sealed class AppAlert {

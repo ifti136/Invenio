@@ -88,6 +88,7 @@ class _StatGrid extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassPanel(
       padding: const EdgeInsets.all(16),
+      noBlur: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -199,6 +200,7 @@ class _PlatformBreakdown extends StatelessWidget {
 
     return GlassPanel(
       padding: const EdgeInsets.all(16),
+      noBlur: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -288,6 +290,7 @@ class _LowStockSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     return GlassPanel(
       padding: const EdgeInsets.all(16),
+      noBlur: true,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

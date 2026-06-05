@@ -97,6 +97,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
 
     return GlassPanel(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      noBlur: true,
       child: Row(
         children: [
           if (_tab == _ReportTab.monthly) ...[
@@ -164,6 +165,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   Widget _buildTabSelector(BuildContext context) {
     return GlassPanel(
       padding: const EdgeInsets.all(4),
+      noBlur: true,
       child: SegmentedButton<_ReportTab>(
         segments: const [
           ButtonSegment(value: _ReportTab.daily, label: Text('Daily')),
@@ -254,6 +256,7 @@ class _DailyReport extends ConsumerWidget {
             else
               GlassPanel(
                 padding: const EdgeInsets.all(32),
+                noBlur: true,
                 child: Center(
                   child: Text(
                     'No sales or expenses recorded this month',
@@ -314,6 +317,7 @@ class _MonthlyReport extends ConsumerWidget {
             else
               GlassPanel(
                 padding: const EdgeInsets.all(32),
+                noBlur: true,
                 child: Center(
                   child: Text(
                     'No data for $year',
@@ -346,6 +350,7 @@ class _ProductReport extends ConsumerWidget {
         if (rows.isEmpty) {
           return GlassPanel(
             padding: const EdgeInsets.all(32),
+            noBlur: true,
             child: Center(
               child: Text(
                 'No product sales data yet',
@@ -360,6 +365,7 @@ class _ProductReport extends ConsumerWidget {
         }
         return GlassPanel(
           padding: const EdgeInsets.all(12),
+          noBlur: true,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -463,6 +469,7 @@ class _SummaryStrip extends StatelessWidget {
   Widget build(BuildContext context) {
     return GlassPanel(
       padding: const EdgeInsets.all(12),
+      noBlur: true,
       child: Row(
         children: [
           _SumItem(label: 'Revenue', value: formatMoney(revenue)),
@@ -516,6 +523,7 @@ class _DailyTable extends StatelessWidget {
 
     return GlassPanel(
       padding: const EdgeInsets.all(12),
+      noBlur: true,
       child: Column(
         children: [
           Row(
@@ -582,6 +590,7 @@ class _MonthlyTable extends StatelessWidget {
 
     return GlassPanel(
       padding: const EdgeInsets.all(12),
+      noBlur: true,
       child: Column(
         children: [
           Row(

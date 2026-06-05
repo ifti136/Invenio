@@ -63,6 +63,7 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
               child: GlassPanel(
                 padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                noBlur: true,
                 child: Row(
                   children: [
                     Expanded(
@@ -256,6 +257,7 @@ class _DateFilterBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
       child: GlassPanel(
         padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
+        noBlur: true,
         child: _ChipRow(
           label: 'Period',
           children: [

@@ -47,6 +47,7 @@ class ProductDetailScreen extends ConsumerWidget {
             children: [
               GlassPanel(
                 padding: const EdgeInsets.all(18),
+                noBlur: true,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -151,12 +152,13 @@ class ProductDetailScreen extends ConsumerWidget {
                       message: 'Stock changes will appear here.',
                     );
                   }
-                  return GlassPanel(
-                    padding: const EdgeInsets.symmetric(vertical: 6),
-                    child: Column(
-                      children: [
-                        for (var i = 0; i < movements.length; i++) ...[
-                          StockMovementItem(movement: movements[i]),
+                    return GlassPanel(
+                      padding: const EdgeInsets.symmetric(vertical: 6),
+                      noBlur: true,
+                      child: Column(
+                        children: [
+                          for (var i = 0; i < movements.length; i++) ...[
+                            StockMovementItem(movement: movements[i]),
                           if (i < movements.length - 1)
                             Divider(
                               height: 0,
@@ -238,6 +240,7 @@ class _RecentSalesPanel extends ConsumerWidget {
         }
         return GlassPanel(
           padding: const EdgeInsets.symmetric(vertical: 6),
+          noBlur: true,
           child: Column(
             children: [
               for (var i = 0; i < sales.length; i++) ...[
