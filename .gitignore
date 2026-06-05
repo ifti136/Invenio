@@ -36,9 +36,8 @@ tracker_app/windows/
 
 # AI agent metadata
 .opencode/
-
-# Project docs / specs — kept locally, not tracked in repo
-docs/
+.planning/
+graphify-out/
 
 # Temp / logs
 *.log

@@ -1,74 +1,77 @@
 # Invenio — Inventory & Economy Tracker
 
-A fully offline Flutter Android app for a single owner-operator small reseller to manage inventory, log sales, track expenses, and view profit analytics. No authentication, no cloud sync — just a clean, fast, local-first business tool.
+Invenio is a solo-owner Flutter Android app for a small reseller to track
+inventory, log sales, record expenses, and see daily profit — fully offline,
+no auth, no cloud sync. It is one APK that installs and works on a phone
+without ever touching the network, designed for a single person running
+sales on Facebook Marketplace and in person.
 
 ## Features
 
 ### Products
 - Create, edit, and delete products with name, cost price, and notes
 - Restock with tracked stock movements (initial / restock / adjustment / sale)
-- Per-product low-stock alerts and full stock history
+- Per-product low-stock alerts and per-product alert toggle (on/off)
+- Full stock-movement history per product
 - Searchable product list with stat cards (count, low stock, out of stock, total value)
 
 ### Sales
-- Log sales with quantity, selling price, platform (Facebook / Offline), payment status (Paid / Due), and optional customer name
+- Log sales with quantity, selling price, platform (Facebook / Offline),
+  payment status (Paid / Due), and optional customer name
 - Live profit preview before saving
-- Below-cost and low-stock alert dialogs on save
-- Margin drop detection vs. last sale
-- Filterable sales list (date, platform, payment, product)
+- Below-cost, low-stock, and margin-drop alerts
+- Quick-sell bottom sheet per product (one tap from the product grid)
+- Discounted sales (price + loss tracked separately)
+- Filterable sales list (date range, platform, payment, product)
 - Mark as paid, edit, and delete with confirmation
 
 ### Expenses
 - Log expenses by category (Ads / Delivery / Packaging / Misc)
-- Date-filtered list with monthly totals
-- Feed into net profit calculations across all views
+- Date-filtered list with monthly totals and preset ranges
+- Feeds into net profit calculations across all report views
 
 ### Reports & Export
-- Dashboard with today's stats (sales, revenue, gross/net profit, due, platform breakdown, low stock)
-- Daily and monthly bar charts with revenue vs. profit
+- Dashboard with today's stats (sales, revenue, gross/net profit, due,
+  platform breakdown, low stock)
+- Daily, monthly, and product bar charts with revenue vs. profit
 - Product-level performance report
-- Excel export (Sales + Expenses + Summary sheets) via share
+- Excel export (Sales + Expenses + Summary sheets) via the Android share sheet
 
 ### Design
-- Liquid Glass UI — `glass_kit` panels, aurora animated background, transparent scaffold
-- Material 3 with custom color system
+- Liquid Glass UI — `glass_kit` panels + animated aurora background
+- Material 3 with a custom color system (teal `#1D9E75` accent)
 - 5-tab bottom navigation with glass chrome
+- Custom launcher icon and splash screen
 
-## Tech Stack
+## Tech stack
 
 | Layer | Choice |
 |-------|--------|
 | Framework | Flutter 3.24.4, Dart 3.5.4 |
 | Target | Android (min API 24) |
-| Database | Drift (SQLite) — fully offline |
+| Database | drift (SQLite) — fully offline, schema v2 |
 | State | Riverpod (codegen) |
-| Routing | go_router (ShellRoute + 5 tabs) |
-| Charts | fl_chart |
-| Export | syncfusion_flutter_xlsio + share_plus |
-| Theme | glass_kit + aurora_background |
+| Routing | go_router 15 — `StatefulShellRoute.indexedStack` (5 tabs) |
+| Charts | fl_chart 0.69 |
+| Export | syncfusion_flutter_xlsio 27.1.55 + share_plus |
+| Theme | glass_kit 4.0.2 + aurora_background 1.0.2 |
+| Icons | flutter_launcher_icons 0.14.4 |
 
-## Getting Started
+## Getting started
 
 ### Prerequisites
 - Flutter SDK 3.24.4+ (`flutter --version`)
-- Android Studio or VS Code with Flutter plugin
+- Android Studio or VS Code with the Flutter plugin
 - An Android device or emulator (API 24+)
 
 ### Setup
 
 ```bash
-# Clone the repo
 git clone https://github.com/ifti136/Invenio.git
-cd Invenio
+cd Invenio/tracker_app
 
-# Install dependencies
-cd tracker_app
 flutter pub get
-
-# Run code generation (Drift, Riverpod, go_router)
 dart run build_runner build --delete-conflicting-outputs
-
-# Run the app
 flutter run
 ```
 
@@ -89,83 +92,52 @@ flutter build appbundle --release
 
 The APK is output to `tracker_app/build/app/outputs/flutter-apk/`.
 
-### Development Commands
-
-```bash
-cd tracker_app
-
-# Code generation (Drift, Riverpod, go_router)
-dart run build_runner build --delete-conflicting-outputs
-
-# Watch for changes (auto-regenerate)
-dart run build_runner watch --delete-conflicting-outputs
-
-# Static analysis
-flutter analyze
-
-# Run tests
-# Pure-logic tests (no native deps needed):
-flutter test test/unit/alert_service_test.dart test/unit/profit_calculation_test.dart
-
-# Full suite (requires libsqlite3-dev on Linux):
-sudo apt install libsqlite3-dev
-flutter test --reporter expanded
-```
-
-## Project Structure
+## Project structure
 
 ```
-tracker_app/
-├── lib/
-│   ├── main.dart                        Entry point
-│   ├── app.dart                         MaterialApp.router + aurora backdrop
-│   ├── router.dart                      go_router: ShellRoute + 5 tabs + nested routes
-│   ├── core/
-│   │   ├── background/                  Aurora animated background
-│   │   ├── theme/                       AppColors + AppTheme (light/dark)
-│   │   ├── widgets/                     GlassPanel, GlassTextField, GlassDialog, etc.
-│   │   └── utils/                       formatters (money, date, quantity)
-│   ├── db/
-│   │   ├── app_database.dart            Drift database + Riverpod provider
-│   │   └── tables/                      Products, Sales, Expenses, StockMovements
-│   ├── features/
-│   │   ├── dashboard/                   Summary stats, platform breakdown
-│   │   ├── products/                    CRUD, restock, stock movements
-│   │   ├── sales/                       Log, filter, edit, mark as paid
-│   │   ├── expenses/                    Log, filter, edit
-│   │   └── reports/                     Charts, tables, export
-│   ├── models/                          DashboardSummary, DailySnapshot, MonthlySummary
-│   └── services/                        AlertService, ExportService
-└── test/                                Test suite (see below)
+Invenio/
+├── README.md                  ← you are here
+├── AGENTS.md                  ← AI-agent conventions (opencode)
+├── docs/                      ← full documentation (start at docs/README.md)
+│   ├── README.md
+│   ├── ARCHITECTURE.md        ← human-readable one-pager
+│   ├── CHANGELOG.md           ← phase log + bug list
+│   ├── HISTORY.md             ← per-phase regression narrative
+│   ├── DESIGN.md              ← visual design spec
+│   └── instructions/          ← pre-implementation specs
+└── tracker_app/
+    ├── README.md              ← pointer to root README + docs
+    ├── lib/                   ← Dart source (see folder map in ARCHITECTURE.md)
+    ├── test/                  ← 8 unit + 7 widget test files + REPORT.md
+    ├── assets/icon/           ← launcher icon source (invenio.png)
+    ├── pubspec.yaml
+    └── android/               ← Android Gradle config; min SDK 24
 ```
+
+## Documentation
+
+The full documentation is in [`docs/`](docs/README.md). Start with
+[`docs/README.md`](docs/README.md) — it is the index and tells you which
+doc to read for what.
+
+| If you want to … | Read |
+|---|---|
+| Understand the project in 5 minutes | [`docs/README.md`](docs/README.md) |
+| See the key tech choices and trade-offs | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
+| See what was built, in order | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) |
+| Understand what broke and why | [`docs/HISTORY.md`](docs/HISTORY.md) |
+| Look up a color or screen layout | [`docs/DESIGN.md`](docs/DESIGN.md) |
+| Read the detailed specs (requirements, design, code contracts, scaffold, implementation) | [`docs/instructions/`](docs/instructions/) |
+| Check the test status and known limitations | [`tracker_app/test/REPORT.md`](tracker_app/test/REPORT.md) |
+| Get oriented as an AI coding agent | [`AGENTS.md`](AGENTS.md) |
 
 ## Testing
 
-The test suite lives in `tracker_app/test/` with 15 files (~95 test cases):
-
-```
-test/
-├── REPORT.md                  Test report with per-phase breakdown
-├── unit/
-│   ├── alert_service_test.dart        16 tests (pure logic)
-│   ├── profit_calculation_test.dart   14 tests (pure functions)
-│   ├── database_schema_test.dart      5 tests
-│   ├── product_repository_test.dart   14 tests
-│   ├── sale_repository_test.dart      10 tests
-│   ├── expense_repository_test.dart   14 tests
-│   ├── dashboard_provider_test.dart   4 tests
-│   └── export_service_test.dart       3 tests
-└── widget/
-    ├── theme_test.dart                5 tests (pure theme)
-    ├── chart_toggle_test.dart         4 tests (pure widget)
-    ├── router_test.dart               2 tests
-    ├── product_form_test.dart         2 tests
-    ├── sale_form_test.dart            2 tests
-    ├── expense_form_test.dart         4 tests
-    └── dashboard_test.dart            2 tests
-```
-
-### Running Tests
+The test suite lives in `tracker_app/test/` — 8 unit files + 7 widget files,
+**100 / 100 passing** in the current state. See
+[`tracker_app/test/REPORT.md`](tracker_app/test/REPORT.md) for the per-file
+breakdown, the `libsqlite3.so` symlink trick for Linux CI, and the
+`glass_kit` / `aurora_background` headless workarounds.
 
 ```bash
 cd tracker_app
@@ -173,23 +145,9 @@ cd tracker_app
 # Pure-logic tests (no native deps needed)
 flutter test test/unit/alert_service_test.dart test/unit/profit_calculation_test.dart
 
-# All tests (requires libsqlite3-dev on Linux)
-sudo apt install libsqlite3-dev
+# Full suite (requires libsqlite3.so; see test/REPORT.md for the Linux symlink)
 flutter test --reporter expanded
 ```
-
-## Documentation
-
-Detailed specs live in `docs/instructions/`:
-
-| File | Content |
-|------|---------|
-| `01_requirements.md` | Functional + non-functional requirements |
-| `02_system_design.md` | Architecture, state management, routing |
-| `03_code_specs.md` | Per-file code contracts |
-| `04_scaffolding.md` | Initial project scaffold |
-| `05_implementation.md` | Full implementation spec (active feature spec) |
-| `06_completion_status.md` | Live checklist — updated after every build |
 
 ## License
 
