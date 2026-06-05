@@ -1,7 +1,9 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
+import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
@@ -362,7 +364,6 @@ void showDiscountSheet(BuildContext context) {
   showModalBottomSheet(
     context: context,
     isScrollControlled: true,
-    useSafeArea: true,
     backgroundColor: Colors.transparent,
     elevation: 0,
     barrierColor: Colors.black.withOpacity(0.5),
@@ -371,7 +372,10 @@ void showDiscountSheet(BuildContext context) {
       children: [
         Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+            bottom: math.max(
+              MediaQuery.of(context).viewInsets.bottom,
+              MediaQuery.of(context).padding.bottom + kBottomNavHeight + 8,
+            ),
           ),
           child: const DiscountSheet(),
         ),

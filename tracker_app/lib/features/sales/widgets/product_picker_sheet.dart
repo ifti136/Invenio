@@ -1,5 +1,7 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:tracker/core/utils/formatters.dart';
+import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/sheet_drag_handle.dart';
 import 'package:tracker/db/app_database.dart';
@@ -16,7 +18,6 @@ Future<int?> showProductPicker(
   return showModalBottomSheet<int>(
     context: context,
     isScrollControlled: true,
-    useSafeArea: true,
     backgroundColor: Colors.transparent,
     elevation: 0,
     barrierColor: Colors.black.withOpacity(0.5),
@@ -25,7 +26,10 @@ Future<int?> showProductPicker(
       children: [
         Padding(
           padding: EdgeInsets.only(
-            bottom: MediaQuery.of(context).viewInsets.bottom,
+            bottom: math.max(
+              MediaQuery.of(context).viewInsets.bottom,
+              MediaQuery.of(context).padding.bottom + kBottomNavHeight + 8,
+            ),
           ),
           child: _ProductPickerSheet(
             products: filtered,
