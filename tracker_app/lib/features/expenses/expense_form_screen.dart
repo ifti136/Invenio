@@ -118,16 +118,16 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       title: 'Delete expense?',
       message:
           'This removes the ${_category.label.toLowerCase()} expense of ${_amountCtrl.text.isEmpty ? '—' : formatMoney(double.tryParse(_amountCtrl.text) ?? 0)}.',
-      actions: [
+      actionsBuilder: (ctx) => [
         GlassDialogAction(
           label: 'Cancel',
-          onPressed: () => Navigator.of(context).pop(false),
+          onPressed: () => Navigator.of(ctx).pop(false),
         ),
         GlassDialogAction(
           label: 'Delete',
           isDestructive: true,
           isPrimary: true,
-          onPressed: () => Navigator.of(context).pop(true),
+          onPressed: () => Navigator.of(ctx).pop(true),
         ),
       ],
     );
@@ -147,11 +147,11 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       context: context,
       title: 'Could not save',
       message: msg,
-      actions: [
+      actionsBuilder: (ctx) => [
         GlassDialogAction(
           label: 'OK',
           isPrimary: true,
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(ctx).pop(),
         ),
       ],
     );

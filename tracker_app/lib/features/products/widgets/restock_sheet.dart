@@ -60,11 +60,11 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
         context: context,
         title: 'Invalid quantity',
         message: 'Please enter a whole number greater than zero.',
-        actions: [
+        actionsBuilder: (ctx) => [
           GlassDialogAction(
             label: 'OK',
             isPrimary: true,
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],
       );
@@ -84,11 +84,11 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
         context: context,
         title: 'Could not save',
         message: e.toString(),
-        actions: [
+        actionsBuilder: (ctx) => [
           GlassDialogAction(
             label: 'OK',
             isPrimary: true,
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],
       );

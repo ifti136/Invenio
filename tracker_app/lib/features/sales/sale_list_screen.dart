@@ -175,16 +175,6 @@ class SaleListScreen extends ConsumerWidget {
               ),
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 24),
-              child: OutlinedButton.icon(
-                onPressed: () => context.push('/sales/add'),
-                icon: const Icon(Icons.add_rounded),
-                label: const Text('Full sale form'),
-              ),
-            ),
-          ),
           const SliverToBoxAdapter(child: SizedBox(height: kBottomNavClearance)),
         ],
       ),
@@ -208,6 +198,7 @@ class _ProductSellCard extends ConsumerWidget {
       margin: const EdgeInsets.fromLTRB(16, 4, 16, 4),
       padding: const EdgeInsets.all(14),
       isFrostedGlass: inStock,
+      noBlur: true,
       child: Opacity(
         opacity: inStock ? 1 : 0.45,
         child: Row(

@@ -130,16 +130,16 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
       title: 'Delete expense?',
       message:
           'This removes the ${ExpenseCategoryX.fromKey(expense.category).label.toLowerCase()} expense of ${formatMoney(expense.amount)} from ${formatDate(expense.dateAsDateTime)}.',
-      actions: [
+      actionsBuilder: (ctx) => [
         GlassDialogAction(
           label: 'Cancel',
-          onPressed: () => Navigator.of(context).pop(false),
+          onPressed: () => Navigator.of(ctx).pop(false),
         ),
         GlassDialogAction(
           label: 'Delete',
           isDestructive: true,
           isPrimary: true,
-          onPressed: () => Navigator.of(context).pop(true),
+          onPressed: () => Navigator.of(ctx).pop(true),
         ),
       ],
     );

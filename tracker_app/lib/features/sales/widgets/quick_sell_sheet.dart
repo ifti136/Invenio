@@ -65,16 +65,16 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
         context: context,
         title: 'Sale alerts',
         message: alerts.map((a) => a.message).join('\n\n'),
-        actions: [
+        actionsBuilder: (ctx) => [
           GlassDialogAction(
             label: 'Cancel',
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () => Navigator.of(ctx).pop(false),
           ),
           GlassDialogAction(
             label: 'Sell anyway',
             isDestructive: true,
             isPrimary: true,
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => Navigator.of(ctx).pop(true),
           ),
         ],
       );
@@ -211,6 +211,8 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
             const SizedBox(height: 16),
             GlassPanel.flush(
               padding: const EdgeInsets.all(12),
+              noBlur: true,
+              expand: false,
               child: Row(
                 children: [
                   Expanded(

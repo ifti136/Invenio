@@ -6,7 +6,7 @@ Future<T?> showGlassDialog<T>({
   String? title,
   String? message,
   Widget? content,
-  List<Widget> actions = const [],
+  List<Widget> Function(BuildContext ctx)? actionsBuilder,
   bool barrierDismissible = true,
 }) {
   final scheme = Theme.of(context).colorScheme;
@@ -15,6 +15,7 @@ Future<T?> showGlassDialog<T>({
     barrierDismissible: barrierDismissible,
     barrierColor: Colors.black.withOpacity(0.35),
     builder: (ctx) {
+      final actionWidgets = actionsBuilder?.call(ctx) ?? const <Widget>[];
       return Dialog(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -53,14 +54,14 @@ Future<T?> showGlassDialog<T>({
                 if (message != null || title != null) const SizedBox(height: 12),
                 content,
               ],
-              if (actions.isNotEmpty) ...[
+              if (actionWidgets.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    for (var i = 0; i < actions.length; i++) ...[
+                    for (var i = 0; i < actionWidgets.length; i++) ...[
                       if (i > 0) const SizedBox(width: 8),
-                      actions[i],
+                      actionWidgets[i],
                     ],
                   ],
                 ),

@@ -116,11 +116,11 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         context: context,
         title: 'Could not save',
         message: e.toString(),
-        actions: [
+        actionsBuilder: (ctx) => [
           GlassDialogAction(
             label: 'OK',
             isPrimary: true,
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],
       );
@@ -135,16 +135,16 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       title: 'Delete product?',
       message:
           'This removes the product and all its stock history. Sales already recorded stay.',
-      actions: [
+      actionsBuilder: (ctx) => [
         GlassDialogAction(
           label: 'Cancel',
-          onPressed: () => Navigator.of(context).pop(false),
+          onPressed: () => Navigator.of(ctx).pop(false),
         ),
         GlassDialogAction(
           label: 'Delete',
           isDestructive: true,
           isPrimary: true,
-          onPressed: () => Navigator.of(context).pop(true),
+          onPressed: () => Navigator.of(ctx).pop(true),
         ),
       ],
     );
@@ -166,11 +166,11 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
         context: context,
         title: 'Could not delete',
         message: e.toString(),
-        actions: [
+        actionsBuilder: (ctx) => [
           GlassDialogAction(
             label: 'OK',
             isPrimary: true,
-            onPressed: () => Navigator.of(context).pop(),
+            onPressed: () => Navigator.of(ctx).pop(),
           ),
         ],
       );

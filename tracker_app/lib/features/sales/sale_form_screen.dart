@@ -197,11 +197,11 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       context: context,
       title: 'Could not save',
       message: msg,
-      actions: [
+      actionsBuilder: (ctx) => [
         GlassDialogAction(
           label: 'OK',
           isPrimary: true,
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => Navigator.of(ctx).pop(),
         ),
       ],
     );
@@ -212,15 +212,15 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       context: context,
       title: 'Heads up',
       message: alerts.map((a) => '• ${a.message}').join('\n\n'),
-      actions: [
+      actionsBuilder: (ctx) => [
         GlassDialogAction(
           label: 'Cancel',
-          onPressed: () => Navigator.of(context).pop(false),
+          onPressed: () => Navigator.of(ctx).pop(false),
         ),
         GlassDialogAction(
           label: 'Save anyway',
           isPrimary: true,
-          onPressed: () => Navigator.of(context).pop(true),
+          onPressed: () => Navigator.of(ctx).pop(true),
         ),
       ],
     );

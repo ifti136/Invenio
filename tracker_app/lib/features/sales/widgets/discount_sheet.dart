@@ -73,16 +73,16 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
         context: context,
         title: 'Sale alerts',
         message: alerts.map((a) => a.message).join('\n\n'),
-        actions: [
+        actionsBuilder: (ctx) => [
           GlassDialogAction(
             label: 'Cancel',
-            onPressed: () => Navigator.of(context).pop(false),
+            onPressed: () => Navigator.of(ctx).pop(false),
           ),
           GlassDialogAction(
             label: 'Sell anyway',
             isDestructive: true,
             isPrimary: true,
-            onPressed: () => Navigator.of(context).pop(true),
+            onPressed: () => Navigator.of(ctx).pop(true),
           ),
         ],
       );
@@ -123,6 +123,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
       radius: 28,
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+      noBlur: true,
       child: Form(
         key: _form,
         child: Column(
@@ -220,6 +221,8 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
             const SizedBox(height: 16),
             GlassPanel.flush(
               padding: const EdgeInsets.all(12),
+              noBlur: true,
+              expand: false,
               child: Row(
                 children: [
                   Expanded(
@@ -286,6 +289,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
         radius: 14,
         margin: EdgeInsets.zero,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+        noBlur: true,
         child: Row(
           children: [
             Expanded(
@@ -360,6 +364,7 @@ class _ProductPickerSheet extends StatelessWidget {
         radius: 28,
         margin: const EdgeInsets.all(12),
         padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
+        noBlur: true,
         child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
