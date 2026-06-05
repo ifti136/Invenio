@@ -5,12 +5,12 @@ import 'sale_repository.dart';
 
 part 'sale_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Stream<List<Sale>> saleList(Ref ref) {
   return ref.watch(saleRepositoryProvider).watchAll();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 Stream<List<Sale>> filteredSaleList(Ref ref, SaleFilter filter) {
   return ref.watch(saleRepositoryProvider).watchFiltered(filter);
 }

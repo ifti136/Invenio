@@ -6,11 +6,11 @@ part of 'sale_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$saleListHash() => r'a4300e20c04fc4b5f3de72201155f4b462c3ae40';
+String _$saleListHash() => r'7730eb1a7d6b76f623dcfdf686aa9d5bc0f6ac50';
 
 /// See also [saleList].
 @ProviderFor(saleList)
-final saleListProvider = AutoDisposeStreamProvider<List<Sale>>.internal(
+final saleListProvider = StreamProvider<List<Sale>>.internal(
   saleList,
   name: r'saleListProvider',
   debugGetCreateSourceHash:
@@ -21,8 +21,8 @@ final saleListProvider = AutoDisposeStreamProvider<List<Sale>>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef SaleListRef = AutoDisposeStreamProviderRef<List<Sale>>;
-String _$filteredSaleListHash() => r'6c200079852e45e873e86e675fa08b51f674e8f7';
+typedef SaleListRef = StreamProviderRef<List<Sale>>;
+String _$filteredSaleListHash() => r'67343ba1b479280dba91774f43b53b67fea9b1c8';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -88,7 +88,7 @@ class FilteredSaleListFamily extends Family<AsyncValue<List<Sale>>> {
 }
 
 /// See also [filteredSaleList].
-class FilteredSaleListProvider extends AutoDisposeStreamProvider<List<Sale>> {
+class FilteredSaleListProvider extends StreamProvider<List<Sale>> {
   /// See also [filteredSaleList].
   FilteredSaleListProvider(
     SaleFilter filter,
@@ -140,7 +140,7 @@ class FilteredSaleListProvider extends AutoDisposeStreamProvider<List<Sale>> {
   }
 
   @override
-  AutoDisposeStreamProviderElement<List<Sale>> createElement() {
+  StreamProviderElement<List<Sale>> createElement() {
     return _FilteredSaleListProviderElement(this);
   }
 
@@ -160,13 +160,12 @@ class FilteredSaleListProvider extends AutoDisposeStreamProvider<List<Sale>> {
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin FilteredSaleListRef on AutoDisposeStreamProviderRef<List<Sale>> {
+mixin FilteredSaleListRef on StreamProviderRef<List<Sale>> {
   /// The parameter `filter` of this provider.
   SaleFilter get filter;
 }
 
-class _FilteredSaleListProviderElement
-    extends AutoDisposeStreamProviderElement<List<Sale>>
+class _FilteredSaleListProviderElement extends StreamProviderElement<List<Sale>>
     with FilteredSaleListRef {
   _FilteredSaleListProviderElement(super.provider);
 

@@ -6,12 +6,12 @@ import 'product_repository.dart';
 
 part 'product_provider.g.dart';
 
-@riverpod
+@Riverpod(keepAlive: true)
 Stream<List<Product>> productList(Ref ref) {
   return ref.watch(productRepositoryProvider).watchAll();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ProductFilter extends _$ProductFilter {
   @override
   ProductFilterState build() => const ProductFilterState();
@@ -35,7 +35,7 @@ class ProductFilterState {
       );
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 List<Product> filteredProductList(Ref ref) {
   final async = ref.watch(productListProvider);
   final filter = ref.watch(productFilterProvider);

@@ -6,11 +6,11 @@ part of 'product_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$productListHash() => r'd3c5c47f5d0c670bcad782f305bbe468e4eee3c3';
+String _$productListHash() => r'a1b780f252568b8614a703280422a78a494b8a8a';
 
 /// See also [productList].
 @ProviderFor(productList)
-final productListProvider = AutoDisposeStreamProvider<List<Product>>.internal(
+final productListProvider = StreamProvider<List<Product>>.internal(
   productList,
   name: r'productListProvider',
   debugGetCreateSourceHash:
@@ -21,13 +21,13 @@ final productListProvider = AutoDisposeStreamProvider<List<Product>>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef ProductListRef = AutoDisposeStreamProviderRef<List<Product>>;
+typedef ProductListRef = StreamProviderRef<List<Product>>;
 String _$filteredProductListHash() =>
-    r'232b81973e07c197c2e5903697e07391aa48c622';
+    r'69fe30059014c393101918535bd63f8b161c77bb';
 
 /// See also [filteredProductList].
 @ProviderFor(filteredProductList)
-final filteredProductListProvider = AutoDisposeProvider<List<Product>>.internal(
+final filteredProductListProvider = Provider<List<Product>>.internal(
   filteredProductList,
   name: r'filteredProductListProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -39,7 +39,7 @@ final filteredProductListProvider = AutoDisposeProvider<List<Product>>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef FilteredProductListRef = AutoDisposeProviderRef<List<Product>>;
+typedef FilteredProductListRef = ProviderRef<List<Product>>;
 String _$productByIdHash() => r'8c4767cbadd884193aff3a947335731eed855303';
 
 /// Copied from Dart SDK
@@ -453,12 +453,12 @@ class _ProductSalesProviderElement
   int get productId => (origin as ProductSalesProvider).productId;
 }
 
-String _$productFilterHash() => r'c12aaeb3c553301689e2813069f6d414cb8cd175';
+String _$productFilterHash() => r'3789906644e8145905dbfbe9d39b331d86b5604b';
 
 /// See also [ProductFilter].
 @ProviderFor(ProductFilter)
 final productFilterProvider =
-    AutoDisposeNotifierProvider<ProductFilter, ProductFilterState>.internal(
+    NotifierProvider<ProductFilter, ProductFilterState>.internal(
   ProductFilter.new,
   name: r'productFilterProvider',
   debugGetCreateSourceHash: const bool.fromEnvironment('dart.vm.product')
@@ -468,6 +468,6 @@ final productFilterProvider =
   allTransitiveDependencies: null,
 );
 
-typedef _$ProductFilter = AutoDisposeNotifier<ProductFilterState>;
+typedef _$ProductFilter = Notifier<ProductFilterState>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

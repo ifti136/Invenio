@@ -6,11 +6,11 @@ part of 'expense_provider.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$expenseListHash() => r'904306700d6803ddbe570e1d2dbf132095a4db6a';
+String _$expenseListHash() => r'c3a75321beaeff11e453ced5eeb00b3e009bde31';
 
 /// See also [expenseList].
 @ProviderFor(expenseList)
-final expenseListProvider = AutoDisposeStreamProvider<List<Expense>>.internal(
+final expenseListProvider = StreamProvider<List<Expense>>.internal(
   expenseList,
   name: r'expenseListProvider',
   debugGetCreateSourceHash:
@@ -21,9 +21,9 @@ final expenseListProvider = AutoDisposeStreamProvider<List<Expense>>.internal(
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef ExpenseListRef = AutoDisposeStreamProviderRef<List<Expense>>;
+typedef ExpenseListRef = StreamProviderRef<List<Expense>>;
 String _$filteredExpenseListHash() =>
-    r'48184e46d5a5eca64882d4b98be70abc454b2497';
+    r'2234e9aa030ffc3569c61e832705da1ce2a981e5';
 
 /// Copied from Dart SDK
 class _SystemHash {
@@ -89,8 +89,7 @@ class FilteredExpenseListFamily extends Family<AsyncValue<List<Expense>>> {
 }
 
 /// See also [filteredExpenseList].
-class FilteredExpenseListProvider
-    extends AutoDisposeStreamProvider<List<Expense>> {
+class FilteredExpenseListProvider extends StreamProvider<List<Expense>> {
   /// See also [filteredExpenseList].
   FilteredExpenseListProvider(
     ExpenseFilter filter,
@@ -142,7 +141,7 @@ class FilteredExpenseListProvider
   }
 
   @override
-  AutoDisposeStreamProviderElement<List<Expense>> createElement() {
+  StreamProviderElement<List<Expense>> createElement() {
     return _FilteredExpenseListProviderElement(this);
   }
 
@@ -162,14 +161,13 @@ class FilteredExpenseListProvider
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-mixin FilteredExpenseListRef on AutoDisposeStreamProviderRef<List<Expense>> {
+mixin FilteredExpenseListRef on StreamProviderRef<List<Expense>> {
   /// The parameter `filter` of this provider.
   ExpenseFilter get filter;
 }
 
 class _FilteredExpenseListProviderElement
-    extends AutoDisposeStreamProviderElement<List<Expense>>
-    with FilteredExpenseListRef {
+    extends StreamProviderElement<List<Expense>> with FilteredExpenseListRef {
   _FilteredExpenseListProviderElement(super.provider);
 
   @override
