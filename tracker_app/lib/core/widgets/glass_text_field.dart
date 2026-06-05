@@ -88,6 +88,7 @@ class _GlassTextFieldState extends State<GlassTextField> {
       radius: 14,
       blur: 14,
       isFrostedGlass: false,
+      noBlur: true,
       margin: EdgeInsets.zero,
       padding: EdgeInsets.zero,
       child: TextFormField(

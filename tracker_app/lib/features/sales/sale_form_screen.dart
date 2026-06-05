@@ -257,7 +257,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                     noBlur: true,
                     padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
                           'Product',
@@ -335,7 +335,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                     noBlur: true,
                     padding: const EdgeInsets.all(16),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Row(
                           children: [

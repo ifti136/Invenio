@@ -186,7 +186,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                     noBlur: true,
                     padding: const EdgeInsets.all(16),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         SizedBox(
                           width: double.infinity,
@@ -224,7 +224,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                     noBlur: true,
                     padding: const EdgeInsets.all(16),
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
                           'Category',
