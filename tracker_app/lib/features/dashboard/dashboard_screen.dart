@@ -8,6 +8,8 @@ import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/models/dashboard_summary.dart';
 import 'package:tracker/features/products/widgets/product_tile.dart';
+import 'package:tracker/features/products/wallet_repository.dart';
+import 'package:tracker/features/products/bucket_repository.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/features/sales/widgets/quick_sell_sheet.dart';
 import 'dashboard_provider.dart';
@@ -63,6 +65,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             padding: const EdgeInsets.fromLTRB(16, 8, 16, kBottomNavClearance),
             children: [
               _StatGrid(summary: s),
+              const SizedBox(height: 16),
+              const _WalletBalancesSection(),
+              const SizedBox(height: 16),
+              const _BudgetBucketsSection(),
               const SizedBox(height: 16),
               _PlatformBreakdown(
                 fbProfit: s.facebookProfit,
@@ -307,6 +313,186 @@ class _LowStockSection extends ConsumerWidget {
           ),
           const SizedBox(height: 8),
           ...products.map((p) => _LowStockRow(product: p)),
+        ],
+      ),
+    );
+  }
+}
+
+class _WalletBalancesSection extends ConsumerWidget {
+  const _WalletBalancesSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final walletsAsync = ref.watch(walletRepositoryProvider).getWallets().then(
+      (allWallets) async {
+        final activeWallets = allWallets.where((w) => w.isActive).toList();
+        final repo = ref.read(walletRepositoryProvider);
+        final balances = await repo.getWalletBalances();
+        final balanceMap = {for (var b in balances) b.walletId: b.balance};
+        return activeWallets.map((w) => (name: w.name, balance: balanceMap[w.id] ?? 0.0)).toList();
+      },
+    );
+
+    return FutureBuilder<List<({String name, double balance})>>(
+      future: walletsAsync,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+
+        final walletData = snapshot.data!;
+        if (walletData.isEmpty) return const SizedBox.shrink();
+
+        return GlassPanel(
+          padding: const EdgeInsets.all(16),
+          noBlur: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.account_balance_wallet, size: 18, color: AppColors.accent),
+                  const SizedBox(width: 6),
+                  Text('Wallet Balances',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w600)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: walletData.map((w) => _WalletBalanceChip(
+                  name: w.name,
+                  balance: w.balance,
+                )).toList(),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _BudgetBucketsSection extends ConsumerWidget {
+  const _BudgetBucketsSection();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final bucketsAsync = ref.watch(bucketRepositoryProvider).getBucketBalances();
+
+    return FutureBuilder<List<BucketBalance>>(
+      future: bucketsAsync,
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const SizedBox.shrink();
+        }
+
+        final buckets = snapshot.data!;
+        if (buckets.isEmpty) return const SizedBox.shrink();
+
+        return GlassPanel(
+          padding: const EdgeInsets.all(16),
+          noBlur: true,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(Icons.savings, size: 18, color: AppColors.accent),
+                  const SizedBox(width: 6),
+                  Text('Budget Buckets',
+                      style: Theme.of(context)
+                          .textTheme
+                          .titleSmall
+                          ?.copyWith(fontWeight: FontWeight.w600)),
+                ],
+              ),
+              const SizedBox(height: 12),
+              ...buckets.map((b) => _BucketBalanceRow(bucket: b)),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _BucketBalanceRow extends StatelessWidget {
+  final BucketBalance bucket;
+  const _BucketBalanceRow({required this.bucket});
+
+  @override
+  Widget build(BuildContext context) {
+    final color = bucket.color != null 
+        ? Color(int.parse(bucket.color!.replaceFirst('#', '0xff'))) 
+        : AppColors.accent;
+
+    return InkWell(
+      onTap: () => context.push('/products/settings/buckets/history/${bucket.id}'),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 6),
+        child: Row(
+          children: [
+            Container(
+              width: 12,
+              height: 12,
+              decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                bucket.name,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ),
+            Text(
+              formatMoney(bucket.available),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.bold,
+                    color: bucket.available >= 0 ? AppColors.success : AppColors.danger,
+                  ),
+            ),
+            const SizedBox(width: 8),
+            const Icon(Icons.chevron_right, size: 16, color: Colors.white38),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _WalletBalanceChip extends StatelessWidget {
+  final String name;
+  final double balance;
+  const _WalletBalanceChip({required this.name, required this.balance});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white24),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(name, style: const TextStyle(color: Colors.white70, fontSize: 12)),
+          const SizedBox(width: 6),
+          Text(
+            formatMoney(balance),
+            style: TextStyle(
+              color: balance >= 0 ? AppColors.success : AppColors.danger,
+              fontWeight: FontWeight.bold,
+              fontSize: 12,
+            ),
+          ),
         ],
       ),
     );

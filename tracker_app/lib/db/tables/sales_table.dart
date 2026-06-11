@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 import 'products_table.dart';
+import 'wallets_table.dart';
 
 class Sales extends Table {
   IntColumn get id => integer().autoIncrement()();
@@ -14,4 +15,6 @@ class Sales extends Table {
   RealColumn get normalPrice => real().nullable()();
   IntColumn get date => integer()();
   IntColumn get createdAt => integer()();
+  IntColumn get walletId => integer().nullable().references(Wallets, #id)();
+  TextColumn get ownership => text().withDefault(const Constant('business'))();
 }

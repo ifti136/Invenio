@@ -22,6 +22,11 @@ Future<List<MonthlySummary>> monthlySummaries(Ref ref, int year) {
 }
 
 @riverpod
+Future<List<MonthlySummary>> monthlyBusinessSummaries(Ref ref, int year) {
+  return ref.watch(reportRepositoryProvider).monthlyBusinessSummaries(year);
+}
+
+@riverpod
 Future<List<ProductReportRow>> productReport(Ref ref) {
   return ref.watch(reportRepositoryProvider).productReport();
 }
@@ -104,6 +109,72 @@ class ReportRepository {
           ..where((e) =>
               e.date.isBiggerOrEqualValue(start.millisecondsSinceEpoch) &
               e.date.isSmallerOrEqualValue(end.millisecondsSinceEpoch)))
+        .get();
+
+    final products = await _db.select(_db.products).get();
+    final costMap = {for (final p in products) p.id: p.costPrice};
+
+    final salesByMonth = <int, List<Sale>>{};
+    for (final s in sales) {
+      final m = DateTime.fromMillisecondsSinceEpoch(s.date).month;
+      salesByMonth.putIfAbsent(m, () => []).add(s);
+    }
+    final expensesByMonth = <int, List<Expense>>{};
+    for (final e in expenses) {
+      final m = DateTime.fromMillisecondsSinceEpoch(e.date).month;
+      expensesByMonth.putIfAbsent(m, () => []).add(e);
+    }
+
+    const labels = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+    ];
+
+    final months = <MonthlySummary>[];
+    for (var m = 1; m <= 12; m++) {
+      final monthSales = salesByMonth[m] ?? [];
+      final monthExpenses = expensesByMonth[m] ?? [];
+
+      var revenue = 0.0;
+      var profit = 0.0;
+      for (final s in monthSales) {
+        final cost = costMap[s.productId] ?? 0;
+        revenue += s.total;
+        profit += s.total - (s.quantity * cost);
+      }
+      var expTotal = 0.0;
+      for (final e in monthExpenses) {
+        expTotal += e.amount;
+      }
+
+    months.add(MonthlySummary(
+        month: m,
+        label: labels[m - 1],
+        revenue: revenue,
+        profit: profit,
+        expenses: expTotal,
+        salesCount: monthSales.length,
+      ));
+    }
+    return months;
+  }
+
+  Future<List<MonthlySummary>> monthlyBusinessSummaries(int year) async {
+    final start = DateTime(year, 1, 1);
+    final end = DateTime(year, 12, 31, 23, 59, 59);
+
+    final sales = await (_db.select(_db.sales)
+          ..where((s) =>
+              s.date.isBiggerOrEqualValue(start.millisecondsSinceEpoch) &
+              s.date.isSmallerOrEqualValue(end.millisecondsSinceEpoch) &
+              s.ownership.equals('business')))
+        .get();
+
+    final expenses = await (_db.select(_db.expenses)
+          ..where((e) =>
+              e.date.isBiggerOrEqualValue(start.millisecondsSinceEpoch) &
+              e.date.isSmallerOrEqualValue(end.millisecondsSinceEpoch) &
+              e.ownership.equals('business')))
         .get();
 
     final products = await _db.select(_db.products).get();

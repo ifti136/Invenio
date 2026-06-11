@@ -10,9 +10,11 @@ import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/dashboard/dashboard_provider.dart';
 import 'package:tracker/features/products/product_provider.dart';
 import 'package:tracker/features/products/product_repository.dart';
+import 'package:tracker/features/products/wallet_repository.dart';
 import 'package:tracker/features/sales/sale_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/features/sales/widgets/product_picker_sheet.dart';
+import 'package:tracker/features/products/widgets/wallet_picker_sheet.dart';
 import 'package:tracker/services/alert_service.dart';
 
 class SaleFormScreen extends ConsumerStatefulWidget {
@@ -38,6 +40,9 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
   SalePlatform _platform = SalePlatform.facebook;
   PaymentStatus _payment = PaymentStatus.paid;
   DateTime _date = DateTime.now();
+  int? _walletId;
+  String? _walletName;
+  String _ownership = 'business';
   bool _saving = false;
   bool _loaded = false;
   double? _lastPrice;
@@ -51,9 +56,18 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
     if (_isEdit) {
       WidgetsBinding.instance.addPostFrameCallback((_) => _load());
     } else {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
         if (widget.preselectProductId != null) {
           _selectProduct(widget.preselectProductId!);
+        }
+        final lastWalletId = await ref.read(walletRepositoryProvider).getLastUsedWalletId();
+        if (lastWalletId != null) {
+          final wallets = await ref.read(walletRepositoryProvider).getWallets();
+          final wallet = wallets.firstWhere((w) => w.id == lastWalletId);
+          setState(() {
+            _walletId = wallet.id;
+            _walletName = wallet.name;
+          });
         }
         setState(() => _loaded = true);
       });
@@ -73,8 +87,15 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
     _platform = SalePlatformX.fromKey(s.platform);
     _payment = PaymentStatusX.fromKey(s.paymentStatus);
     _date = DateTime.fromMillisecondsSinceEpoch(s.date);
+    _walletId = s.walletId;
+    _ownership = s.ownership;
+    if (_walletId != null) {
+      final wallets = await ref.read(walletRepositoryProvider).getWallets();
+      _walletName = wallets.firstWhere((w) => w.id == _walletId).name;
+    }
     if (mounted) setState(() => _loaded = true);
   }
+
 
   Future<void> _selectProduct(int id) async {
     final p = await ref.read(productRepositoryProvider).getById(id);
@@ -118,6 +139,10 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       await _showError('Please pick a product first.');
       return;
     }
+    if (_walletId == null) {
+      await _showError('Please select a wallet.');
+      return;
+    }
     final qty = int.parse(_qty.text.trim());
     final price = double.parse(_price.text.trim());
     final repo = ref.read(saleRepositoryProvider);
@@ -148,6 +173,8 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
           customerName:
               _customer.text.trim().isEmpty ? null : _customer.text.trim(),
           date: _date,
+          walletId: _walletId,
+          ownership: _ownership,
         );
       } else {
         await repo.addSale(
@@ -159,6 +186,8 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
           customerName:
               _customer.text.trim().isEmpty ? null : _customer.text.trim(),
           date: _date,
+          walletId: _walletId,
+          ownership: _ownership,
         );
       }
       if (!mounted) return;
@@ -227,7 +256,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
     );
   }
 
-  @override
+    @override
   Widget build(BuildContext context) {
     if (!_loaded) {
       return const Scaffold(
@@ -349,6 +378,68 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                         values: PaymentStatus.values,
                         labelOf: (v) => v.label,
                         onChanged: (v) => setState(() => _payment = v),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      _ToggleGroup<String>(
+                        label: 'Ownership',
+                        value: _ownership,
+                        values: const ['business', 'personal'],
+                        labelOf: (v) => v == 'business' ? 'Business' : 'Personal',
+                        onChanged: (v) => setState(() => _ownership = v),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final id = await showWalletPicker(
+                              context,
+                              ref: ref,
+                              selectedId: _walletId,
+                            );
+                            if (id != null) {
+                              final wallets = await ref.read(walletRepositoryProvider).getWallets();
+                              final name = wallets.firstWhere((w) => w.id == id).name;
+                              setState(() {
+                                _walletId = id;
+                                _walletName = name;
+                              });
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.04),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.18),
+                                width: 0.6,
+                              ),
+                            ),
+                            child: Row(
+                              children: [
+                                const Icon(Icons.account_balance_wallet_outlined,
+                                    size: 16, color: AppColors.accent),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _walletName ?? 'Select Wallet',
+                                    style: const TextStyle(fontSize: 13),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const Icon(Icons.expand_more,
+                                    size: 16, color: Colors.white54),
+                              ],
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),

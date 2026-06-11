@@ -1,26 +1,27 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'dashboard_provider.dart';
+part of 'finance_screen.dart';
 
 // **************************************************************************
 // RiverpodGenerator
 // **************************************************************************
 
-String _$dashboardHash() => r'19b1da1e5b68dc2a23afcdb9c8c720ba47d607b8';
+String _$financeDataHash() => r'6a6816d7839e2b8fa97386a7bc751b53103cde8f';
 
-/// See also [dashboard].
-@ProviderFor(dashboard)
-final dashboardProvider = AutoDisposeFutureProvider<DashboardSummary>.internal(
-  dashboard,
-  name: r'dashboardProvider',
+/// See also [financeData].
+@ProviderFor(financeData)
+final financeDataProvider =
+    AutoDisposeFutureProvider<List<RuleFinanceData>>.internal(
+  financeData,
+  name: r'financeDataProvider',
   debugGetCreateSourceHash:
-      const bool.fromEnvironment('dart.vm.product') ? null : _$dashboardHash,
+      const bool.fromEnvironment('dart.vm.product') ? null : _$financeDataHash,
   dependencies: null,
   allTransitiveDependencies: null,
 );
 
 @Deprecated('Will be removed in 3.0. Use Ref instead')
 // ignore: unused_element
-typedef DashboardRef = AutoDisposeFutureProviderRef<DashboardSummary>;
+typedef FinanceDataRef = AutoDisposeFutureProviderRef<List<RuleFinanceData>>;
 // ignore_for_file: type=lint
 // ignore_for_file: subtype_of_sealed_class, invalid_use_of_internal_member, invalid_use_of_visible_for_testing_member, deprecated_member_use_from_same_package

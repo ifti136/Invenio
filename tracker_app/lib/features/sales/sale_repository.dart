@@ -95,6 +95,8 @@ class SaleRepository {
     required String paymentStatus,
     String? customerName,
     DateTime? date,
+    int? walletId,
+    String? ownership,
     bool isDiscounted = false,
     double? normalPrice,
   }) {
@@ -122,7 +124,10 @@ class SaleRepository {
               normalPrice: drift.Value(normalPrice),
               date: effectiveDate.millisecondsSinceEpoch,
               createdAt: DateTime.now().millisecondsSinceEpoch,
-            ),
+               walletId: drift.Value(walletId),
+               ownership: drift.Value(ownership ?? 'business'),
+             ),
+
           );
       await (_db.update(_db.products)..where((p) => p.id.equals(productId)))
           .write(ProductsCompanion(stock: drift.Value(newStock)));
@@ -150,6 +155,8 @@ class SaleRepository {
     required String paymentStatus,
     String? customerName,
     DateTime? date,
+    int? walletId,
+    String? ownership,
   }) {
     return _db.transaction(() async {
       final existing = await (_db.select(_db.sales)
@@ -176,7 +183,10 @@ class SaleRepository {
           paymentStatus: drift.Value(paymentStatus),
           customerName: drift.Value(customerName),
           date: drift.Value(effectiveDate.millisecondsSinceEpoch),
-        ),
+           walletId: drift.Value(walletId),
+           ownership: drift.Value(ownership ?? 'business'),
+         ),
+
       );
       if (qtyDelta != 0) {
         await (_db.update(_db.products)..where((p) => p.id.equals(productId)))

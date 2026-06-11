@@ -39,6 +39,32 @@ class LowStockAlert extends AppAlert {
   IconHint get icon => IconHint.lowStock;
 }
 
+class AllocationOverdrawAlert extends AppAlert {
+  final String ruleLabel;
+  final double overdrawAmount;
+  const AllocationOverdrawAlert({required this.ruleLabel, required this.overdrawAmount});
+
+  @override
+  String get message =>
+      'This will overdraw your $ruleLabel fund by ৳${overdrawAmount.toStringAsFixed(2)}';
+
+  @override
+  IconHint get icon => IconHint.overdraw;
+}
+
+class BucketOverdrawAlert extends AppAlert {
+  final String bucketName;
+  final double overdrawAmount;
+  const BucketOverdrawAlert({required this.bucketName, required this.overdrawAmount});
+
+  @override
+  String get message =>
+      'This expense will overdraw your $bucketName budget by ৳${overdrawAmount.toStringAsFixed(2)}. Do you wish to proceed?';
+
+  @override
+  IconHint get icon => IconHint.overdraw;
+}
+
 class MarginDropAlert extends AppAlert {
   final double lastMarginPct;
   final double currentMarginPct;
@@ -55,7 +81,7 @@ class MarginDropAlert extends AppAlert {
   IconHint get icon => IconHint.margin;
 }
 
-enum IconHint { warning, lowStock, margin }
+enum IconHint { warning, lowStock, margin, overdraw }
 
 class AlertService {
   List<AppAlert> checkSale({

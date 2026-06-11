@@ -17,12 +17,14 @@ Future<DashboardSummary> dashboard(Ref ref) async {
 
   final todaySales = await (db.select(db.sales)
         ..where((t) =>
+            t.ownership.equals('business') &
             t.date.isBiggerOrEqualValue(startOfDay) &
             t.date.isSmallerOrEqualValue(endOfDay)))
       .get();
 
   final todayExpenses = await (db.select(db.expenses)
         ..where((t) =>
+            t.ownership.equals('business') &
             t.date.isBiggerOrEqualValue(startOfDay) &
             t.date.isSmallerOrEqualValue(endOfDay)))
       .get();
@@ -51,7 +53,7 @@ Future<DashboardSummary> dashboard(Ref ref) async {
   final totalExpenses = todayExpenses.fold(0.0, (sum, e) => sum + e.amount);
 
   final dueAmount = await (db.select(db.sales)
-        ..where((t) => t.paymentStatus.equals('due')))
+        ..where((t) => t.ownership.equals('business') & t.paymentStatus.equals('due')))
       .get()
       .then((rows) => rows.fold(0.0, (sum, s) => sum + s.total));
 

@@ -327,6 +327,143 @@ class _MonthlySummariesProviderElement
   int get year => (origin as MonthlySummariesProvider).year;
 }
 
+String _$monthlyBusinessSummariesHash() =>
+    r'6433708bf64f087e97047d3ff7469db29658b258';
+
+/// See also [monthlyBusinessSummaries].
+@ProviderFor(monthlyBusinessSummaries)
+const monthlyBusinessSummariesProvider = MonthlyBusinessSummariesFamily();
+
+/// See also [monthlyBusinessSummaries].
+class MonthlyBusinessSummariesFamily
+    extends Family<AsyncValue<List<MonthlySummary>>> {
+  /// See also [monthlyBusinessSummaries].
+  const MonthlyBusinessSummariesFamily();
+
+  /// See also [monthlyBusinessSummaries].
+  MonthlyBusinessSummariesProvider call(
+    int year,
+  ) {
+    return MonthlyBusinessSummariesProvider(
+      year,
+    );
+  }
+
+  @override
+  MonthlyBusinessSummariesProvider getProviderOverride(
+    covariant MonthlyBusinessSummariesProvider provider,
+  ) {
+    return call(
+      provider.year,
+    );
+  }
+
+  static const Iterable<ProviderOrFamily>? _dependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get dependencies => _dependencies;
+
+  static const Iterable<ProviderOrFamily>? _allTransitiveDependencies = null;
+
+  @override
+  Iterable<ProviderOrFamily>? get allTransitiveDependencies =>
+      _allTransitiveDependencies;
+
+  @override
+  String? get name => r'monthlyBusinessSummariesProvider';
+}
+
+/// See also [monthlyBusinessSummaries].
+class MonthlyBusinessSummariesProvider
+    extends AutoDisposeFutureProvider<List<MonthlySummary>> {
+  /// See also [monthlyBusinessSummaries].
+  MonthlyBusinessSummariesProvider(
+    int year,
+  ) : this._internal(
+          (ref) => monthlyBusinessSummaries(
+            ref as MonthlyBusinessSummariesRef,
+            year,
+          ),
+          from: monthlyBusinessSummariesProvider,
+          name: r'monthlyBusinessSummariesProvider',
+          debugGetCreateSourceHash:
+              const bool.fromEnvironment('dart.vm.product')
+                  ? null
+                  : _$monthlyBusinessSummariesHash,
+          dependencies: MonthlyBusinessSummariesFamily._dependencies,
+          allTransitiveDependencies:
+              MonthlyBusinessSummariesFamily._allTransitiveDependencies,
+          year: year,
+        );
+
+  MonthlyBusinessSummariesProvider._internal(
+    super._createNotifier, {
+    required super.name,
+    required super.dependencies,
+    required super.allTransitiveDependencies,
+    required super.debugGetCreateSourceHash,
+    required super.from,
+    required this.year,
+  }) : super.internal();
+
+  final int year;
+
+  @override
+  Override overrideWith(
+    FutureOr<List<MonthlySummary>> Function(
+            MonthlyBusinessSummariesRef provider)
+        create,
+  ) {
+    return ProviderOverride(
+      origin: this,
+      override: MonthlyBusinessSummariesProvider._internal(
+        (ref) => create(ref as MonthlyBusinessSummariesRef),
+        from: from,
+        name: null,
+        dependencies: null,
+        allTransitiveDependencies: null,
+        debugGetCreateSourceHash: null,
+        year: year,
+      ),
+    );
+  }
+
+  @override
+  AutoDisposeFutureProviderElement<List<MonthlySummary>> createElement() {
+    return _MonthlyBusinessSummariesProviderElement(this);
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is MonthlyBusinessSummariesProvider && other.year == year;
+  }
+
+  @override
+  int get hashCode {
+    var hash = _SystemHash.combine(0, runtimeType.hashCode);
+    hash = _SystemHash.combine(hash, year.hashCode);
+
+    return _SystemHash.finish(hash);
+  }
+}
+
+@Deprecated('Will be removed in 3.0. Use Ref instead')
+// ignore: unused_element
+mixin MonthlyBusinessSummariesRef
+    on AutoDisposeFutureProviderRef<List<MonthlySummary>> {
+  /// The parameter `year` of this provider.
+  int get year;
+}
+
+class _MonthlyBusinessSummariesProviderElement
+    extends AutoDisposeFutureProviderElement<List<MonthlySummary>>
+    with MonthlyBusinessSummariesRef {
+  _MonthlyBusinessSummariesProviderElement(super.provider);
+
+  @override
+  int get year => (origin as MonthlyBusinessSummariesProvider).year;
+}
+
 String _$productReportHash() => r'e341ab8f8eb1c4e128a44194b9223a90cf0136a9';
 
 /// See also [productReport].

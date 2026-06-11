@@ -59,6 +59,10 @@ class ExpenseRepository {
     required String category,
     String? note,
     DateTime? date,
+    int? walletId,
+    String? ownership,
+    int? allocationRuleId,
+    int? bucketId,
   }) {
     final effectiveDate = date ?? DateTime.now();
     return _db.into(_db.expenses).insert(ExpensesCompanion.insert(
@@ -67,6 +71,10 @@ class ExpenseRepository {
       note: drift.Value(note),
       date: effectiveDate.millisecondsSinceEpoch,
       createdAt: DateTime.now().millisecondsSinceEpoch,
+      walletId: drift.Value(walletId),
+      ownership: drift.Value(ownership ?? 'business'),
+      allocationRuleId: drift.Value(allocationRuleId),
+      bucketId: drift.Value(bucketId),
     ));
   }
 
@@ -76,6 +84,10 @@ class ExpenseRepository {
     required String category,
     String? note,
     DateTime? date,
+    int? walletId,
+    String? ownership,
+    int? allocationRuleId,
+    int? bucketId,
   }) {
     final effectiveDate = date ?? DateTime.now();
     return (_db.update(_db.expenses)..where((e) => e.id.equals(id))).write(
@@ -84,6 +96,10 @@ class ExpenseRepository {
         category: drift.Value(category),
         note: note != null ? drift.Value(note) : drift.Value.absent(),
         date: drift.Value(effectiveDate.millisecondsSinceEpoch),
+        walletId: drift.Value(walletId),
+        ownership: drift.Value(ownership ?? 'business'),
+        allocationRuleId: drift.Value(allocationRuleId),
+        bucketId: drift.Value(bucketId),
       ),
     );
   }

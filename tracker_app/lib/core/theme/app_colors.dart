@@ -9,6 +9,7 @@ class AppColors {
 
   static const danger = Color(0xFFE24B4A);
   static const dangerLight = Color(0xFFFCEBEB);
+  static const error = danger;
 
   static const stockGood = Color(0xFF1D9E75);
   static const stockWarn = Color(0xFFEF9F27);
@@ -16,6 +17,7 @@ class AppColors {
 
   static const success = stockGood;
   static const info = Color(0xFF4F8AF0);
+  static const teal = accent;
 
   static const facebook = Color(0xFF1877F2);
   static const offline = Color(0xFF534AB7);

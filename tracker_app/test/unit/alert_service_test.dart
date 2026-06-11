@@ -221,28 +221,30 @@ Product _product({
   );
 }
 
-Sale _sale({
-  int id = 1,
-  int productId = 1,
-  int quantity = 1,
-  double sellingPrice = 100.0,
-  double total = 100.0,
-  String platform = 'facebook',
-  String paymentStatus = 'paid',
-  String? customerName,
-}) {
-  return Sale(
-    id: id,
-    productId: productId,
-    quantity: quantity,
-    sellingPrice: sellingPrice,
-    total: total,
-    platform: platform,
-    paymentStatus: paymentStatus,
-    customerName: customerName,
-    isDiscounted: false,
-    normalPrice: null,
-    date: DateTime.now().millisecondsSinceEpoch,
-    createdAt: DateTime.now().millisecondsSinceEpoch,
-  );
-}
+  Sale _sale({
+    int id = 1,
+    int productId = 1,
+    int quantity = 1,
+    double sellingPrice = 100.0,
+    double total = 100.0,
+    String platform = 'facebook',
+    String paymentStatus = 'paid',
+    String? customerName,
+  }) {
+    return Sale(
+      id: id,
+      productId: productId,
+      quantity: quantity,
+      sellingPrice: sellingPrice,
+      total: total,
+      platform: platform,
+      paymentStatus: paymentStatus,
+      customerName: customerName,
+      isDiscounted: false,
+      normalPrice: null,
+      date: DateTime.now().millisecondsSinceEpoch,
+      createdAt: DateTime.now().millisecondsSinceEpoch,
+      ownership: 'business',
+    );
+  }
+
