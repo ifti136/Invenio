@@ -33,6 +33,8 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(sales, sales.normalPrice);
       }
       if (from < 3) {
+        await customStatement('DROP TABLE IF EXISTS wallets');
+        await customStatement('DROP TABLE IF EXISTS allocation_rules');
         await m.createTable(wallets);
         await m.createTable(allocationRules);
         await m.addColumn(sales, sales.walletId);

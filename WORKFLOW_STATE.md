@@ -26,7 +26,7 @@ None.
 - **Phase 2 (Implemented):** 
     - **Database:** Migrate to Schema v4. Create `BudgetBuckets` table (Global). Add `bucketId` (nullable) to `Expenses`.
     - **Logic:** Hybrid Budgeting. Buckets are global (limit is shared), but each expense linked to a bucket tracks the wallet used. Balance = `allocatedAmount` - linked expenses.
-    - **UI:** Bucket CRUD in Products $\rightarrow$ Product Settings. Optional bucket picker in Expense form.
+    - **UI:** Bucket CRUD in Products $ightarrow$ Product Settings. Optional bucket picker in Expense form.
     - **Alerts:** Bucket overdraws trigger a blocking `showGlassDialog` (Cancel/Proceed).
     - **Dashboard:** "Buckets" card showing a simple list of balances with color chips.
     - **History:** Bucket history view showing amount and wallet used for each expense.
@@ -50,10 +50,10 @@ None.
     1. **Fix Core Infrastructure:** Resolve all broken imports and `AppColors` undefined getters.
     2. **Fix Repositories:** Correct Drift query syntax in `WalletRepository`, `AllocationRulesRepository`, and `ExpenseRepository`.
     3. **Fix UI Screens:** 
-       - Rewrite `DashboardScreen` to fix severe syntax errors.
-       - Fix `ExpenseFormScreen` (providers, type mismatches, alert calls).
-       - Fix `AllocationSettingsScreen` (type definitions, nullability).
-       - Fix `WalletPickerSheet` (type casting).
+        - Rewrite `DashboardScreen` to fix severe syntax errors.
+        - Fix `ExpenseFormScreen` (providers, type mismatches, alert calls).
+        - Fix `AllocationSettingsScreen` (type definitions, nullability).
+        - Fix `WalletPickerSheet` (type casting).
     4. **Verification:** Run `flutter analyze` and `build_runner` until 0 errors.
 
 ## Files To Change
@@ -68,8 +68,20 @@ None.
 - `lib/features/products/widgets/wallet_picker_sheet.dart`
 - All new BFMS widgets (fixing imports).
 
+## Commit Message Draft
+chore(repo): Stabilize and polish after Phase 2 completion
+
+Updated Android build configuration, ensured clean database migrations,
+refactored finance navigation, and added a product settings button.
+
+- Bumped compileSdk to 35 and ndkVersion to 26.1.10909125 in build.gradle.kts.
+- Added DROP TABLE IF EXISTS for wallets and allocation_rules in v2 -> v3 migration.
+- Refactored finance screen navigation to use go_router (context.push).
+- Added settings button to product list screen, navigating to /products/settings.
+- Bumped app version to 1.0.1+3 in pubspec.yaml.
+
 ## Current Status
-Phase 2: Implemented and verified. Codebase is stable and compiles without errors.
+done
 
 ## Next Agent
 planner

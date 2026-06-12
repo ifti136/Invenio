@@ -44,6 +44,12 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
             ),
             actions: [
               IconButton(
+                tooltip: 'Settings',
+                onPressed: () => context.push('/products/settings'),
+                icon: const Icon(Icons.settings_outlined, color: Colors.white70),
+              ),
+              const SizedBox(width: 4),
+              IconButton(
                 tooltip: 'Add product',
                 onPressed: () => context.push('/products/add'),
                 icon: const Icon(Icons.add_rounded, color: AppColors.accent),

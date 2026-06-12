@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
+import 'package:go_router/go_router.dart';
 import '../../core/widgets/glass_panel.dart';
 import '../../core/theme/app_colors.dart';
 import 'finance_repository.dart';
@@ -53,7 +54,7 @@ class FinanceScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () => Navigator.of(context).pushNamed('/finance/settings'),
+            onPressed: () => context.push('/finance/settings'),
           ),
         ],
       ),
@@ -99,19 +100,21 @@ class FinanceScreen extends ConsumerWidget {
                                   ),
                                 ),
                               ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white24,
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Text(
-                                  '${rule.percentage}%',
-                                  style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                                    color: Colors.white,
+                               Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white24,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '${rule.percentage}%',
+                                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                      color: Colors.white,
+                                    ),
                                   ),
                                 ),
-                              ),
+
+
                               const SizedBox(width: 8),
                               const Icon(Icons.chevron_right, color: Colors.white54),
                             ],
