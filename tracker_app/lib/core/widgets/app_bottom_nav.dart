@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:tracker/features/products/product_provider.dart';
 import 'glass_panel.dart';
+import 'app_colors.dart';
 
 const double kBottomNavHeight = 76;
 const double kBottomNavClearance = 100;
@@ -37,12 +38,66 @@ class AppScaffold extends ConsumerWidget {
       selectedIcon: Icons.bar_chart,
       label: 'Reports',
     ),
-    (
-      icon: Icons.account_balance_wallet_outlined,
-      selectedIcon: Icons.account_balance_wallet,
-      label: 'Finance',
-    ),
   ];
+
+  void _showQuickActionSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      barrierColor: Colors.black.withOpacity(0.5),
+      useSafeArea: false,
+      builder: (ctx) => Padding(
+        padding: EdgeInsets.fromLTRB(16, 24, 16, (MediaQuery.of(ctx).viewInsets.bottom > 0 
+            ? MediaQuery.of(ctx).viewInsets.bottom 
+            : kBottomNavHeight + 8)),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              margin: const EdgeInsets.bottom(24),
+              decoration: BoxDecoration(
+                color: Colors.white24,
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+            Text(
+              'QUICK ACTIONS',
+              style: TextStyle(
+                color: AppColors.onSurfaceVariant,
+                fontSize: 13,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.8,
+              ),
+            ),
+            const SizedBox(height: 16),
+            _buildActionTile(ctx, 'New Sale', Icons.add_shopping_cart, '/sales/add'),
+            _buildActionTile(ctx, 'New Expense', Icons.money_off, '/expenses/add'),
+            _buildActionTile(ctx, 'New Product', Icons.add_box, '/products/add'),
+            const SizedBox(height: 16),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildActionTile(BuildContext context, String label, IconData icon, String route) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 12),
+      child: GlassPanel(
+        noBlur: true,
+        child: ListTile(
+          leading: Icon(icon, color: AppColors.accent),
+          title: Text(label, style: const TextStyle(color: Colors.white, fontSize: 16)),
+          trailing: const Icon(Icons.chevron_right, color: AppColors.onSurfaceVariant),
+          onTap: () {
+            Navigator.of(context).pop();
+            context.push(route);
+          },
+        ),
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -86,16 +141,20 @@ class AppScaffold extends ConsumerWidget {
         selectedIcon: Icon(_tabs[4].selectedIcon),
         label: _tabs[4].label,
       ),
-      NavigationDestination(
-        icon: Icon(_tabs[5].icon),
-        selectedIcon: Icon(_tabs[5].selectedIcon),
-        label: _tabs[5].label,
-      ),
     ];
 
     return Scaffold(
       extendBody: true,
       body: navigationShell,
+      floatingActionButton: idx == 0 
+        ? FloatingActionButton(
+            onPressed: () => _showQuickActionSheet(context),
+            backgroundColor: AppColors.accent,
+            foregroundColor: Colors.white,
+            child: const Icon(Icons.add),
+          )
+        : null,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: SafeArea(
         top: false,
         child: Padding(
@@ -127,3 +186,4 @@ class AppScaffold extends ConsumerWidget {
     );
   }
 }
+
