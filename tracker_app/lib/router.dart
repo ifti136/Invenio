@@ -49,50 +49,6 @@ GoRouter router(Ref ref) {
                 builder: (_, __) => const ProductListScreen(),
                 routes: [
                   GoRoute(
-                    path: 'settings',
-                    builder: (_, __) => const ProductSettingsScreen(),
-                    routes: [
-                      GoRoute(
-                        path: 'wallets',
-                        builder: (_, __) => const WalletListScreen(),
-                        routes: [
-                          GoRoute(
-                            path: 'add',
-                            builder: (_, __) => const WalletFormScreen(),
-                          ),
-                          GoRoute(
-                            path: 'edit/:id',
-                            builder: (_, s) => WalletFormScreen(
-                              walletId: int.parse(s.pathParameters['id']!),
-                            ),
-                          ),
-                        ],
-                      ),
-                      GoRoute(
-                        path: 'buckets',
-                        builder: (_, __) => const BucketListScreen(),
-                        routes: [
-                          GoRoute(
-                            path: 'add',
-                            builder: (_, __) => const BucketFormScreen(),
-                          ),
-                          GoRoute(
-                            path: 'edit/:id',
-                            builder: (_, s) => BucketFormScreen(
-                              bucketId: int.parse(s.pathParameters['id']!),
-                            ),
-                          ),
-                          GoRoute(
-                            path: 'history/:id',
-                            builder: (_, s) => BucketHistoryScreen(
-                              bucketId: int.parse(s.pathParameters['id']!),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  GoRoute(
                     path: 'add',
                     builder: (_, __) => const ProductFormScreen(),
                   ),
@@ -162,32 +118,61 @@ GoRouter router(Ref ref) {
               ),
             ],
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/finance',
-                builder: (_, __) => const FinanceScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'history/:ruleId',
-                    builder: (_, s) => AllocationHistoryScreen(
-                      ruleId: int.parse(s.pathParameters['ruleId']!),
-                    ),
-                  ),
-                  GoRoute(
-                    path: 'settings',
-                    builder: (_, __) => const AllocationSettingsScreen(),
-                  ),
-                ],
-              ),
-            ],
-          ),
         ],
       ),
       GoRoute(
-        path: '/settings/theme',
-        builder: (_, __) => const ThemeScreen(),
+        path: '/settings',
+        builder: (_, __) => const SettingsScreen(),
+        routes: [
+          GoRoute(
+            path: 'wallets',
+            builder: (_, __) => const WalletListScreen(),
+          ),
+          GoRoute(
+            path: 'buckets',
+            builder: (_, __) => const BucketListScreen(),
+            routes: [
+              GoRoute(
+                path: 'history/:id',
+                builder: (_, s) => BucketHistoryScreen(
+                  bucketId: int.parse(s.pathParameters['id']!),
+                ),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'add-ons',
+            builder: (_, __) => const AddOnTypesScreen(),
+          ),
+          GoRoute(
+            path: 'finance',
+            builder: (_, __) => const FinanceScreen(),
+            routes: [
+              GoRoute(
+                path: 'history/:ruleId',
+                builder: (_, s) => AllocationHistoryScreen(
+                  ruleId: int.parse(s.pathParameters['ruleId']!),
+                ),
+              ),
+              GoRoute(
+                path: 'settings',
+                builder: (_, __) => const AllocationSettingsScreen(),
+              ),
+            ],
+          ),
+          GoRoute(
+            path: 'theme',
+            builder: (_, __) => const ThemeScreen(),
+          ),
+          GoRoute(
+            path: 'currency',
+            builder: (_, __) => const CurrencyScreen(),
+          ),
+          GoRoute(
+            path: 'system',
+            builder: (_, __) => const SystemSettingsScreen(),
+          ),
+        ],
       ),
-    ],
-  );
-}
+    );
+  }
