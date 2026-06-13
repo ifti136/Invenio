@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
+import 'package:tracker/core/widgets/section_header.dart';
+import 'package:tracker/core/widgets/metric_cell.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
+import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/models/dashboard_summary.dart';
-import 'package:tracker/features/products/widgets/product_tile.dart';
 import 'package:tracker/features/products/wallet_repository.dart';
 import 'package:tracker/features/products/bucket_repository.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
@@ -37,7 +41,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             if (!mounted) return;
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
-                content: Text('$lowStockCount product${lowStockCount == 1 ? '' : 's'} low on stock'),
+                content: Text(
+                    '$lowStockCount product${lowStockCount == 1 ? '' : 's'} low on stock'),
                 action: SnackBarAction(
                   label: 'View',
                   onPressed: () => context.go('/products'),
@@ -52,9 +57,17 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Dashboard',
+          'DASHBOARD',
+          textAlign: TextAlign.center,
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
         ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () => context.push('/settings'),
+          ),
+        ],
       ),
       body: summaryAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -62,21 +75,21 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         data: (s) => RefreshIndicator(
           onRefresh: () => ref.refresh(dashboardProvider.future),
           child: ListView(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, kBottomNavClearance),
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, kBottomNavClearance),
             children: [
-              _StatGrid(summary: s),
+              _TodayCard(summary: s),
               const SizedBox(height: 16),
-              const _WalletBalancesSection(),
-              const SizedBox(height: 16),
-              const _BudgetBucketsSection(),
-              const SizedBox(height: 16),
-              _PlatformBreakdown(
-                fbProfit: s.facebookProfit,
-                offlineProfit: s.offlineProfit,
+              _PlatformPerformanceCard(
+                fbRevenue: s.facebookRevenue,
+                offlineRevenue: s.offlineRevenue,
               ),
+              const SizedBox(height: 16),
+              const _WalletBalancesCard(),
+              const SizedBox(height: 16),
+              const _BudgetBucketsCard(),
               if (s.lowStockProducts.isNotEmpty) ...[
                 const SizedBox(height: 16),
-                _LowStockSection(products: s.lowStockProducts),
+                _StockAlertsCard(products: s.lowStockProducts),
               ],
             ],
           ),
@@ -86,9 +99,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-class _StatGrid extends StatelessWidget {
+class _TodayCard extends StatelessWidget {
   final DashboardSummary summary;
-  const _StatGrid({required this.summary});
+  const _TodayCard({required this.summary});
 
   @override
   Widget build(BuildContext context) {
@@ -98,59 +111,81 @@ class _StatGrid extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('Today',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w600)),
+          const SectionHeader('TODAY'),
           const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
-                  child: _StatItem(
-                      label: 'Sales',
-                      value: '${summary.salesToday}',
-                      icon: Icons.shopping_bag,
-                      color: AppColors.accent)),
+                child: MetricCell(
+                  icon: Icons.shopping_bag_outlined,
+                  iconColor: AppColors.accent,
+                  value: '${summary.salesToday}',
+                  label: 'Sales',
+                  sparklineData: summary.salesLast7Days,
+                ),
+              ),
               const SizedBox(width: 8),
               Expanded(
-                  child: _StatItem(
-                      label: 'Revenue',
-                      value: formatMoney(summary.revenueToday),
-                      icon: Icons.trending_up,
-                      color: AppColors.success)),
+                child: MetricCell(
+                  icon: Icons.trending_up,
+                  iconColor: AppColors.accent,
+                  value: formatMoney(summary.revenueToday),
+                  label: 'Revenue',
+                ),
+              ),
             ],
           ),
           const SizedBox(height: 8),
           Row(
             children: [
               Expanded(
-                  child: _StatItem(
-                      label: 'Gross Profit',
-                      value: formatMoney(summary.grossProfitToday),
-                      icon: Icons.account_balance,
-                      color: AppColors.warning)),
+                child: MetricCell(
+                  icon: Icons.account_balance_wallet_outlined,
+                  iconColor: AppColors.accent,
+                  value: formatMoney(summary.grossProfitToday),
+                  label: 'Gross Profit',
+                ),
+              ),
               const SizedBox(width: 8),
               Expanded(
-                  child: _StatItem(
-                      label: 'Net Profit',
-                      value: formatMoney(summary.netProfitToday),
-                      icon: Icons.savings,
-                      color: summary.netProfitToday >= 0
-                          ? AppColors.success
-                          : AppColors.danger)),
+                child: MetricCell(
+                  icon: Icons.savings_outlined,
+                  iconColor: summary.netProfitToday >= 0
+                      ? AppColors.accent
+                      : AppColors.danger,
+                  value: formatMoney(summary.netProfitToday),
+                  label: 'Net Profit',
+                ),
+              ),
             ],
           ),
-          const SizedBox(height: 8),
+          const Divider(height: 24, thickness: 1, color: Colors.white10),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(
-                  child: _StatItem(
-                      label: 'Due',
-                      value: formatMoney(summary.totalDue),
-                      icon: Icons.pending_actions,
-                      color: AppColors.danger)),
-              const Expanded(child: SizedBox()),
+              Row(
+                children: [
+                  const Icon(Icons.calendar_today_outlined,
+                      size: 16, color: AppColors.danger),
+                  const SizedBox(width: 6),
+                  Text(
+                    'CURRENT DUE',
+                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                          color: AppColors.danger,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                  ),
+                ],
+              ),
+              Text(
+                formatMoney(summary.totalDue),
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                      color: AppColors.danger,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+              ),
             ],
           ),
         ],
@@ -159,15 +194,91 @@ class _StatGrid extends StatelessWidget {
   }
 }
 
-class _StatItem extends StatelessWidget {
+class _PlatformPerformanceCard extends StatelessWidget {
+  final double fbRevenue;
+  final double offlineRevenue;
+  const _PlatformPerformanceCard({
+    required this.fbRevenue,
+    required this.offlineRevenue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final total = fbRevenue + offlineRevenue;
+    final fbPct = total > 0 ? (fbRevenue / total) : 0.0;
+    final offlinePct = total > 0 ? (offlineRevenue / total) : 0.0;
+
+    return GlassPanel(
+      padding: const EdgeInsets.all(16),
+      noBlur: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader('PLATFORM PERFORMANCE'),
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width * 0.4 - 32,
+                height: 120,
+                child: PieChart(
+                  PieChartData(
+                    sectionsSpace: 0,
+                    centerSpaceRadius: 40,
+                    sections: [
+                      PieChartSectionData(
+                        color: const Color(0xFF1877F2),
+                        value: total > 0 ? fbRevenue : 1,
+                        title: '',
+                        radius: 20,
+                      ),
+                      PieChartSectionData(
+                        color: const Color(0xFF534AB7),
+                        value: total > 0 ? offlineRevenue : 0,
+                        title: '',
+                        radius: 20,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  children: [
+                    _PlatformPerformanceRow(
+                      label: 'Facebook',
+                      amount: fbRevenue,
+                      pct: fbPct,
+                      color: const Color(0xFF1877F2),
+                    ),
+                    const SizedBox(height: 12),
+                    _PlatformPerformanceRow(
+                      label: 'Offline',
+                      amount: offlineRevenue,
+                      pct: offlinePct,
+                      color: const Color(0xFF534AB7),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PlatformPerformanceRow extends StatelessWidget {
   final String label;
-  final String value;
-  final IconData icon;
+  final double amount;
+  final double pct;
   final Color color;
-  const _StatItem({
+  const _PlatformPerformanceRow({
     required this.label,
-    required this.value,
-    required this.icon,
+    required this.amount,
+    required this.pct,
     required this.color,
   });
 
@@ -176,151 +287,50 @@ class _StatItem extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Icon(icon, color: color, size: 18),
-        const SizedBox(height: 4),
-        Text(label,
-            style: Theme.of(context)
-                .textTheme
-                .labelSmall
-                ?.copyWith(color: color.withOpacity(0.8))),
-        const SizedBox(height: 2),
-        Text(value,
-            style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.bold, color: color)),
-      ],
-    );
-  }
-}
-
-class _PlatformBreakdown extends StatelessWidget {
-  final double fbProfit;
-  final double offlineProfit;
-  const _PlatformBreakdown(
-      {required this.fbProfit, required this.offlineProfit});
-
-  @override
-  Widget build(BuildContext context) {
-    final total = fbProfit + offlineProfit;
-    final fbPct = total > 0 ? (fbProfit / total) * 100 : 0.0;
-    final offlinePct = total > 0 ? (offlineProfit / total) * 100 : 0.0;
-
-    return GlassPanel(
-      padding: const EdgeInsets.all(16),
-      noBlur: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Platform Breakdown',
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.w600)),
-          const SizedBox(height: 12),
-          _PlatformRow(
-            label: 'Facebook',
-            profit: fbProfit,
-            pct: fbPct,
-            color: const Color(0xFF1877F2),
-          ),
-          const SizedBox(height: 8),
-          _PlatformRow(
-            label: 'Offline',
-            profit: offlineProfit,
-            pct: offlinePct,
-            color: AppColors.accent,
-          ),
-          if (total > 0) ...[
-            const SizedBox(height: 12),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: LinearProgressIndicator(
-                value: fbPct / 100,
-                backgroundColor: AppColors.accent.withOpacity(0.2),
-                color: const Color(0xFF1877F2),
-                minHeight: 8,
-              ),
+        Row(
+          children: [
+            Icon(Icons.circle, size: 12, color: color),
+            const SizedBox(width: 8),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                  ),
+            ),
+            const Spacer(),
+            Text(
+              formatMoney(amount),
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '(${(pct * 100).toStringAsFixed(0)}%)',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: color,
+                  ),
             ),
           ],
-        ],
-      ),
-    );
-  }
-}
-
-class _PlatformRow extends StatelessWidget {
-  final String label;
-  final double profit;
-  final double pct;
-  final Color color;
-  const _PlatformRow({
-    required this.label,
-    required this.profit,
-    required this.pct,
-    required this.color,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Container(
-          width: 10,
-          height: 10,
-          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
         ),
-        const SizedBox(width: 8),
-        Text(label,
-            style: Theme.of(context).textTheme.bodyMedium),
-        const Spacer(),
-        Text(formatMoney(profit),
-            style: Theme.of(context)
-                .textTheme
-                .bodyMedium
-                ?.copyWith(fontWeight: FontWeight.w600)),
-        const SizedBox(width: 8),
-        Text('(${pct.toStringAsFixed(0)}%)',
-            style: Theme.of(context)
-                .textTheme
-                .bodySmall
-                ?.copyWith(color: color)),
+        const SizedBox(height: 4),
+        ClipRRect(
+          borderRadius: BorderRadius.circular(3),
+          child: LinearProgressIndicator(
+            value: pct,
+            backgroundColor: Colors.white.withOpacity(0.1),
+            color: color,
+            minHeight: 6,
+          ),
+        ),
       ],
     );
   }
 }
 
-class _LowStockSection extends ConsumerWidget {
-  final List<Product> products;
-  const _LowStockSection({required this.products});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return GlassPanel(
-      padding: const EdgeInsets.all(16),
-      noBlur: true,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              const Icon(Icons.inventory_2, size: 18, color: AppColors.warning),
-              const SizedBox(width: 6),
-              Text('Low Stock (${products.length})',
-                  style: Theme.of(context)
-                      .textTheme
-                      .titleSmall
-                      ?.copyWith(fontWeight: FontWeight.w600)),
-            ],
-          ),
-          const SizedBox(height: 8),
-          ...products.map((p) => _LowStockRow(product: p)),
-        ],
-      ),
-    );
-  }
-}
-
-class _WalletBalancesSection extends ConsumerWidget {
-  const _WalletBalancesSection();
+class _WalletBalancesCard extends ConsumerWidget {
+  const _WalletBalancesCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -330,11 +340,14 @@ class _WalletBalancesSection extends ConsumerWidget {
         final repo = ref.read(walletRepositoryProvider);
         final balances = await repo.getWalletBalances();
         final balanceMap = {for (var b in balances) b.walletId: b.balance};
-        return activeWallets.map((w) => (name: w.name, balance: balanceMap[w.id] ?? 0.0)).toList();
+        return activeWallets
+            .map((w) =>
+                (name: w.name, balance: balanceMap[w.id] ?? 0.0, id: w.id))
+            .toList();
       },
     );
 
-    return FutureBuilder<List<({String name, double balance})>>(
+    return FutureBuilder<List<({String name, double balance, int id})>>(
       future: walletsAsync,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -342,7 +355,37 @@ class _WalletBalancesSection extends ConsumerWidget {
         }
 
         final walletData = snapshot.data!;
-        if (walletData.isEmpty) return const SizedBox.shrink();
+        if (walletData.isEmpty) {
+          return GlassPanel(
+            padding: const EdgeInsets.all(16),
+            noBlur: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SectionHeader('WALLET BALANCES'),
+                const SizedBox(height: 12),
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        'Track your cash and bank balances here',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.white54,
+                            ),
+                      ),
+                      TextButton(
+                        onPressed: () => context.push('/settings/wallets'),
+                        child: const Text('+ Add Wallet',
+                            style: TextStyle(color: AppColors.accent)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
 
         return GlassPanel(
           padding: const EdgeInsets.all(16),
@@ -350,25 +393,18 @@ class _WalletBalancesSection extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.account_balance_wallet, size: 18, color: AppColors.accent),
-                  const SizedBox(width: 6),
-                  Text('Wallet Balances',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w600)),
-                ],
-              ),
+              const SectionHeader('WALLET BALANCES'),
               const SizedBox(height: 12),
               Wrap(
                 spacing: 8,
                 runSpacing: 8,
-                children: walletData.map((w) => _WalletBalanceChip(
-                  name: w.name,
-                  balance: w.balance,
-                )).toList(),
+                children: walletData
+                    .map((w) => _WalletBalanceChip(
+                          name: w.name,
+                          balance: w.balance,
+                          id: w.id,
+                        ))
+                    .toList(),
               ),
             ],
           ),
@@ -378,12 +414,52 @@ class _WalletBalancesSection extends ConsumerWidget {
   }
 }
 
-class _BudgetBucketsSection extends ConsumerWidget {
-  const _BudgetBucketsSection();
+class _WalletBalanceChip extends StatelessWidget {
+  final String name;
+  final double balance;
+  final int id;
+  const _WalletBalanceChip(
+      {required this.name, required this.balance, required this.id});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () => context.push('/settings/wallets/edit/$id'),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: Colors.white.withOpacity(0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: Colors.white24),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(name,
+                style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            const SizedBox(width: 6),
+            Text(
+              formatMoney(balance),
+              style: TextStyle(
+                color: balance >= 0 ? AppColors.success : AppColors.danger,
+                fontWeight: FontWeight.bold,
+                fontSize: 12,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _BudgetBucketsCard extends ConsumerWidget {
+  const _BudgetBucketsCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bucketsAsync = ref.watch(bucketRepositoryProvider).getBucketBalances();
+    final bucketsAsync =
+        ref.watch(bucketRepositoryProvider).getBucketBalances();
 
     return FutureBuilder<List<BucketBalance>>(
       future: bucketsAsync,
@@ -393,7 +469,37 @@ class _BudgetBucketsSection extends ConsumerWidget {
         }
 
         final buckets = snapshot.data!;
-        if (buckets.isEmpty) return const SizedBox.shrink();
+        if (buckets.isEmpty) {
+          return GlassPanel(
+            padding: const EdgeInsets.all(16),
+            noBlur: true,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SectionHeader('BUDGET BUCKETS'),
+                const SizedBox(height: 12),
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        'Organize your funds into custom buckets',
+                        textAlign: TextAlign.center,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: Colors.white54,
+                            ),
+                      ),
+                      TextButton(
+                        onPressed: () => context.push('/settings/buckets'),
+                        child: const Text('+ Add Bucket',
+                            style: TextStyle(color: AppColors.accent)),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        }
 
         return GlassPanel(
           padding: const EdgeInsets.all(16),
@@ -401,19 +507,9 @@ class _BudgetBucketsSection extends ConsumerWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Row(
-                children: [
-                  const Icon(Icons.savings, size: 18, color: AppColors.accent),
-                  const SizedBox(width: 6),
-                  Text('Budget Buckets',
-                      style: Theme.of(context)
-                          .textTheme
-                          .titleSmall
-                          ?.copyWith(fontWeight: FontWeight.w600)),
-                ],
-              ),
+              const SectionHeader('BUDGET BUCKETS'),
               const SizedBox(height: 12),
-              ...buckets.map((b) => _BucketBalanceRow(bucket: b)),
+              ...buckets.map((b) => _BudgetBucketRow(bucket: b)),
             ],
           ),
         );
@@ -422,18 +518,18 @@ class _BudgetBucketsSection extends ConsumerWidget {
   }
 }
 
-class _BucketBalanceRow extends StatelessWidget {
+class _BudgetBucketRow extends StatelessWidget {
   final BucketBalance bucket;
-  const _BucketBalanceRow({required this.bucket});
+  const _BudgetBucketRow({required this.bucket});
 
   @override
   Widget build(BuildContext context) {
-    final color = bucket.color != null 
-        ? Color(int.parse(bucket.color!.replaceFirst('#', '0xff'))) 
+    final color = bucket.color != null
+        ? Color(int.parse(bucket.color!.replaceFirst('#', '0xff')))
         : AppColors.accent;
 
     return InkWell(
-      onTap: () => context.push('/products/settings/buckets/history/${bucket.id}'),
+      onTap: () => context.push('/settings/buckets/history/${bucket.id}'),
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
@@ -454,7 +550,9 @@ class _BucketBalanceRow extends StatelessWidget {
               formatMoney(bucket.available),
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                     fontWeight: FontWeight.bold,
-                    color: bucket.available >= 0 ? AppColors.success : AppColors.danger,
+                    color: bucket.available >= 0
+                        ? AppColors.success
+                        : AppColors.danger,
                   ),
             ),
             const SizedBox(width: 8),
@@ -466,62 +564,114 @@ class _BucketBalanceRow extends StatelessWidget {
   }
 }
 
-class _WalletBalanceChip extends StatelessWidget {
-  final String name;
-  final double balance;
-  const _WalletBalanceChip({required this.name, required this.balance});
+class _StockAlertsCard extends ConsumerWidget {
+  final List<Product> products;
+  const _StockAlertsCard({required this.products});
 
   @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-      decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: Colors.white24),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
+  Widget build(BuildContext context, WidgetRef ref) {
+    return GlassPanel(
+      padding: const EdgeInsets.all(16),
+      noBlur: true,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(name, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-          const SizedBox(width: 6),
-          Text(
-            formatMoney(balance),
-            style: TextStyle(
-              color: balance >= 0 ? AppColors.success : AppColors.danger,
-              fontWeight: FontWeight.bold,
-              fontSize: 12,
-            ),
-          ),
+          SectionHeader('STOCK ALERTS (${products.length})'),
+          const SizedBox(height: 12),
+          ...products.map((p) => _StockAlertRow(product: p)),
         ],
       ),
     );
   }
 }
 
-class _LowStockRow extends ConsumerWidget {
+class _StockAlertRow extends ConsumerWidget {
   final Product product;
-  const _LowStockRow({required this.product});
+  const _StockAlertRow({required this.product});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final isOut = product.stock <= 0;
+    final badgeColor = isOut ? AppColors.danger : AppColors.warning;
+    final badgeText = isOut ? 'Out' : 'Low';
+
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          Expanded(
-            child: ProductTile(
-              product: product,
-              onTap: () => context.push('/products/${product.id}'),
+          InkWell(
+            onTap: () => context.push('/products/${product.id}'),
+            child: Container(
+              width: 46,
+              height: 46,
+              decoration: BoxDecoration(
+                color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              alignment: Alignment.center,
+              child: Text(
+                product.name.isNotEmpty ? product.name[0].toUpperCase() : '?',
+                style: TextStyle(
+                  color: Theme.of(context).colorScheme.primary,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
             ),
           ),
-          FilledButton.tonalIcon(
-            onPressed: () => _sell(context, ref),
-            icon: const Icon(Icons.point_of_sale_rounded, size: 16),
-            label: const Text('Sell', style: TextStyle(fontSize: 12)),
-            style: FilledButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 10),
-              visualDensity: VisualDensity.compact,
+          const SizedBox(width: 12),
+          Expanded(
+            child: InkWell(
+              onTap: () => context.push('/products/${product.id}'),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    product.name,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
+                  ),
+                  Text(
+                    formatMoney(product.costPrice),
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.white54,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: badgeColor.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: badgeColor.withOpacity(0.5)),
+            ),
+            child: Text(
+              badgeText,
+              style: TextStyle(
+                color: badgeColor,
+                fontSize: 10,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          const Icon(Icons.chevron_right, size: 16, color: Colors.white38),
+          const SizedBox(width: 8),
+          HapticWrapper(
+            profile: HapticProfile.medium,
+            onTap: () => _sell(context, ref),
+            child: FilledButton.tonal(
+              onPressed: null, // HapticWrapper handles the tap
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                visualDensity: VisualDensity.compact,
+              ),
+              child: const Text('SELL',
+                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
             ),
           ),
         ],
