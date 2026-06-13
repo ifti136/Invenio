@@ -54,7 +54,7 @@ class FinanceScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings),
-            onPressed: () => context.push('/finance/settings'),
+            onPressed: () => context.push('/settings/finance/rules'),
           ),
         ],
       ),
@@ -81,9 +81,9 @@ class FinanceScreen extends ConsumerWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: GlassPanel(
-                  child: InkWell(
-                    onTap: () => Navigator.of(context).pushNamed('/finance/history/${rule.id}'),
-                    borderRadius: BorderRadius.circular(16),
+                     child: InkWell(
+                       onTap: () => context.push('/settings/finance/history/${rule.id}'),
+                       borderRadius: BorderRadius.circular(16),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
