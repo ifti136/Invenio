@@ -54,3 +54,35 @@ class ProductReportRow {
   double get marginPct =>
       revenue > 0 ? ((profit / revenue) * 100) : 0;
 }
+
+class SaleReportRow {
+  final int saleId;
+  final DateTime date;
+  final String productName;
+  final int quantity;
+  final double revenue;
+  final double addOnCost;
+  final double profit;
+  final String platform;
+
+  const SaleReportRow({
+    required this.saleId,
+    required this.date,
+    required this.productName,
+    required this.quantity,
+    required this.revenue,
+    required this.addOnCost,
+    required this.profit,
+    required this.platform,
+  });
+}
+
+class ProductMonthlyProfit {
+  final String month;
+  final double profit;
+
+  const ProductMonthlyProfit({
+    required this.month,
+    required this.profit,
+  });
+}
