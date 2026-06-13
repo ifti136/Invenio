@@ -101,6 +101,32 @@ class BucketRepository {
     }).toList();
   }
 
+  Stream<List<BucketBalance>> watchBucketsWithAvailable() {
+    return drift.Rx.combineLatest2(
+      _db.select(_db.budgetBuckets).watch(),
+      _db.select(_db.expenses).watch(),
+      (buckets, expenses) {
+        final spentMap = <int, double>{};
+        for (final e in expenses) {
+          if (e.bucketId != null) {
+            spentMap[e.bucketId!] = (spentMap[e.bucketId!] ?? 0.0) + e.amount;
+          }
+        }
+        return buckets.map((bucket) {
+          final spent = spentMap[bucket.id] ?? 0.0;
+          return BucketBalance(
+            id: bucket.id,
+            name: bucket.name,
+            allocatedAmount: bucket.allocatedAmount,
+            spent: spent,
+            available: bucket.allocatedAmount - spent,
+            color: bucket.color,
+          );
+        }).toList();
+      },
+    );
+  }
+
   Future<List<(Expense, Wallet)>> getExpensesForBucket(int bucketId) async {
     final query = _db.select(_db.expenses).join([
       innerJoin(_db.wallets, _db.wallets.id.equalsExp(_db.expenses.walletId)),

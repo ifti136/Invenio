@@ -55,6 +55,28 @@ class WalletRepository {
     }).toList();
   }
 
+  Stream<List<WalletBalance>> watchWalletsWithBalances() {
+    return drift.Rx.combineLatest3(
+      _db.select(_db.wallets).watch(),
+      _db.select(_db.sales).watch(),
+      _db.select(_db.expenses).watch(),
+      (wallets, sales, expenses) {
+        final salesMap = <int, double>{};
+        for (final s in sales) {
+          salesMap[s.walletId] = (salesMap[s.walletId] ?? 0.0) + s.total;
+        }
+        final expensesMap = <int, double>{};
+        for (final e in expenses) {
+          expensesMap[e.walletId] = (expensesMap[e.walletId] ?? 0.0) + e.amount;
+        }
+        return wallets.map((w) {
+          final balance = w.openingBalance + (salesMap[w.id] ?? 0.0) - (expensesMap[w.id] ?? 0.0);
+          return WalletBalance(walletId: w.id, name: w.name, balance: balance);
+        }).toList();
+      },
+    );
+  }
+
   Future<int> createWallet(String name, String type, double openingBalance, bool isActive) async {
     return await _db.into(_db.wallets).insert(
       WalletsCompanion(

@@ -1,7 +1,14 @@
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../db/app_database.dart';
+
+class RuleWithSpent {
+  final AllocationRule rule;
+  final double spent;
+
+  RuleWithSpent({required this.rule, required this.spent});
+}
 
 part 'allocation_rules_repository.g.dart';
 
@@ -14,6 +21,26 @@ class AllocationRulesRepository {
   final AppDatabase _db;
 
   AllocationRulesRepository(this._db);
+
+  Stream<List<RuleWithSpent>> watchAllocationRulesWithSpent() {
+    return drift.Rx.combineLatest2(
+      _db.select(_db.allocationRules).watch(),
+      _db.select(_db.expenses).watch(),
+      (rules, expenses) {
+        final spentMap = <int, double>{};
+        for (final e in expenses) {
+          if (e.allocationRuleId != null) {
+            spentMap[e.allocationRuleId!] = (spentMap[e.allocationRuleId!] ?? 0.0) + e.amount;
+          }
+        }
+        return rules.map((r) => RuleWithSpent(
+          rule: r,
+          spent: spentMap[r.id] ?? 0.0,
+        )).toList();
+      },
+    );
+  }
+
 
   Future<List<AllocationRule>> getRules() async {
     return await _db.select(_db.allocationRules).get();
