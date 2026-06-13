@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
+import 'package:tracker/core/utils/profit_calculator.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
@@ -164,6 +165,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
         ownership: _ownership,
         customerName: _customer.text.trim(),
       ),
+      _product!.costPrice,
       _addOns.map((e) => SaleAddOn(
         id: 0,
         saleId: 0,
@@ -219,21 +221,22 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
           walletId: _walletId,
           ownership: _ownership,
         );
-      } else {
-        final result = await repo.addSale(
-          productId: _product!.id,
-          quantity: qty,
-          sellingPrice: price,
-          platform: _platform.key,
-          paymentStatus: _payment.key,
-          customerName:
-              _customer.text.trim().isEmpty ? null : _customer.text.trim(),
-          date: _date,
-          walletId: _walletId,
-          ownership: _ownership,
-        );
-        saleId = result.sale.id;
-      }
+       } else {
+         final result = await repo.addSale(
+           productId: _product!.id,
+           quantity: qty,
+           sellingPrice: price,
+           platform: _platform.key,
+           paymentStatus: _payment.key,
+           customerName:
+               _customer.text.trim().isEmpty ? null : _customer.text.trim(),
+           date: _date,
+           walletId: _walletId,
+           ownership: _ownership,
+           isDiscounted: false,
+         );
+         saleId = result.sale.id;
+       }
 
       // Save add-ons
       final addOnRepo = ref.read(addOnRepositoryProvider);
@@ -241,7 +244,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
         saleId,
         _addOns.map((e) => SaleAddOnCompanion.insert(
               cost: e.amount,
-              quantity: Value(1),
+              quantity: drift.Value(1),
             )).toList(),
       );
 
@@ -542,63 +545,59 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                        ),
                      ),
                    ),
-                   const SizedBox(height: 12),
-                   if (_total != null)
-                         ],
-                       ),
+                    const SizedBox(height: 12),
+                    if (_total != null)
+                   GlassPanel(
+                     noBlur: true,
+                     solid: true,
+                     padding: const EdgeInsets.all(14),
+                     child: Row(
+                       children: [
+                         Expanded(
+                           child: _Metric(
+                             label: 'Total',
+                             value: formatMoney(_total!),
+                             color: AppColors.success,
+                           ),
+                         ),
+                         if (_profit != null)
+                           Expanded(
+                             child: _Metric(
+                               label: 'Est. profit',
+                               value: formatMoney(_profit!),
+                               color: (_profit! < 0)
+                                   ? AppColors.danger
+                                   : AppColors.info,
+                             ),
+                           ),
+                       ],
                      ),
                    ),
-                   const SizedBox(height: 12),
-                   if (_total != null)
-
-              GlassPanel(
-                noBlur: true,
-                solid: true,
-                padding: const EdgeInsets.all(14),
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: _Metric(
-                        label: 'Total',
-                        value: formatMoney(_total!),
-                        color: AppColors.success,
-                      ),
-                    ),
-                    if (_profit != null)
-                      Expanded(
-                        child: _Metric(
-                          label: 'Est. profit',
-                          value: formatMoney(_profit!),
-                          color: (_profit! < 0)
-                              ? AppColors.danger
-                              : AppColors.info,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-            const SizedBox(height: 16),
-            FilledButton(
-              onPressed: _saving ? null : _save,
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              child: _saving
-                  ? const SizedBox(
-                      width: 20,
-                      height: 20,
-                      child: CircularProgressIndicator(
-                        strokeWidth: 2,
-                        color: Colors.white,
-                      ),
-                    )
-                  : Text(_isEdit ? 'Save changes' : 'Record sale'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
+                   const SizedBox(height: 16),
+                   FilledButton(
+                     onPressed: _saving ? null : _save,
+                     style: FilledButton.styleFrom(
+                       padding: const EdgeInsets.symmetric(vertical: 16),
+                     ),
+                     child: _saving
+                         ? const SizedBox(
+                           width: 20,
+                           height: 20,
+                           child: CircularProgressIndicator(
+                             strokeWidth: 2,
+                             color: Colors.white,
+                           ),
+                         )
+                         : Text(_isEdit ? 'Save changes' : 'Record sale'),
+                   ),
+                 ],
+               ),
+             ),
+           ],
+         ),
+       ),
+     );
+   }
 
   Widget _buildProductTile(List<Product> products) {
     final scheme = Theme.of(context).colorScheme;

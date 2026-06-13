@@ -1,7 +1,7 @@
-import 'package:dart:math' as math;
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:drift/drift.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/utils/profit_calculator.dart';
@@ -9,6 +9,7 @@ import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/core/widgets/sheet_drag_handle.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/dashboard/dashboard_provider.dart';
@@ -71,7 +72,7 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
       ownership: 'business',
       customerName: _customer.text.trim(),
     );
-    return ProfitCalculator.calculateNetProfit(s, _addOns.map((e) => SaleAddOn(
+    return ProfitCalculator.calculateNetProfit(s, widget.product.costPrice, _addOns.map((e) => SaleAddOn(
       id: 0,
       saleId: 0,
       addOnTypeId: e.typeId,
@@ -124,7 +125,9 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
         customerName: _customer.text.trim().isEmpty
             ? null
             : _customer.text.trim(),
+        isDiscounted: false,
       );
+
 
       // Save add-ons
       final addOnRepo = ref.read(addOnRepositoryProvider);
@@ -132,7 +135,7 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
         result.sale.id,
         _addOns.map((e) => SaleAddOnCompanion.insert(
               cost: e.amount,
-              quantity: Value(1),
+              quantity: drift.Value(1),
             )).toList(),
       );
 
@@ -251,91 +254,215 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
               onChanged: (v) => setState(() => _payment = v),
             ),
             const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: GlassTextField(
-                      controller: _customer,
-                      label: 'Customer (optional)',
-                      hint: 'Name or phone',
+            Row(
+              children: [
+                Expanded(
+                  child: GlassTextField(
+                    controller: _customer,
+                    label: 'Customer (optional)',
+                    hint: 'Name or phone',
+                  ),
+                ),
+                const SizedBox(width: 12),
+                HapticWrapper(
+                  onTap: () async {
+                    final result = await showAddOnPicker(
+                      context,
+                      initialEntries: _addOns,
+                    );
+                    if (result != null) {
+                      setState(() => _addOns = result);
+                    }
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    decoration: BoxDecoration(
+                      color: AppColors.accent.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: AppColors.accent.withOpacity(0.3),
+                        width: 0.6,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.add_circle_outline, size: 18, color: AppColors.accent),
+                        const SizedBox(width: 8),
+                        Text(
+                          '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
+                          style: const TextStyle(
+                            color: AppColors.accent,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  InkWell(
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            GlassPanel.flush(
+              padding: const EdgeInsets.all(12),
+              noBlur: true,
+              expand: false,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Total: ${formatMoney(_total)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                            color: cs.primary,
+                          ),
+                        ),
+                        Text(
+                          'Profit: ${_profit >= 0 ? '+' : ''}${formatMoney(_profit)}',
+                          style: TextStyle(
+                            fontSize: 13,
+                            color: _profit >= 0 ? AppColors.success : AppColors.danger,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  FilledButton(
+                    onPressed: _saving ? null : _confirm,
+                    child: _saving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        : const Text('Confirm'),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                            decoration: BoxDecoration(
+                              color: AppColors.accent.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: AppColors.accent.withOpacity(0.3),
+                                width: 0.6,
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Icon(Icons.add_circle_outline, size: 18, color: AppColors.accent),
+                                const SizedBox(width: 8),
+                                Text(
+                                  '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
+                                  style: const TextStyle(
+                                    color: AppColors.accent,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    GlassPanel.flush(
+                      padding: const EdgeInsets.all(12),
+                      noBlur: true,
+                      expand: false,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Total: ${formatMoney(_total)}',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 15,
+                                    color: cs.primary,
+                                  ),
+                                ),
+                                Text(
+                                  'Profit: ${_profit >= 0 ? '+' : ''}${formatMoney(_profit)}',
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: _profit >= 0 ? AppColors.success : AppColors.danger,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          FilledButton(
+                            onPressed: _saving ? null : _confirm,
+                            child: _saving
+                                ? const SizedBox(
+                                    width: 18,
+                                    height: 18,
+                                    child: CircularProgressIndicator(strokeWidth: 2),
+                                  )
+                                : const Text('Confirm'),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                  ),
+                  const SizedBox(height: 12),
+                  HapticWrapper(
                     onTap: () async {
-                      final types = await ref.read(addOnRepositoryProvider).getActiveTypes();
                       final result = await showAddOnPicker(
                         context,
-                        availableTypes: types,
-                        current: _addOns,
+                        initialEntries: _addOns,
                       );
                       if (result != null) {
                         setState(() => _addOns = result);
                       }
                     },
                     child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
                       decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.04),
+                        color: AppColors.accent.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(10),
                         border: Border.all(
-                          color: Colors.white.withOpacity(0.18),
+                          color: AppColors.accent.withOpacity(0.3),
                           width: 0.6,
                         ),
                       ),
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          Icon(Icons.extension_outlined, size: 18, color: AppColors.accent),
+                          const Icon(Icons.add_circle_outline, size: 18, color: AppColors.accent),
                           const SizedBox(width: 8),
                           Text(
-                            'Add-Ons (${_addOns.length})',
-                            style: const TextStyle(fontSize: 13),
+                            '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
+                            style: const TextStyle(
+                              color: AppColors.accent,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
                           ),
                         ],
                       ),
                     ),
                   ),
-                ],
-              ),
-             const SizedBox(height: 12),
-             HapticWrapper(
-               onTap: () async {
-                 final result = await showAddOnPicker(
-                   context,
-                   initialEntries: _addOns,
-                 );
-                 if (result != null) {
-                   setState(() => _addOns = result);
-                 }
-               },
-               child: Container(
-                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                 decoration: BoxDecoration(
-                   color: AppColors.accent.withOpacity(0.1),
-                   borderRadius: BorderRadius.circular(10),
-                   border: Border.all(
-                     color: AppColors.accent.withOpacity(0.3),
-                     width: 0.6,
-                   ),
-                 ),
-                 child: Row(
-                   mainAxisAlignment: MainAxisAlignment.center,
-                   children: [
-                     const Icon(Icons.add_circle_outline, size: 18, color: AppColors.accent),
-                     const SizedBox(width: 8),
-                     Text(
-                       '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
-                       style: const TextStyle(
-                         color: AppColors.accent,
-                         fontWeight: FontWeight.w600,
-                         fontSize: 14,
-                       ),
-                     ),
-                   ],
-                 ),
-               ),
-             ),
-             const SizedBox(height: 16),
+                  const SizedBox(height: 16),
              GlassPanel.flush(
 
               padding: const EdgeInsets.all(12),

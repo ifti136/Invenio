@@ -1,13 +1,16 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:drift/drift.dart' as drift;
 import 'package:tracker/core/theme/app_colors.dart';
+
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/utils/profit_calculator.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/core/widgets/sheet_drag_handle.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/dashboard/dashboard_provider.dart';
@@ -77,6 +80,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
         ownership: 'business',
         customerName: _customer.text.trim(),
       ),
+      _product!.costPrice,
       _addOns.map((e) => SaleAddOn(
         id: 0,
         saleId: 0,
@@ -141,7 +145,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
         result.sale.id,
         _addOns.map((e) => SaleAddOnCompanion.insert(
               cost: e.amount,
-              quantity: Value(1),
+              quantity: drift.Value(1),
             )).toList(),
       );
 
