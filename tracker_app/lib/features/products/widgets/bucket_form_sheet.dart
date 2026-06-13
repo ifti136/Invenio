@@ -26,10 +26,22 @@ class _BucketFormSheetState extends ConsumerState<BucketFormSheet> {
   String? _selectedColor;
 
   final List<String> _availableColors = [
-    '#FF5252', '#FF4081', '#E040FB', '#7C4DFF',
-    '#536DFE', '#448AFF', '#40C4FF', '#18FFFF',
-    '#64FFDA', '#69F0AE', '#B2FF59', '#EEFF41',
-    '#FFFF00', '#FFD740', '#FFAB40', '#FF6E40',
+    '#FF5252',
+    '#FF4081',
+    '#E040FB',
+    '#7C4DFF',
+    '#536DFE',
+    '#448AFF',
+    '#40C4FF',
+    '#18FFFF',
+    '#64FFDA',
+    '#69F0AE',
+    '#B2FF59',
+    '#EEFF41',
+    '#FFFF00',
+    '#FFD740',
+    '#FFAB40',
+    '#FF6E40',
   ];
 
   @override
@@ -65,7 +77,8 @@ class _BucketFormSheetState extends ConsumerState<BucketFormSheet> {
       final amount = double.tryParse(_amount.text.trim()) ?? 0.0;
 
       if (widget.bucket == null) {
-        await repo.create(name: name, allocatedAmount: amount, color: _selectedColor);
+        await repo.create(
+            name: name, allocatedAmount: amount, color: _selectedColor);
       } else {
         await repo.update(
           id: widget.bucket!.id,
@@ -129,13 +142,15 @@ class _BucketFormSheetState extends ConsumerState<BucketFormSheet> {
               controller: _name,
               label: 'Bucket Name',
               hint: 'e.g. Emergency Fund, Vacation',
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
             const SizedBox(height: 12),
             GlassTextField(
               controller: _amount,
               label: 'Allocated Amount',
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return 'Required';
                 if (double.tryParse(v.trim()) == null) return 'Invalid amount';
@@ -212,12 +227,12 @@ void showBucketFormSheet(
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-            padding: EdgeInsets.only(
-              bottom: math.max(
-                  MediaQuery.of(context).viewInsets.bottom,
-                  MediaQuery.of(context).padding.bottom + kBottomNavHeight + 8,
-              ),
+          padding: EdgeInsets.only(
+            bottom: math.max(
+              MediaQuery.of(context).viewInsets.bottom,
+              MediaQuery.of(context).padding.bottom + kBottomNavHeight + 8,
             ),
+          ),
           child: BucketFormSheet(bucket: bucket),
         ),
       ],

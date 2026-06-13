@@ -111,24 +111,24 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
           content: Text(_isEdit ? 'Product updated' : 'Product added'),
         ),
       );
-     } catch (e) {
-       if (!mounted) return;
-       await showGlassDialog(
-         context: context,
-         title: 'Could not save',
-         message: e.toString(),
-         actionsBuilder: (ctx) => [
-           GlassDialogAction(
-             label: 'OK',
-             isPrimary: true,
-             onPressed: () {
-               HapticService.trigger(HapticProfile.light);
-               Navigator.of(ctx).pop();
-             },
-           ),
-         ],
-       );
-     } finally {
+    } catch (e) {
+      if (!mounted) return;
+      await showGlassDialog(
+        context: context,
+        title: 'Could not save',
+        message: e.toString(),
+        actionsBuilder: (ctx) => [
+          GlassDialogAction(
+            label: 'OK',
+            isPrimary: true,
+            onPressed: () {
+              HapticService.trigger(HapticProfile.light);
+              Navigator.of(ctx).pop();
+            },
+          ),
+        ],
+      );
+    } finally {
       if (mounted) setState(() => _saving = false);
     }
   }
@@ -139,24 +139,24 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       title: 'Delete product?',
       message:
           'This removes the product and all its stock history. Sales already recorded stay.',
-       actionsBuilder: (ctx) => [
-         GlassDialogAction(
-           label: 'Cancel',
-           onPressed: () {
-             HapticService.trigger(HapticProfile.light);
-             Navigator.of(ctx).pop(false);
-           },
-         ),
-         GlassDialogAction(
-           label: 'Delete',
-           isDestructive: true,
-           isPrimary: true,
-           onPressed: () {
-             HapticService.trigger(HapticProfile.heavy);
-             Navigator.of(ctx).pop(true);
-           },
-         ),
-       ],
+      actionsBuilder: (ctx) => [
+        GlassDialogAction(
+          label: 'Cancel',
+          onPressed: () {
+            HapticService.trigger(HapticProfile.light);
+            Navigator.of(ctx).pop(false);
+          },
+        ),
+        GlassDialogAction(
+          label: 'Delete',
+          isDestructive: true,
+          isPrimary: true,
+          onPressed: () {
+            HapticService.trigger(HapticProfile.heavy);
+            Navigator.of(ctx).pop(true);
+          },
+        ),
+      ],
     );
     if (result != true) return;
     try {
@@ -168,24 +168,24 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Product deleted')),
       );
-     } catch (e) {
-       if (!mounted) return;
-       await showGlassDialog(
-         context: context,
-         title: 'Could not delete',
-         message: e.toString(),
-         actionsBuilder: (ctx) => [
-           GlassDialogAction(
-             label: 'OK',
-             isPrimary: true,
-             onPressed: () {
-               HapticService.trigger(HapticProfile.light);
-               Navigator.of(ctx).pop();
-             },
-           ),
-         ],
-       );
-     }
+    } catch (e) {
+      if (!mounted) return;
+      await showGlassDialog(
+        context: context,
+        title: 'Could not delete',
+        message: e.toString(),
+        actionsBuilder: (ctx) => [
+          GlassDialogAction(
+            label: 'OK',
+            isPrimary: true,
+            onPressed: () {
+              HapticService.trigger(HapticProfile.light);
+              Navigator.of(ctx).pop();
+            },
+          ),
+        ],
+      );
+    }
   }
 
   @override
@@ -199,18 +199,18 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? 'Edit Product' : 'Add Product'),
-            actions: [
-              if (isEdit)
-                HapticWrapper(
-                  profile: HapticProfile.heavy,
-                  onTap: _delete,
-                  child: IconButton(
-                    tooltip: 'Delete',
-                    onPressed: null,
-                    icon: const Icon(Icons.delete_outline_rounded),
-                  ),
-                ),
-            ],
+        actions: [
+          if (isEdit)
+            HapticWrapper(
+              profile: HapticProfile.heavy,
+              onTap: _delete,
+              child: IconButton(
+                tooltip: 'Delete',
+                onPressed: null,
+                icon: const Icon(Icons.delete_outline_rounded),
+              ),
+            ),
+        ],
       ),
       body: Form(
         key: _form,
@@ -223,62 +223,62 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                   GlassTextField(
-                     controller: _name,
-                     label: 'Name',
-                     hint: 'e.g. Wireless mouse',
-                     validator: (v) =>
-                         v == null || v.trim().isEmpty ? 'Required' : null,
-                     onChanged: (_) {
-                       HapticService.trigger(HapticProfile.light);
-                     },
-                   ),
+                  GlassTextField(
+                    controller: _name,
+                    label: 'Name',
+                    hint: 'e.g. Wireless mouse',
+                    validator: (v) =>
+                        v == null || v.trim().isEmpty ? 'Required' : null,
+                    onChanged: (_) {
+                      HapticService.trigger(HapticProfile.light);
+                    },
+                  ),
                   const SizedBox(height: 12),
-                   GlassTextField(
-                     controller: _cost,
-                     label: 'Cost price (৳)',
-                     hint: '0.00',
-                     keyboardType:
-                         const TextInputType.numberWithOptions(decimal: true),
-                     validator: (v) {
-                       final d = double.tryParse(v?.trim() ?? '');
-                       if (d == null || d < 0) return 'Enter a valid amount';
-                       return null;
-                     },
-                     onChanged: (_) {
-                       HapticService.trigger(HapticProfile.light);
-                     },
-                   ),
+                  GlassTextField(
+                    controller: _cost,
+                    label: 'Cost price (৳)',
+                    hint: '0.00',
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                    validator: (v) {
+                      final d = double.tryParse(v?.trim() ?? '');
+                      if (d == null || d < 0) return 'Enter a valid amount';
+                      return null;
+                    },
+                    onChanged: (_) {
+                      HapticService.trigger(HapticProfile.light);
+                    },
+                  ),
                   const SizedBox(height: 12),
-                   GlassTextField(
-                     controller: _stock,
-                     label: isEdit ? 'Current stock' : 'Initial stock',
-                     hint: '0',
-                     keyboardType: TextInputType.number,
-                     validator: (v) {
-                       final n = int.tryParse(v?.trim() ?? '');
-                       if (n == null || n < 0) return 'Enter a whole number';
-                       return null;
-                     },
-                     onChanged: (_) {
-                       HapticService.trigger(HapticProfile.light);
-                     },
-                   ),
+                  GlassTextField(
+                    controller: _stock,
+                    label: isEdit ? 'Current stock' : 'Initial stock',
+                    hint: '0',
+                    keyboardType: TextInputType.number,
+                    validator: (v) {
+                      final n = int.tryParse(v?.trim() ?? '');
+                      if (n == null || n < 0) return 'Enter a whole number';
+                      return null;
+                    },
+                    onChanged: (_) {
+                      HapticService.trigger(HapticProfile.light);
+                    },
+                  ),
                   const SizedBox(height: 12),
-                   GlassTextField(
-                     controller: _threshold,
-                     label: 'Low-stock alert at',
-                     hint: '5',
-                     keyboardType: TextInputType.number,
-                     validator: (v) {
-                       final n = int.tryParse(v?.trim() ?? '');
-                       if (n == null || n < 0) return 'Enter a whole number';
-                       return null;
-                     },
-                     onChanged: (_) {
-                       HapticService.trigger(HapticProfile.light);
-                     },
-                   ),
+                  GlassTextField(
+                    controller: _threshold,
+                    label: 'Low-stock alert at',
+                    hint: '5',
+                    keyboardType: TextInputType.number,
+                    validator: (v) {
+                      final n = int.tryParse(v?.trim() ?? '');
+                      if (n == null || n < 0) return 'Enter a whole number';
+                      return null;
+                    },
+                    onChanged: (_) {
+                      HapticService.trigger(HapticProfile.light);
+                    },
+                  ),
                   const SizedBox(height: 12),
                   Row(
                     children: [
@@ -307,65 +307,65 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
                           ],
                         ),
                       ),
-                       Switch(
-                         value: _alertEnabled,
-                         onChanged: (v) {
-                           HapticService.trigger(HapticProfile.light);
-                           setState(() => _alertEnabled = v);
-                         },
-                         materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                       ),
+                      Switch(
+                        value: _alertEnabled,
+                        onChanged: (v) {
+                          HapticService.trigger(HapticProfile.light);
+                          setState(() => _alertEnabled = v);
+                        },
+                        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      ),
                     ],
                   ),
                   const SizedBox(height: 12),
-                   GlassTextField(
-                     controller: _note,
-                     label: 'Note (optional)',
-                     hint: 'SKU, supplier, location…',
-                     minLines: 1,
-                     maxLines: 3,
-                     onChanged: (_) {
-                       HapticService.trigger(HapticProfile.light);
-                     },
-                   ),
+                  GlassTextField(
+                    controller: _note,
+                    label: 'Note (optional)',
+                    hint: 'SKU, supplier, location…',
+                    minLines: 1,
+                    maxLines: 3,
+                    onChanged: (_) {
+                      HapticService.trigger(HapticProfile.light);
+                    },
+                  ),
                 ],
               ),
             ),
             const SizedBox(height: 16),
-             HapticWrapper(
-               profile: HapticProfile.medium,
-               onTap: _saving ? null : _save,
-               child: FilledButton(
-                 onPressed: null,
-                 style: FilledButton.styleFrom(
-                   padding: const EdgeInsets.symmetric(vertical: 16),
-                 ),
-                 child: _saving
-                     ? const SizedBox(
-                         width: 20,
-                         height: 20,
-                         child: CircularProgressIndicator(
-                           strokeWidth: 2,
-                           color: Colors.white,
-                         ),
-                       )
-                     : Text(isEdit ? 'Save changes' : 'Add product'),
-               ),
-             ),
-               if (isEdit) ...[
-                 const SizedBox(height: 8),
-                 HapticWrapper(
-                   profile: HapticProfile.heavy,
-                   onTap: _saving ? null : _delete,
-                   child: TextButton(
-                     onPressed: null,
-                     style: TextButton.styleFrom(
-                       foregroundColor: Theme.of(context).colorScheme.error,
-                     ),
-                     child: const Text('Delete product'),
-                   ),
-                 ),
-               ],
+            HapticWrapper(
+              profile: HapticProfile.medium,
+              onTap: _saving ? null : _save,
+              child: FilledButton(
+                onPressed: null,
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                child: _saving
+                    ? const SizedBox(
+                        width: 20,
+                        height: 20,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: Colors.white,
+                        ),
+                      )
+                    : Text(isEdit ? 'Save changes' : 'Add product'),
+              ),
+            ),
+            if (isEdit) ...[
+              const SizedBox(height: 8),
+              HapticWrapper(
+                profile: HapticProfile.heavy,
+                onTap: _saving ? null : _delete,
+                child: TextButton(
+                  onPressed: null,
+                  style: TextButton.styleFrom(
+                    foregroundColor: Theme.of(context).colorScheme.error,
+                  ),
+                  child: const Text('Delete product'),
+                ),
+              ),
+            ],
           ],
         ),
       ),

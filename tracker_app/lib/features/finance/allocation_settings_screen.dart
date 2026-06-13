@@ -10,8 +10,7 @@ import 'allocation_rule_form_screen.dart';
 part 'allocation_settings_screen.g.dart';
 
 @riverpod
-Future<List<AllocationRule>> allocationRulesList(
-    AllocationRulesListRef ref) async {
+Future<List<AllocationRule>> allocationRulesList(Ref ref) async {
   return await ref.watch(allocationRulesRepositoryProvider).getRules();
 }
 
@@ -172,11 +171,12 @@ class AllocationSettingsScreen extends ConsumerWidget {
           label: 'Delete',
           isDestructive: true,
           onPressed: () async {
+            final navigator = Navigator.of(ctx);
             await ref
                 .read(allocationRulesRepositoryProvider)
                 .softDeleteRule(rule.id);
             ref.invalidate(allocationRulesListProvider);
-            Navigator.of(ctx).pop();
+            navigator.pop();
           },
         ),
       ],

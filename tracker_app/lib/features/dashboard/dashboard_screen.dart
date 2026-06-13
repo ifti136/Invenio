@@ -66,16 +66,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
         ),
         centerTitle: true,
-          actions: [
-            HapticWrapper(
-              profile: HapticProfile.light,
-              onTap: () => context.push('/settings'),
-              child: IconButton(
-                icon: const Icon(Icons.settings),
-                onPressed: null,
-              ),
+        actions: [
+          HapticWrapper(
+            profile: HapticProfile.light,
+            onTap: () => context.push('/settings'),
+            child: IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: null,
             ),
-          ],
+          ),
+        ],
       ),
       body: summaryAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -437,9 +437,8 @@ class _WalletWithBalanceChip extends ConsumerWidget {
     return InkWell(
       onTap: () async {
         HapticService.trigger(HapticProfile.light);
-        final wallet = await ref
-            .read(walletRepositoryProvider)
-            .getWalletById(id);
+        final wallet =
+            await ref.read(walletRepositoryProvider).getWalletById(id);
         if (context.mounted) {
           showWalletFormSheet(context, wallet: wallet);
         }
@@ -624,12 +623,12 @@ class _StockAlertRow extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-           InkWell(
-             onTap: () {
-               HapticService.trigger(HapticProfile.light);
-               context.push('/products/${product.id}');
-             },
-             child: Container(
+          InkWell(
+            onTap: () {
+              HapticService.trigger(HapticProfile.light);
+              context.push('/products/${product.id}');
+            },
+            child: Container(
               width: 46,
               height: 46,
               decoration: BoxDecoration(
@@ -649,12 +648,12 @@ class _StockAlertRow extends ConsumerWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-             child: InkWell(
-               onTap: () {
-                 HapticService.trigger(HapticProfile.light);
-                 context.push('/products/${product.id}');
-               },
-               child: Column(
+            child: InkWell(
+              onTap: () {
+                HapticService.trigger(HapticProfile.light);
+                context.push('/products/${product.id}');
+              },
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(

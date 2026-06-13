@@ -65,7 +65,8 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
       if (widget.wallet == null) {
         await repo.createWallet(name, type, balance, _isActive);
       } else {
-        await repo.updateWallet(widget.wallet!.id, name, type, balance, _isActive);
+        await repo.updateWallet(
+            widget.wallet!.id, name, type, balance, _isActive);
       }
 
       if (mounted) {
@@ -122,20 +123,23 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
               controller: _name,
               label: 'Wallet Name',
               hint: 'e.g. Main Cash, Bank Account',
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
             const SizedBox(height: 12),
             GlassTextField(
               controller: _type,
               label: 'Type',
               hint: 'e.g. Cash, Bank, Mobile Money',
-              validator: (v) => (v == null || v.trim().isEmpty) ? 'Required' : null,
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? 'Required' : null,
             ),
             const SizedBox(height: 12),
             GlassTextField(
               controller: _balance,
               label: 'Opening Balance',
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
               validator: (v) {
                 if (v == null || v.trim().isEmpty) return 'Required';
                 if (double.tryParse(v.trim()) == null) return 'Invalid amount';
@@ -144,7 +148,8 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
             ),
             const SizedBox(height: 12),
             SwitchListTile(
-              title: const Text('Active', style: TextStyle(color: Colors.white)),
+              title:
+                  const Text('Active', style: TextStyle(color: Colors.white)),
               value: _isActive,
               onChanged: (v) {
                 HapticService.trigger(HapticProfile.light);
@@ -188,12 +193,12 @@ void showWalletFormSheet(
       mainAxisSize: MainAxisSize.min,
       children: [
         Padding(
-            padding: EdgeInsets.only(
-              bottom: math.max(
-                  MediaQuery.of(context).viewInsets.bottom,
-                  MediaQuery.of(context).padding.bottom + kBottomNavHeight + 8,
-              ),
+          padding: EdgeInsets.only(
+            bottom: math.max(
+              MediaQuery.of(context).viewInsets.bottom,
+              MediaQuery.of(context).padding.bottom + kBottomNavHeight + 8,
             ),
+          ),
           child: WalletFormSheet(wallet: wallet),
         ),
       ],

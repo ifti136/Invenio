@@ -13,7 +13,7 @@ import '../../db/app_database.dart';
 part 'finance_screen.g.dart';
 
 @riverpod
-Future<List<RuleFinanceData>> financeData(FinanceDataRef ref) async {
+Future<List<RuleFinanceData>> financeData(Ref ref) async {
   final rulesRepo = ref.watch(allocationRulesRepositoryProvider);
   final financeRepo = ref.watch(financeRepositoryProvider);
 
@@ -54,17 +54,16 @@ class FinanceScreen extends ConsumerWidget {
         title: const Text('Finance'),
         backgroundColor: Colors.transparent,
         elevation: 0,
-         actions: [
-           HapticWrapper(
-             profile: HapticProfile.light,
-             onTap: () => context.push('/settings/finance/rules'),
-             child: IconButton(
-               icon: const Icon(Icons.settings),
-               onPressed: null,
-             ),
-           ),
-         ],
-
+        actions: [
+          HapticWrapper(
+            profile: HapticProfile.light,
+            onTap: () => context.push('/settings/finance/rules'),
+            child: IconButton(
+              icon: const Icon(Icons.settings),
+              onPressed: null,
+            ),
+          ),
+        ],
       ),
       body: dataAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -89,84 +88,83 @@ class FinanceScreen extends ConsumerWidget {
               final rule = item.rule;
               final fin = item.financials;
 
-               return Padding(
-                 padding: const EdgeInsets.only(bottom: 16),
-                 child: GlassPanel(
-                   child: HapticWrapper(
-                     profile: HapticProfile.light,
-                     onTap: () =>
-                         context.push('/settings/finance/history/${rule.id}'),
-                     child: InkWell(
-                       onTap: null,
-                       borderRadius: BorderRadius.circular(16),
-                       child: Padding(
-                         padding: const EdgeInsets.all(16),
-                         child: Column(
-                           crossAxisAlignment: CrossAxisAlignment.start,
-                           children: [
-
-                          Row(
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  rule.label,
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .titleMedium
-                                      ?.copyWith(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                      ),
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 16),
+                child: GlassPanel(
+                  child: HapticWrapper(
+                    profile: HapticProfile.light,
+                    onTap: () =>
+                        context.push('/settings/finance/history/${rule.id}'),
+                    child: InkWell(
+                      onTap: null,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    rule.label,
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .titleMedium
+                                        ?.copyWith(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                        ),
+                                  ),
                                 ),
-                              ),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 8, vertical: 4),
-                                decoration: BoxDecoration(
-                                  color: Colors.white24,
-                                  borderRadius: BorderRadius.circular(12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white24,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Text(
+                                    '${rule.percentage}%',
+                                    style: Theme.of(context)
+                                        .textTheme
+                                        .labelSmall
+                                        ?.copyWith(
+                                          color: Colors.white,
+                                        ),
+                                  ),
                                 ),
-                                child: Text(
-                                  '${rule.percentage}%',
-                                  style: Theme.of(context)
-                                      .textTheme
-                                      .labelSmall
-                                      ?.copyWith(
-                                        color: Colors.white,
-                                      ),
+                                const SizedBox(width: 8),
+                                const Icon(Icons.chevron_right,
+                                    color: Colors.white54),
+                              ],
+                            ),
+                            const Divider(color: Colors.white12, height: 24),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                _buildFinanceStat(context, 'Accumulated',
+                                    fin.accumulatedProfit),
+                                _buildFinanceStat(
+                                    context, 'Spent', fin.totalSpent),
+                                _buildFinanceStat(
+                                  context,
+                                  'Available',
+                                  fin.availableBalance,
+                                  color: fin.availableBalance >= 0
+                                      ? AppColors.teal
+                                      : Colors.redAccent,
                                 ),
-                              ),
-                              const SizedBox(width: 8),
-                              const Icon(Icons.chevron_right,
-                                  color: Colors.white54),
-                            ],
-                          ),
-                          const Divider(color: Colors.white12, height: 24),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              _buildFinanceStat(context, 'Accumulated',
-                                  fin.accumulatedProfit),
-                              _buildFinanceStat(
-                                  context, 'Spent', fin.totalSpent),
-                              _buildFinanceStat(
-                                context,
-                                'Available',
-                                fin.availableBalance,
-                                color: fin.availableBalance >= 0
-                                    ? AppColors.teal
-                                    : Colors.redAccent,
-                              ),
-                            ],
-                          ),
-                        ],
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
           );
         },
       ),

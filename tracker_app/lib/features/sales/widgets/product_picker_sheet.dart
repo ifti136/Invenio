@@ -111,10 +111,10 @@ class _ProductPickerSheet extends StatelessWidget {
                             color: Theme.of(context).colorScheme.primary,
                           )
                         : null,
-                     onTap: () {
-                       HapticService.trigger(HapticProfile.light);
-                       Navigator.of(context).pop(p.id);
-                     },
+                    onTap: () {
+                      HapticService.trigger(HapticProfile.light);
+                      Navigator.of(context).pop(p.id);
+                    },
                   );
                 },
               ),

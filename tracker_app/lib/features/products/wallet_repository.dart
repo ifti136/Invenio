@@ -2,9 +2,6 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../db/app_database.dart';
-import '../../db/tables/wallets_table.dart';
-import '../../db/tables/sales_table.dart';
-import '../../db/tables/expenses_table.dart';
 import '../../core/utils/stream_utils.dart';
 
 part 'wallet_repository.g.dart';
@@ -47,7 +44,7 @@ class WalletRepository {
         .get();
     final salesMap = {
       for (var row in salesQuery)
-        row.read<int>('walletId'): row.read<double>('total') ?? 0.0
+        row.read<int>('walletId'): row.read<double?>('total') ?? 0.0
     };
 
     final expensesQuery = await _db
@@ -57,7 +54,7 @@ class WalletRepository {
         .get();
     final expensesMap = {
       for (var row in expensesQuery)
-        row.read<int>('walletId'): row.read<double>('total') ?? 0.0
+        row.read<int>('walletId'): row.read<double?>('total') ?? 0.0
     };
 
     return wallets.map((w) {
@@ -91,7 +88,8 @@ class WalletRepository {
           final balance = w.openingBalance +
               (salesMap[w.id] ?? 0.0) -
               (expensesMap[w.id] ?? 0.0);
-          return WalletWithBalance(walletId: w.id, name: w.name, balance: balance);
+          return WalletWithBalance(
+              walletId: w.id, name: w.name, balance: balance);
         }).toList();
       },
     );

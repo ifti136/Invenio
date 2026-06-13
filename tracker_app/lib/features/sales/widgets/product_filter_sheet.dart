@@ -81,10 +81,10 @@ class _ProductFilterSheetState extends ConsumerState<ProductFilterSheet> {
             hint: 'Search products…',
             prefixIcon: Icons.search_rounded,
             autofocus: true,
-             onChanged: (v) {
-               HapticService.trigger(HapticProfile.light);
-               setState(() => _query = v);
-             },
+            onChanged: (v) {
+              HapticService.trigger(HapticProfile.light);
+              setState(() => _query = v);
+            },
           ),
           const SizedBox(height: 10),
           ConstrainedBox(
@@ -98,10 +98,10 @@ class _ProductFilterSheetState extends ConsumerState<ProductFilterSheet> {
                     leading: const Icon(Icons.clear_rounded),
                     title: const Text('All products'),
                     selected: widget.currentProductId == null,
-                     onTap: () {
-                       HapticService.trigger(HapticProfile.light);
-                       Navigator.of(context).pop(0);
-                     },
+                    onTap: () {
+                      HapticService.trigger(HapticProfile.light);
+                      Navigator.of(context).pop(0);
+                    },
                   );
                 }
                 final p = filtered[i - 1];
@@ -110,10 +110,10 @@ class _ProductFilterSheetState extends ConsumerState<ProductFilterSheet> {
                   title: Text(p.name),
                   subtitle: Text('Stock: ${p.stock}'),
                   selected: widget.currentProductId == p.id,
-                   onTap: () {
-                     HapticService.trigger(HapticProfile.light);
-                     Navigator.of(context).pop(p.id);
-                   },
+                  onTap: () {
+                    HapticService.trigger(HapticProfile.light);
+                    Navigator.of(context).pop(p.id);
+                  },
                 );
               },
             ),

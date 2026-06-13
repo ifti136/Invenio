@@ -55,21 +55,20 @@ class WalletListScreen extends ConsumerWidget {
                         fontSize: 16,
                       ),
                     ),
-                      onTap: () async {
-                        HapticService.trigger(HapticProfile.light);
-                        final wallet = await ref
-                            .read(walletRepositoryProvider)
-                            .getWalletById(walletBalance.walletId);
-                        if (context.mounted) {
-                          showWalletFormSheet(context, wallet: wallet);
-                        }
-                      },
-
-                     onLongPress: () {
-                       HapticService.trigger(HapticProfile.heavy);
-                       _confirmDeleteWallet(
-                           context, ref, walletBalance.walletId);
-                     },
+                    onTap: () async {
+                      HapticService.trigger(HapticProfile.light);
+                      final wallet = await ref
+                          .read(walletRepositoryProvider)
+                          .getWalletById(walletBalance.walletId);
+                      if (context.mounted) {
+                        showWalletFormSheet(context, wallet: wallet);
+                      }
+                    },
+                    onLongPress: () {
+                      HapticService.trigger(HapticProfile.heavy);
+                      _confirmDeleteWallet(
+                          context, ref, walletBalance.walletId);
+                    },
                   ),
                 ),
               );
@@ -77,16 +76,15 @@ class WalletListScreen extends ConsumerWidget {
           );
         },
       ),
-        floatingActionButton: HapticWrapper(
-          profile: HapticProfile.medium,
-          onTap: () => showWalletFormSheet(context),
-          child: FloatingActionButton(
-            backgroundColor: AppColors.accent,
-            onPressed: null,
-            child: const Icon(Icons.add, color: Colors.white),
-          ),
+      floatingActionButton: HapticWrapper(
+        profile: HapticProfile.medium,
+        onTap: () => showWalletFormSheet(context),
+        child: FloatingActionButton(
+          backgroundColor: AppColors.accent,
+          onPressed: null,
+          child: const Icon(Icons.add, color: Colors.white),
         ),
-
+      ),
     );
   }
 
@@ -96,25 +94,26 @@ class WalletListScreen extends ConsumerWidget {
       title: 'Delete Wallet',
       message:
           'Are you sure you want to delete this wallet? This action cannot be undone.',
-       actionsBuilder: (ctx) => [
-         GlassDialogAction(
-           label: 'Cancel',
-           onPressed: () {
-             HapticService.trigger(HapticProfile.light);
-             Navigator.of(ctx).pop();
-           },
-         ),
-         GlassDialogAction(
-           label: 'Delete',
-           isDestructive: true,
-           isPrimary: true,
-           onPressed: () async {
-             HapticService.trigger(HapticProfile.heavy);
-             await ref.read(walletRepositoryProvider).deleteWallet(id);
-             Navigator.of(ctx).pop();
-           },
-         ),
-       ],
+      actionsBuilder: (ctx) => [
+        GlassDialogAction(
+          label: 'Cancel',
+          onPressed: () {
+            HapticService.trigger(HapticProfile.light);
+            Navigator.of(ctx).pop();
+          },
+        ),
+        GlassDialogAction(
+          label: 'Delete',
+          isDestructive: true,
+          isPrimary: true,
+          onPressed: () async {
+            final navigator = Navigator.of(ctx);
+            HapticService.trigger(HapticProfile.heavy);
+            await ref.read(walletRepositoryProvider).deleteWallet(id);
+            navigator.pop();
+          },
+        ),
+      ],
     );
   }
 }

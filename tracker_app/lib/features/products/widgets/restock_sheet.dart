@@ -155,44 +155,43 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
           const SizedBox(height: 18),
           Row(
             children: [
-               Expanded(
-                 child: HapticWrapper(
-                   profile: HapticProfile.medium,
-                   onTap: _saving ? null : () => Navigator.of(context).pop(false),
-                   child: OutlinedButton(
-                     onPressed: null,
-                     style: OutlinedButton.styleFrom(
-                       padding: const EdgeInsets.symmetric(vertical: 14),
-                     ),
-                     child: const Text('Cancel'),
-                   ),
-                 ),
-               ),
-
+              Expanded(
+                child: HapticWrapper(
+                  profile: HapticProfile.medium,
+                  onTap:
+                      _saving ? null : () => Navigator.of(context).pop(false),
+                  child: OutlinedButton(
+                    onPressed: null,
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: const Text('Cancel'),
+                  ),
+                ),
+              ),
               const SizedBox(width: 10),
-               Expanded(
-                 child: HapticWrapper(
-                   profile: HapticProfile.medium,
-                   onTap: _saving ? null : _save,
-                   child: FilledButton(
-                     onPressed: null,
-                     style: FilledButton.styleFrom(
-                       padding: const EdgeInsets.symmetric(vertical: 14),
-                     ),
-                     child: _saving
-                         ? const SizedBox(
-                             width: 18,
-                             height: 18,
-                             child: CircularProgressIndicator(
-                               strokeWidth: 2,
-                               color: Colors.white,
-                             ),
-                           )
-                         : const Text('Add stock'),
-                   ),
-                 ),
-               ),
-
+              Expanded(
+                child: HapticWrapper(
+                  profile: HapticProfile.medium,
+                  onTap: _saving ? null : _save,
+                  child: FilledButton(
+                    onPressed: null,
+                    style: FilledButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    child: _saving
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              strokeWidth: 2,
+                              color: Colors.white,
+                            ),
+                          )
+                        : const Text('Add stock'),
+                  ),
+                ),
+              ),
             ],
           ),
         ],

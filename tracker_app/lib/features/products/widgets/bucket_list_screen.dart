@@ -76,20 +76,19 @@ class BucketListScreen extends ConsumerWidget {
                         fontSize: 16,
                       ),
                     ),
-                      onTap: () async {
-                        HapticService.trigger(HapticProfile.light);
-                        final bucket = await ref
-                            .read(bucketRepositoryProvider)
-                            .getById(bucketBalance.id);
-                        if (context.mounted) {
-                          showBucketFormSheet(context, bucket: bucket);
-                        }
-                      },
-
-                     onLongPress: () {
-                       HapticService.trigger(HapticProfile.heavy);
-                       _confirmDeleteBucket(context, ref, bucketBalance.id);
-                     },
+                    onTap: () async {
+                      HapticService.trigger(HapticProfile.light);
+                      final bucket = await ref
+                          .read(bucketRepositoryProvider)
+                          .getById(bucketBalance.id);
+                      if (context.mounted) {
+                        showBucketFormSheet(context, bucket: bucket);
+                      }
+                    },
+                    onLongPress: () {
+                      HapticService.trigger(HapticProfile.heavy);
+                      _confirmDeleteBucket(context, ref, bucketBalance.id);
+                    },
                   ),
                 ),
               );
@@ -97,16 +96,15 @@ class BucketListScreen extends ConsumerWidget {
           );
         },
       ),
-        floatingActionButton: HapticWrapper(
-          profile: HapticProfile.medium,
-          onTap: () => showBucketFormSheet(context),
-          child: FloatingActionButton(
-            backgroundColor: AppColors.accent,
-            onPressed: null,
-            child: const Icon(Icons.add, color: Colors.white),
-          ),
+      floatingActionButton: HapticWrapper(
+        profile: HapticProfile.medium,
+        onTap: () => showBucketFormSheet(context),
+        child: FloatingActionButton(
+          backgroundColor: AppColors.accent,
+          onPressed: null,
+          child: const Icon(Icons.add, color: Colors.white),
         ),
-
+      ),
     );
   }
 
@@ -116,25 +114,26 @@ class BucketListScreen extends ConsumerWidget {
       title: 'Delete Bucket',
       message:
           'Are you sure you want to delete this bucket? This action cannot be undone.',
-       actionsBuilder: (ctx) => [
-         GlassDialogAction(
-           label: 'Cancel',
-           onPressed: () {
-             HapticService.trigger(HapticProfile.light);
-             Navigator.of(ctx).pop();
-           },
-         ),
-         GlassDialogAction(
-           label: 'Delete',
-           isDestructive: true,
-           isPrimary: true,
-           onPressed: () async {
-             HapticService.trigger(HapticProfile.heavy);
-             await ref.read(bucketRepositoryProvider).delete(id);
-             Navigator.of(ctx).pop();
-           },
-         ),
-       ],
+      actionsBuilder: (ctx) => [
+        GlassDialogAction(
+          label: 'Cancel',
+          onPressed: () {
+            HapticService.trigger(HapticProfile.light);
+            Navigator.of(ctx).pop();
+          },
+        ),
+        GlassDialogAction(
+          label: 'Delete',
+          isDestructive: true,
+          isPrimary: true,
+          onPressed: () async {
+            final navigator = Navigator.of(ctx);
+            HapticService.trigger(HapticProfile.heavy);
+            await ref.read(bucketRepositoryProvider).delete(id);
+            navigator.pop();
+          },
+        ),
+      ],
     );
   }
 }

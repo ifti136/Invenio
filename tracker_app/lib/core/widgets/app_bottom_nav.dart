@@ -187,13 +187,13 @@ class AppScaffold extends ConsumerWidget {
                 padding: EdgeInsets.zero,
                 child: NavigationBar(
                   selectedIndex: idx,
-                   onDestinationSelected: (i) {
-                     HapticService.trigger(HapticProfile.light);
-                     navigationShell.goBranch(
-                       i,
-                       initialLocation: i == idx,
-                     );
-                   },
+                  onDestinationSelected: (i) {
+                    HapticService.trigger(HapticProfile.light);
+                    navigationShell.goBranch(
+                      i,
+                      initialLocation: i == idx,
+                    );
+                  },
                   backgroundColor: Colors.transparent,
                   surfaceTintColor: Colors.transparent,
                   indicatorColor: Colors.transparent,

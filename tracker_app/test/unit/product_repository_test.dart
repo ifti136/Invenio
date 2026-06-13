@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:drift/native.dart';
-import '../../lib/db/app_database.dart';
-import '../../lib/features/products/product_repository.dart';
+import 'package:tracker/db/app_database.dart';
+import 'package:tracker/features/products/product_repository.dart';
 
 void main() {
   late AppDatabase db;

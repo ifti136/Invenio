@@ -112,10 +112,11 @@ class ExportService {
       final profit =
           ProfitCalculator.calculateNetProfit(s, p?.costPrice ?? 0, addOns);
       grossProfit += profit;
-      if (s.platform == 'facebook')
+      if (s.platform == 'facebook') {
         fbProfit += profit;
-      else
+      } else {
         offlineProfit += profit;
+      }
     }
     final totalExpenses = expenses.fold(0.0, (sum, e) => sum + e.amount);
     final netProfit = grossProfit - totalExpenses;

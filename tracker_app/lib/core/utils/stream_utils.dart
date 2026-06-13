@@ -12,7 +12,7 @@ Stream<T> combineLatest2<S1, S2, T>(
 
   void checkAndEmit() {
     if (last1 != null && last2 != null) {
-      controller.add(combiner(last1!, last2!));
+      controller.add(combiner(last1 as S1, last2 as S2));
     }
   }
 
@@ -51,7 +51,7 @@ Stream<T> combineLatest3<S1, S2, S3, T>(
 
   void checkAndEmit() {
     if (last1 != null && last2 != null && last3 != null) {
-      controller.add(combiner(last1!, last2!, last3!));
+      controller.add(combiner(last1 as S1, last2 as S2, last3 as S3));
     }
   }
 

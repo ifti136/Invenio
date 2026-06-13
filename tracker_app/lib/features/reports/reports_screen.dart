@@ -101,83 +101,83 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
       noBlur: true,
       child: Row(
         children: [
-            if (_tab == _ReportTab.monthly) ...[
-              HapticWrapper(
-                profile: HapticProfile.light,
-                onTap: _prevYear,
-                child: IconButton(
-                  icon: const Icon(Icons.chevron_left),
-                  onPressed: null,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
+          if (_tab == _ReportTab.monthly) ...[
+            HapticWrapper(
+              profile: HapticProfile.light,
+              onTap: _prevYear,
+              child: IconButton(
+                icon: const Icon(Icons.chevron_left),
+                onPressed: null,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(yearLabel,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(yearLabel,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium),
+            ),
+            const SizedBox(width: 8),
+            HapticWrapper(
+              profile: HapticProfile.light,
+              onTap: _nextYear,
+              child: IconButton(
+                icon: const Icon(Icons.chevron_right),
+                onPressed: null,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 8),
-              HapticWrapper(
-                profile: HapticProfile.light,
-                onTap: _nextYear,
-                child: IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  onPressed: null,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
+            ),
+          ] else ...[
+            HapticWrapper(
+              profile: HapticProfile.light,
+              onTap: _prevMonth,
+              child: IconButton(
+                icon: const Icon(Icons.chevron_left),
+                onPressed: null,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
-            ] else ...[
-              HapticWrapper(
-                profile: HapticProfile.light,
-                onTap: _prevMonth,
-                child: IconButton(
-                  icon: const Icon(Icons.chevron_left),
-                  onPressed: null,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
+            ),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(monthLabel,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.titleMedium),
+            ),
+            const SizedBox(width: 8),
+            HapticWrapper(
+              profile: HapticProfile.light,
+              onTap: _nextMonth,
+              child: IconButton(
+                icon: const Icon(Icons.chevron_right),
+                onPressed: null,
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
               ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(monthLabel,
-                    textAlign: TextAlign.center,
-                    style: Theme.of(context).textTheme.titleMedium),
+            ),
+          ],
+          if (_tab == _ReportTab.daily) ...[
+            const SizedBox(width: 8),
+            HapticWrapper(
+              profile: HapticProfile.medium,
+              onTap: _exporting ? null : _export,
+              child: IconButton(
+                icon: _exporting
+                    ? const SizedBox(
+                        width: 18,
+                        height: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2))
+                    : const Icon(Icons.file_download_outlined),
+                onPressed: null,
+                tooltip: 'Export month',
+                padding: EdgeInsets.zero,
+                constraints: const BoxConstraints(),
+                color: cs.primary,
               ),
-              const SizedBox(width: 8),
-              HapticWrapper(
-                profile: HapticProfile.light,
-                onTap: _nextMonth,
-                child: IconButton(
-                  icon: const Icon(Icons.chevron_right),
-                  onPressed: null,
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                ),
-              ),
-            ],
-            if (_tab == _ReportTab.daily) ...[
-              const SizedBox(width: 8),
-              HapticWrapper(
-                profile: HapticProfile.medium,
-                onTap: _exporting ? null : _export,
-                child: IconButton(
-                  icon: _exporting
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2))
-                      : const Icon(Icons.file_download_outlined),
-                  onPressed: null,
-                  tooltip: 'Export month',
-                  padding: EdgeInsets.zero,
-                  constraints: const BoxConstraints(),
-                  color: cs.primary,
-                ),
-              ),
-            ],
+            ),
+          ],
         ],
       ),
     );
@@ -194,10 +194,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
           ButtonSegment(value: _ReportTab.products, label: Text('Products')),
         ],
         selected: {_tab},
-         onSelectionChanged: (v) {
-           HapticService.trigger(HapticProfile.light);
-           setState(() => _tab = v.first);
-         },
+        onSelectionChanged: (v) {
+          HapticService.trigger(HapticProfile.light);
+          setState(() => _tab = v.first);
+        },
         style: ButtonStyle(
           visualDensity: VisualDensity.compact,
         ),
@@ -285,16 +285,15 @@ class _DailyReport extends ConsumerWidget {
                 chart: MonthlyBarChart(snapshots: snapshots),
                 table: _DailyTable(snapshots: snapshots),
               )
-             else
-               const Padding(
-                 padding: EdgeInsets.all(32),
-                 child: EmptyState(
-                   icon: Icons.analytics_outlined,
-                   title: 'No data available',
-                   message: 'No sales or expenses recorded this month.',
-                 ),
-               ),
-
+            else
+              const Padding(
+                padding: EdgeInsets.all(32),
+                child: EmptyState(
+                  icon: Icons.analytics_outlined,
+                  title: 'No data available',
+                  message: 'No sales or expenses recorded this month.',
+                ),
+              ),
           ],
         );
       },
@@ -341,16 +340,15 @@ class _MonthlyReport extends ConsumerWidget {
                 chart: YearlyBarChart(summaries: summaries),
                 table: _MonthlyTable(summaries: summaries),
               )
-             else
-               Padding(
-                 padding: const EdgeInsets.all(32),
-                 child: EmptyState(
-                   icon: Icons.calendar_month_outlined,
-                   title: 'No data for $year',
-                   message: 'No sales or expenses recorded for this year.',
-                 ),
-               ),
-
+            else
+              Padding(
+                padding: const EdgeInsets.all(32),
+                child: EmptyState(
+                  icon: Icons.calendar_month_outlined,
+                  title: 'No data for $year',
+                  message: 'No sales or expenses recorded for this year.',
+                ),
+              ),
           ],
         );
       },
@@ -369,16 +367,16 @@ class _ProductReport extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Error: $e')),
       data: (rows) {
-         if (rows.isEmpty) {
-           return const Padding(
-             padding: EdgeInsets.all(32),
-             child: EmptyState(
-               icon: Icons.inventory_2_outlined,
-               title: 'No product data',
-               message: 'No product sales data available yet.',
-             ),
-           );
-         }
+        if (rows.isEmpty) {
+          return const Padding(
+            padding: EdgeInsets.all(32),
+            child: EmptyState(
+              icon: Icons.inventory_2_outlined,
+              title: 'No product data',
+              message: 'No product sales data available yet.',
+            ),
+          );
+        }
 
         return GlassPanel(
           padding: const EdgeInsets.all(12),

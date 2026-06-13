@@ -40,15 +40,15 @@ class SaleListScreen extends ConsumerWidget {
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
             ),
             actions: [
-                HapticWrapper(
-                  profile: HapticProfile.light,
-                  onTap: () => context.push('/sales/add'),
-                  child: IconButton(
-                    tooltip: 'Log sale',
-                    onPressed: null,
-                    icon: const Icon(Icons.add_rounded, color: AppColors.accent),
-                  ),
+              HapticWrapper(
+                profile: HapticProfile.light,
+                onTap: () => context.push('/sales/add'),
+                child: IconButton(
+                  tooltip: 'Log sale',
+                  onPressed: null,
+                  icon: const Icon(Icons.add_rounded, color: AppColors.accent),
                 ),
+              ),
               const SizedBox(width: 4),
             ],
           ),
@@ -104,13 +104,13 @@ class SaleListScreen extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                     InkWell(
-                       borderRadius: BorderRadius.circular(12),
-                       onTap: () {
-                         HapticService.trigger(HapticProfile.light);
-                         showDiscountSheet(context);
-                       },
-                       child: Padding(
+                    InkWell(
+                      borderRadius: BorderRadius.circular(12),
+                      onTap: () {
+                        HapticService.trigger(HapticProfile.light);
+                        showDiscountSheet(context);
+                      },
+                      child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Row(
                           children: [
@@ -171,9 +171,9 @@ class SaleListScreen extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     if (allSales.isEmpty)
-                       Padding(
-                         padding: const EdgeInsets.symmetric(vertical: 8),
-                         child: const EmptyState(
+                      Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: const EmptyState(
                           icon: Icons.receipt_long_outlined,
                           title: 'No sales yet',
                           message: 'Tap a product to log your first sale.',
@@ -258,18 +258,18 @@ class _ProductSellCard extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 8),
-             HapticWrapper(
-               profile: HapticProfile.medium,
-               onTap: inStock ? () => _sell(context, ref) : null,
-               child: FilledButton.tonalIcon(
-                 onPressed: null,
-                 icon: const Icon(Icons.point_of_sale_rounded, size: 18),
-                 label: const Text('Sell'),
-                 style: FilledButton.styleFrom(
-                   padding: const EdgeInsets.symmetric(horizontal: 14),
-                 ),
-               ),
-             ),
+            HapticWrapper(
+              profile: HapticProfile.medium,
+              onTap: inStock ? () => _sell(context, ref) : null,
+              child: FilledButton.tonalIcon(
+                onPressed: null,
+                icon: const Icon(Icons.point_of_sale_rounded, size: 18),
+                label: const Text('Sell'),
+                style: FilledButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(horizontal: 14),
+                ),
+              ),
+            ),
           ],
         ),
       ),

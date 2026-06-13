@@ -174,21 +174,20 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
                           ),
                         ),
                         const SizedBox(width: 8),
-                         HapticWrapper(
-                           profile: HapticProfile.light,
-                           onTap: () => _removeAddOn(idx),
-                           child: IconButton(
-                             icon: const Icon(Icons.close,
-                                 size: 18, color: AppColors.danger),
-                             onPressed: null,
-                           ),
-                         ),
-
+                        HapticWrapper(
+                          profile: HapticProfile.light,
+                          onTap: () => _removeAddOn(idx),
+                          child: IconButton(
+                            icon: const Icon(Icons.close,
+                                size: 18, color: AppColors.danger),
+                            onPressed: null,
+                          ),
+                        ),
                       ],
                     ),
                   ),
                 );
-              }).toList(),
+              }),
               const SizedBox(height: 16),
             ],
 
@@ -273,14 +272,13 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
                       ],
                     ),
                   ),
-                   HapticWrapper(
-                     onTap: () => Navigator.of(context).pop(_entries),
-                     child: FilledButton(
-                       onPressed: null,
-                       child: const Text('Done'),
-                     ),
-                   ),
-
+                  HapticWrapper(
+                    onTap: () => Navigator.of(context).pop(_entries),
+                    child: FilledButton(
+                      onPressed: null,
+                      child: const Text('Done'),
+                    ),
+                  ),
                 ],
               ),
             ),

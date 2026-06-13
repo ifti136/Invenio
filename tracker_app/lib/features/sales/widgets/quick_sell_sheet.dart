@@ -106,24 +106,24 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
         context: context,
         title: 'Sale alerts',
         message: alerts.map((a) => a.message).join('\n\n'),
-            actionsBuilder: (ctx) => [
-              GlassDialogAction(
-                label: 'Cancel',
-                onPressed: () {
-                  HapticService.trigger(HapticProfile.light);
-                  Navigator.of(ctx).pop(false);
-                },
-              ),
-              GlassDialogAction(
-                label: 'Sell anyway',
-                isDestructive: true,
-                isPrimary: true,
-                onPressed: () {
-                  HapticService.trigger(HapticProfile.medium);
-                  Navigator.of(ctx).pop(true);
-                },
-              ),
-            ],
+        actionsBuilder: (ctx) => [
+          GlassDialogAction(
+            label: 'Cancel',
+            onPressed: () {
+              HapticService.trigger(HapticProfile.light);
+              Navigator.of(ctx).pop(false);
+            },
+          ),
+          GlassDialogAction(
+            label: 'Sell anyway',
+            isDestructive: true,
+            isPrimary: true,
+            onPressed: () {
+              HapticService.trigger(HapticProfile.medium);
+              Navigator.of(ctx).pop(true);
+            },
+          ),
+        ],
       );
       if (proceed != true) return;
     }
@@ -231,17 +231,18 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
                     controller: _quantity,
                     label: 'Quantity',
                     keyboardType: TextInputType.number,
-                     validator: (v) {
-                       final n = int.tryParse(v?.trim() ?? '');
-                       if (n == null || n < 1) return 'Min 1';
-                       if (n > widget.product.stock)
-                         return 'Only ${widget.product.stock} available';
-                       return null;
-                     },
-                     onChanged: (_) {
-                       HapticService.trigger(HapticProfile.light);
-                       setState(() {});
-                     },
+                    validator: (v) {
+                      final n = int.tryParse(v?.trim() ?? '');
+                      if (n == null || n < 1) return 'Min 1';
+                      if (n > widget.product.stock) {
+                        return 'Only ${widget.product.stock} available';
+                      }
+                      return null;
+                    },
+                    onChanged: (_) {
+                      HapticService.trigger(HapticProfile.light);
+                      setState(() {});
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -252,15 +253,15 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
                     hint: widget.lastSellingPrice?.toStringAsFixed(2),
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                     validator: (v) {
-                       final d = double.tryParse(v?.trim() ?? '');
-                       if (d == null || d <= 0) return 'Enter a valid price';
-                       return null;
-                     },
-                     onChanged: (_) {
-                       HapticService.trigger(HapticProfile.light);
-                       setState(() {});
-                     },
+                    validator: (v) {
+                      final d = double.tryParse(v?.trim() ?? '');
+                      if (d == null || d <= 0) return 'Enter a valid price';
+                      return null;
+                    },
+                    onChanged: (_) {
+                      HapticService.trigger(HapticProfile.light);
+                      setState(() {});
+                    },
                   ),
                 ),
               ],
@@ -271,10 +272,10 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
               value: _platform,
               items: SalePlatform.values,
               labelFn: (p) => p.label,
-               onChanged: (v) {
-                 HapticService.trigger(HapticProfile.light);
-                 setState(() => _platform = v);
-               },
+              onChanged: (v) {
+                HapticService.trigger(HapticProfile.light);
+                setState(() => _platform = v);
+              },
             ),
             const SizedBox(height: 12),
             _segmentedRow<PaymentStatus>(
@@ -282,10 +283,10 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
               value: _payment,
               items: PaymentStatus.values,
               labelFn: (p) => p.label,
-               onChanged: (v) {
-                 HapticService.trigger(HapticProfile.light);
-                 setState(() => _payment = v);
-               },
+              onChanged: (v) {
+                HapticService.trigger(HapticProfile.light);
+                setState(() => _payment = v);
+              },
             ),
             const SizedBox(height: 12),
             Row(
@@ -326,7 +327,7 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
                             size: 18, color: AppColors.accent),
                         const SizedBox(width: 8),
                         Text(
-                          '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
+                          '${_addOns.isNotEmpty ? _addOns.length : ''} Add-Ons',
                           style: const TextStyle(
                             color: AppColors.accent,
                             fontWeight: FontWeight.w600,
@@ -370,20 +371,20 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
                       ],
                     ),
                   ),
-                   HapticWrapper(
-                     profile: HapticProfile.medium,
-                     onTap: _saving ? null : _confirm,
-                     child: FilledButton(
-                       onPressed: null,
-                       child: _saving
-                           ? const SizedBox(
-                               width: 18,
-                               height: 18,
-                               child: CircularProgressIndicator(strokeWidth: 2),
-                             )
-                           : const Text('Confirm'),
-                     ),
-                   ),
+                  HapticWrapper(
+                    profile: HapticProfile.medium,
+                    onTap: _saving ? null : _confirm,
+                    child: FilledButton(
+                      onPressed: null,
+                      child: _saving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Confirm'),
+                    ),
+                  ),
                 ],
               ),
             ),

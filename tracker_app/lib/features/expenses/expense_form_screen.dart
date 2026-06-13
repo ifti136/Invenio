@@ -370,23 +370,22 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       message:
           'This removes the ${_category.label.toLowerCase()} expense of ${_amountCtrl.text.isEmpty ? '—' : formatMoney(double.tryParse(_amountCtrl.text) ?? 0)}.',
       actionsBuilder: (ctx) => [
-         GlassDialogAction(
-           label: 'Cancel',
-           onPressed: () {
-             HapticService.trigger(HapticProfile.light);
-             Navigator.of(ctx).pop(false);
-           },
-         ),
-         GlassDialogAction(
-           label: 'Delete',
-           isDestructive: true,
-           isPrimary: true,
-           onPressed: () {
-             HapticService.trigger(HapticProfile.medium);
-             Navigator.of(ctx).pop(true);
-           },
-         ),
-
+        GlassDialogAction(
+          label: 'Cancel',
+          onPressed: () {
+            HapticService.trigger(HapticProfile.light);
+            Navigator.of(ctx).pop(false);
+          },
+        ),
+        GlassDialogAction(
+          label: 'Delete',
+          isDestructive: true,
+          isPrimary: true,
+          onPressed: () {
+            HapticService.trigger(HapticProfile.medium);
+            Navigator.of(ctx).pop(true);
+          },
+        ),
       ],
     );
     if (result != true) return;
@@ -423,22 +422,21 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       message:
           'This expense will overdraw your $bucketName budget by ৳${overdrawAmount.toStringAsFixed(2)}. Do you wish to proceed?',
       actionsBuilder: (ctx) => [
-         GlassDialogAction(
-           label: 'Cancel',
-           onPressed: () {
-             HapticService.trigger(HapticProfile.light);
-             Navigator.of(ctx).pop(false);
-           },
-         ),
-         GlassDialogAction(
-           label: 'Proceed',
-           isPrimary: true,
-           onPressed: () {
-             HapticService.trigger(HapticProfile.medium);
-             Navigator.of(ctx).pop(true);
-           },
-         ),
-
+        GlassDialogAction(
+          label: 'Cancel',
+          onPressed: () {
+            HapticService.trigger(HapticProfile.light);
+            Navigator.of(ctx).pop(false);
+          },
+        ),
+        GlassDialogAction(
+          label: 'Proceed',
+          isPrimary: true,
+          onPressed: () {
+            HapticService.trigger(HapticProfile.medium);
+            Navigator.of(ctx).pop(true);
+          },
+        ),
       ],
     );
   }
@@ -476,8 +474,9 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                 onChanged: (_) => setState(() {}),
                 validator: (v) {
                   final d = double.tryParse(v?.trim() ?? '');
-                  if (d == null || d <= 0)
+                  if (d == null || d <= 0) {
                     return 'Enter a valid amount greater than 0';
+                  }
                   return null;
                 },
               ),

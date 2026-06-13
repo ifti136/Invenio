@@ -2,8 +2,6 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:tracker/db/app_database.dart';
-import 'package:tracker/db/tables/add_on_types_table.dart';
-import 'package:tracker/db/tables/sale_add_ons_table.dart';
 
 part 'add_on_repository.g.dart';
 

@@ -114,24 +114,24 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
         context: context,
         title: 'Sale alerts',
         message: alerts.map((a) => a.message).join('\n\n'),
-            actionsBuilder: (ctx) => [
-              GlassDialogAction(
-                label: 'Cancel',
-                onPressed: () {
-                  HapticService.trigger(HapticProfile.light);
-                  Navigator.of(ctx).pop(false);
-                },
-              ),
-              GlassDialogAction(
-                label: 'Sell anyway',
-                isDestructive: true,
-                isPrimary: true,
-                onPressed: () {
-                  HapticService.trigger(HapticProfile.medium);
-                  Navigator.of(ctx).pop(true);
-                },
-              ),
-            ],
+        actionsBuilder: (ctx) => [
+          GlassDialogAction(
+            label: 'Cancel',
+            onPressed: () {
+              HapticService.trigger(HapticProfile.light);
+              Navigator.of(ctx).pop(false);
+            },
+          ),
+          GlassDialogAction(
+            label: 'Sell anyway',
+            isDestructive: true,
+            isPrimary: true,
+            onPressed: () {
+              HapticService.trigger(HapticProfile.medium);
+              Navigator.of(ctx).pop(true);
+            },
+          ),
+        ],
       );
       if (proceed != true) return;
     }
@@ -225,18 +225,18 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                     controller: _qty,
                     label: 'Quantity',
                     keyboardType: TextInputType.number,
-                     validator: (v) {
-                       final n = int.tryParse(v?.trim() ?? '');
-                       if (n == null || n < 1) return 'Min 1';
-                       if (product != null && n > product.stock) {
-                         return 'Only ${product.stock} available';
-                       }
-                       return null;
-                     },
-                     onChanged: (_) {
-                       HapticService.trigger(HapticProfile.light);
-                       setState(() {});
-                     },
+                    validator: (v) {
+                      final n = int.tryParse(v?.trim() ?? '');
+                      if (n == null || n < 1) return 'Min 1';
+                      if (product != null && n > product.stock) {
+                        return 'Only ${product.stock} available';
+                      }
+                      return null;
+                    },
+                    onChanged: (_) {
+                      HapticService.trigger(HapticProfile.light);
+                      setState(() {});
+                    },
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -246,15 +246,15 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                     label: 'Normal price (৳)',
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                     validator: (v) {
-                       final d = double.tryParse(v?.trim() ?? '');
-                       if (d == null || d <= 0) return 'Enter a valid price';
-                       return null;
-                     },
-                     onChanged: (_) {
-                       HapticService.trigger(HapticProfile.light);
-                       setState(() {});
-                     },
+                    validator: (v) {
+                      final d = double.tryParse(v?.trim() ?? '');
+                      if (d == null || d <= 0) return 'Enter a valid price';
+                      return null;
+                    },
+                    onChanged: (_) {
+                      HapticService.trigger(HapticProfile.light);
+                      setState(() {});
+                    },
                   ),
                 ),
               ],
@@ -265,17 +265,17 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
               label: 'Discount price (৳)',
               keyboardType:
                   const TextInputType.numberWithOptions(decimal: true),
-               validator: (v) {
-                 final d = double.tryParse(v?.trim() ?? '');
-                 if (d == null || d <= 0) return 'Enter a valid price';
-                 final n = double.tryParse(_normalPrice.text.trim()) ?? 0;
-                 if (d >= n) return 'Must be less than normal price';
-                 return null;
-               },
-               onChanged: (_) {
-                 HapticService.trigger(HapticProfile.light);
-                 setState(() {});
-               },
+              validator: (v) {
+                final d = double.tryParse(v?.trim() ?? '');
+                if (d == null || d <= 0) return 'Enter a valid price';
+                final n = double.tryParse(_normalPrice.text.trim()) ?? 0;
+                if (d >= n) return 'Must be less than normal price';
+                return null;
+              },
+              onChanged: (_) {
+                HapticService.trigger(HapticProfile.light);
+                setState(() {});
+              },
             ),
             const SizedBox(height: 12),
             _segmentedRow<SalePlatform>(
@@ -283,10 +283,10 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
               value: _platform,
               items: SalePlatform.values,
               labelFn: (p) => p.label,
-               onChanged: (v) {
-                 HapticService.trigger(HapticProfile.light);
-                 setState(() => _platform = v);
-               },
+              onChanged: (v) {
+                HapticService.trigger(HapticProfile.light);
+                setState(() => _platform = v);
+              },
             ),
             const SizedBox(height: 12),
             _segmentedRow<PaymentStatus>(
@@ -294,10 +294,10 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
               value: _payment,
               items: PaymentStatus.values,
               labelFn: (p) => p.label,
-               onChanged: (v) {
-                 HapticService.trigger(HapticProfile.light);
-                 setState(() => _payment = v);
-               },
+              onChanged: (v) {
+                HapticService.trigger(HapticProfile.light);
+                setState(() => _payment = v);
+              },
             ),
             const SizedBox(height: 12),
             GlassTextField(
@@ -334,7 +334,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                         size: 18, color: AppColors.accent),
                     const SizedBox(width: 8),
                     Text(
-                      '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
+                      '${_addOns.isNotEmpty ? _addOns.length : ''} Add-Ons',
                       style: const TextStyle(
                         color: AppColors.accent,
                         fontWeight: FontWeight.w600,
@@ -379,20 +379,20 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                       ],
                     ),
                   ),
-                   HapticWrapper(
-                     profile: HapticProfile.medium,
-                     onTap: _saving ? null : _confirm,
-                     child: FilledButton(
-                       onPressed: null,
-                       child: _saving
-                           ? const SizedBox(
-                               width: 18,
-                               height: 18,
-                               child: CircularProgressIndicator(strokeWidth: 2),
-                             )
-                           : const Text('Confirm'),
-                     ),
-                   ),
+                  HapticWrapper(
+                    profile: HapticProfile.medium,
+                    onTap: _saving ? null : _confirm,
+                    child: FilledButton(
+                      onPressed: null,
+                      child: _saving
+                          ? const SizedBox(
+                              width: 18,
+                              height: 18,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Text('Confirm'),
+                    ),
+                  ),
                 ],
               ),
             ),

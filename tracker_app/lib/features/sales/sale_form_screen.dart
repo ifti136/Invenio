@@ -295,16 +295,16 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       context: context,
       title: 'Could not save',
       message: msg,
-         actionsBuilder: (ctx) => [
-           GlassDialogAction(
-             label: 'OK',
-             isPrimary: true,
-             onPressed: () {
-               HapticService.trigger(HapticProfile.light);
-               Navigator.of(ctx).pop();
-             },
-           ),
-         ],
+      actionsBuilder: (ctx) => [
+        GlassDialogAction(
+          label: 'OK',
+          isPrimary: true,
+          onPressed: () {
+            HapticService.trigger(HapticProfile.light);
+            Navigator.of(ctx).pop();
+          },
+        ),
+      ],
     );
   }
 
@@ -313,23 +313,23 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       context: context,
       title: 'Heads up',
       message: alerts.map((a) => '• ${a.message}').join('\n\n'),
-       actionsBuilder: (ctx) => [
-         GlassDialogAction(
-           label: 'Cancel',
-           onPressed: () {
-             HapticService.trigger(HapticProfile.light);
-             Navigator.of(ctx).pop(false);
-           },
-         ),
-         GlassDialogAction(
-           label: 'Save anyway',
-           isPrimary: true,
-           onPressed: () {
-             HapticService.trigger(HapticProfile.medium);
-             Navigator.of(ctx).pop(true);
-           },
-         ),
-       ],
+      actionsBuilder: (ctx) => [
+        GlassDialogAction(
+          label: 'Cancel',
+          onPressed: () {
+            HapticService.trigger(HapticProfile.light);
+            Navigator.of(ctx).pop(false);
+          },
+        ),
+        GlassDialogAction(
+          label: 'Save anyway',
+          isPrimary: true,
+          onPressed: () {
+            HapticService.trigger(HapticProfile.medium);
+            Navigator.of(ctx).pop(true);
+          },
+        ),
+      ],
     );
   }
 
@@ -446,10 +446,10 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                         value: _platform,
                         values: SalePlatform.values,
                         labelOf: (v) => v.label,
-                         onChanged: (v) {
-                           HapticService.trigger(HapticProfile.light);
-                           setState(() => _platform = v);
-                         },
+                        onChanged: (v) {
+                          HapticService.trigger(HapticProfile.light);
+                          setState(() => _platform = v);
+                        },
                       ),
                       const SizedBox(width: 12),
                       _ToggleGroup<PaymentStatus>(
@@ -457,10 +457,10 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                         value: _payment,
                         values: PaymentStatus.values,
                         labelOf: (v) => v.label,
-                         onChanged: (v) {
-                           HapticService.trigger(HapticProfile.light);
-                           setState(() => _payment = v);
-                         },
+                        onChanged: (v) {
+                          HapticService.trigger(HapticProfile.light);
+                          setState(() => _payment = v);
+                        },
                       ),
                     ],
                   ),
@@ -473,33 +473,33 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                         values: const ['business', 'personal'],
                         labelOf: (v) =>
                             v == 'business' ? 'Business' : 'Personal',
-                         onChanged: (v) {
-                           HapticService.trigger(HapticProfile.light);
-                           setState(() => _ownership = v);
-                         },
+                        onChanged: (v) {
+                          HapticService.trigger(HapticProfile.light);
+                          setState(() => _ownership = v);
+                        },
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: InkWell(
-                         onTap: () async {
-                           HapticService.trigger(HapticProfile.light);
-                           final id = await showWalletPicker(
-                             context,
-                             ref: ref,
-                             selectedId: _walletId,
-                           );
-                           if (id != null) {
-                             final wallets = await ref
-                                 .read(walletRepositoryProvider)
-                                 .getWallets();
-                             final name =
-                                 wallets.firstWhere((w) => w.id == id).name;
-                             setState(() {
-                               _walletId = id;
-                               _walletName = name;
-                             });
-                           }
-                         },
+                          onTap: () async {
+                            HapticService.trigger(HapticProfile.light);
+                            final id = await showWalletPicker(
+                              context,
+                              ref: ref,
+                              selectedId: _walletId,
+                            );
+                            if (id != null) {
+                              final wallets = await ref
+                                  .read(walletRepositoryProvider)
+                                  .getWallets();
+                              final name =
+                                  wallets.firstWhere((w) => w.id == id).name;
+                              setState(() {
+                                _walletId = id;
+                                _walletName = name;
+                              });
+                            }
+                          },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               vertical: 8,
@@ -571,7 +571,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                               size: 18, color: AppColors.accent),
                           const SizedBox(width: 8),
                           Text(
-                            '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
+                            '${_addOns.isNotEmpty ? _addOns.length : ''} Add-Ons',
                             style: const TextStyle(
                               color: AppColors.accent,
                               fontWeight: FontWeight.w600,
@@ -611,26 +611,26 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                       ),
                     ),
                   const SizedBox(height: 16),
-                   HapticWrapper(
-                     profile: HapticProfile.medium,
-                     onTap: _saving ? null : _save,
-                     child: FilledButton(
-                       onPressed: null,
-                       style: FilledButton.styleFrom(
-                         padding: const EdgeInsets.symmetric(vertical: 16),
-                       ),
-                       child: _saving
-                           ? const SizedBox(
-                               width: 20,
-                               height: 20,
-                               child: CircularProgressIndicator(
-                                 strokeWidth: 2,
-                                 color: Colors.white,
-                               ),
-                             )
-                           : Text(_isEdit ? 'Save changes' : 'Record sale'),
-                     ),
-                   ),
+                  HapticWrapper(
+                    profile: HapticProfile.medium,
+                    onTap: _saving ? null : _save,
+                    child: FilledButton(
+                      onPressed: null,
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                      child: _saving
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                color: Colors.white,
+                              ),
+                            )
+                          : Text(_isEdit ? 'Save changes' : 'Record sale'),
+                    ),
+                  ),
                 ],
               ),
             ),

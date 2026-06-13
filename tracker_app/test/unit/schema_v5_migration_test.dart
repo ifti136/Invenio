@@ -27,19 +27,28 @@ void main() {
   test('Schema v5: Migration from v4 preserves data and creates new tables',
       () async {
     // 1. Setup v4 state
-    final v4Db = NativeDatabase(dbFile);
-    await v4Db.execute('PRAGMA user_version = 4');
+    final v4Db = AppDatabase.forTesting(NativeDatabase(dbFile));
+    await v4Db.customStatement('PRAGMA user_version = 4');
 
-    await v4Db.execute('CREATE TABLE products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, costPrice REAL NOT NULL, stock INTEGER NOT NULL, lowStockThreshold INTEGER NOT NULL, alertEnabled BOOLEAN NOT NULL, createdAt INTEGER NOT NULL)');
-    await v4Db.execute('CREATE TABLE sales (id INTEGER PRIMARY KEY AUTOINCREMENT, productId INTEGER NOT NULL, quantity INTEGER NOT NULL, sellingPrice REAL NOT NULL, total REAL NOT NULL, platform TEXT NOT NULL, paymentStatus TEXT NOT NULL, customerName TEXT, isDiscounted BOOLEAN NOT NULL, normalPrice REAL, date INTEGER NOT NULL, createdAt INTEGER NOT NULL, walletId INTEGER, ownership TEXT, FOREIGN KEY (productId) REFERENCES products (id))');
-    await v4Db.execute('CREATE TABLE expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, amount REAL NOT NULL, category TEXT NOT NULL, note TEXT, date INTEGER NOT NULL, createdAt INTEGER NOT NULL, walletId INTEGER, ownership TEXT, bucketId INTEGER)');
-    await v4Db.execute('CREATE TABLE stock_movements (id INTEGER PRIMARY KEY AUTOINCREMENT, productId INTEGER NOT NULL, quantity INTEGER NOT NULL, type TEXT NOT NULL, note TEXT, date INTEGER NOT NULL, FOREIGN KEY (productId) REFERENCES products (id))');
-    await v4Db.execute('CREATE TABLE wallets (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, type TEXT NOT NULL, openingBalance REAL NOT NULL, isActive BOOLEAN NOT NULL, createdAt INTEGER NOT NULL)');
-    await v4Db.execute('CREATE TABLE allocation_rules (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, percentage REAL NOT NULL, isActive BOOLEAN NOT NULL, createdAt INTEGER NOT NULL)');
-    await v4Db.execute('CREATE TABLE budget_buckets (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, allocatedAmount REAL NOT NULL, color TEXT, createdAt INTEGER NOT NULL)');
+    await v4Db.customStatement(
+        'CREATE TABLE products (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, costPrice REAL NOT NULL, stock INTEGER NOT NULL, lowStockThreshold INTEGER NOT NULL, alertEnabled BOOLEAN NOT NULL, createdAt INTEGER NOT NULL)');
+    await v4Db.customStatement(
+        'CREATE TABLE sales (id INTEGER PRIMARY KEY AUTOINCREMENT, productId INTEGER NOT NULL, quantity INTEGER NOT NULL, sellingPrice REAL NOT NULL, total REAL NOT NULL, platform TEXT NOT NULL, paymentStatus TEXT NOT NULL, customerName TEXT, isDiscounted BOOLEAN NOT NULL, normalPrice REAL, date INTEGER NOT NULL, createdAt INTEGER NOT NULL, walletId INTEGER, ownership TEXT, FOREIGN KEY (productId) REFERENCES products (id))');
+    await v4Db.customStatement(
+        'CREATE TABLE expenses (id INTEGER PRIMARY KEY AUTOINCREMENT, amount REAL NOT NULL, category TEXT NOT NULL, note TEXT, date INTEGER NOT NULL, createdAt INTEGER NOT NULL, walletId INTEGER, ownership TEXT, bucketId INTEGER)');
+    await v4Db.customStatement(
+        'CREATE TABLE stock_movements (id INTEGER PRIMARY KEY AUTOINCREMENT, productId INTEGER NOT NULL, quantity INTEGER NOT NULL, type TEXT NOT NULL, note TEXT, date INTEGER NOT NULL, FOREIGN KEY (productId) REFERENCES products (id))');
+    await v4Db.customStatement(
+        'CREATE TABLE wallets (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, type TEXT NOT NULL, openingBalance REAL NOT NULL, isActive BOOLEAN NOT NULL, createdAt INTEGER NOT NULL)');
+    await v4Db.customStatement(
+        'CREATE TABLE allocation_rules (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, percentage REAL NOT NULL, isActive BOOLEAN NOT NULL, createdAt INTEGER NOT NULL)');
+    await v4Db.customStatement(
+        'CREATE TABLE budget_buckets (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT NOT NULL, allocatedAmount REAL NOT NULL, color TEXT, createdAt INTEGER NOT NULL)');
 
-    await v4Db.execute('INSERT INTO products (name, costPrice, stock, lowStockThreshold, alertEnabled, createdAt) VALUES (\'v4 Product\', 10.0, 100, 10, 1, 123456789)');
-    await v4Db.execute('INSERT INTO sales (productId, quantity, sellingPrice, total, platform, paymentStatus, isDiscounted, normalPrice, date, createdAt, walletId, ownership) VALUES (1, 1, 20.0, 20.0, \'facebook\', \'paid\', 0, 20.0, 123456789, 123456789, 1, \'business\')');
+    await v4Db.customStatement(
+        'INSERT INTO products (name, costPrice, stock, lowStockThreshold, alertEnabled, createdAt) VALUES (\'v4 Product\', 10.0, 100, 10, 1, 123456789)');
+    await v4Db.customStatement(
+        'INSERT INTO sales (productId, quantity, sellingPrice, total, platform, paymentStatus, isDiscounted, normalPrice, date, createdAt, walletId, ownership) VALUES (1, 1, 20.0, 20.0, \'facebook\', \'paid\', 0, 20.0, 123456789, 123456789, 1, \'business\')');
 
     await v4Db.close();
 
@@ -48,8 +57,10 @@ void main() {
 
     // 3. Verify v5 tables exist
     try {
-      await db.customStatement('INSERT INTO add_on_types (name, defaultAmount, isActive, createdAt) VALUES (\'Gift Wrap\', 5.0, 1, 1700000000000)');
-      await db.customStatement('INSERT INTO sale_add_ons (saleId, addOnTypeId, quantity, cost, createdAt) VALUES (1, 1, 1, 5.0, 1700000000000)');
+      await db.customStatement(
+          'INSERT INTO add_on_types (name, defaultAmount, isActive, createdAt) VALUES (\'Gift Wrap\', 5.0, 1, 1700000000000)');
+      await db.customStatement(
+          'INSERT INTO sale_add_ons (saleId, addOnTypeId, quantity, cost, createdAt) VALUES (1, 1, 1, 5.0, 1700000000000)');
     } catch (e) {
       fail('Failed to insert into v5 tables: $e');
     }

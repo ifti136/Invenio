@@ -7,8 +7,7 @@ import 'finance_repository.dart';
 part 'allocation_history_screen.g.dart';
 
 @riverpod
-Future<List<RuleMonthlyDetail>> ruleHistory(
-    RuleHistoryRef ref, int ruleId) async {
+Future<List<RuleMonthlyDetail>> ruleHistory(Ref ref, int ruleId) async {
   return await ref
       .watch(financeRepositoryProvider)
       .getRuleMonthlyHistory(ruleId);

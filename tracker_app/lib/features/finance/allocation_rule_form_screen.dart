@@ -87,8 +87,9 @@ class _AllocationRuleFormScreenState
                 label: 'Rule Label',
                 hint: 'e.g. Savings, Tax, Reinvestment',
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty)
+                  if (value == null || value.trim().isEmpty) {
                     return 'Label is required';
+                  }
                   return null;
                 },
               ),
@@ -99,8 +100,9 @@ class _AllocationRuleFormScreenState
                 hint: '0.0 - 100.0',
                 keyboardType: TextInputType.numberWithOptions(decimal: true),
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty)
+                  if (value == null || value.trim().isEmpty) {
                     return 'Percentage is required';
+                  }
                   final p = double.tryParse(value.trim());
                   if (p == null) return 'Invalid number';
                   if (p < 0 || p > 100) return 'Must be between 0 and 100';

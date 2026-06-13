@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import '../../lib/db/app_database.dart';
-import '../../lib/services/alert_service.dart';
+import 'package:tracker/db/app_database.dart';
+import 'package:tracker/services/alert_service.dart';
 
 void main() {
   late AlertService service;
