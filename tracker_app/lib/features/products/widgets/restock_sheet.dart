@@ -5,6 +5,8 @@ import '../../../core/widgets/app_bottom_nav.dart';
 import '../../../core/widgets/glass_dialog.dart';
 import '../../../core/widgets/glass_panel.dart';
 import '../../../core/widgets/glass_text_field.dart';
+import '../../../core/widgets/haptic_wrapper.dart';
+import '../../../core/services/haptic_service.dart';
 import '../../../core/widgets/sheet_drag_handle.dart';
 import '../product_repository.dart';
 
@@ -116,6 +118,7 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     return GlassPanel(
+      solid: true,
       radius: 28,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
       margin: const EdgeInsets.all(12),
@@ -152,35 +155,44 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
           const SizedBox(height: 18),
           Row(
             children: [
-              Expanded(
-                child: OutlinedButton(
-                  onPressed:
-                      _saving ? null : () => Navigator.of(context).pop(false),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child: const Text('Cancel'),
-                ),
-              ),
+               Expanded(
+                 child: HapticWrapper(
+                   profile: HapticProfile.medium,
+                   onTap: _saving ? null : () => Navigator.of(context).pop(false),
+                   child: OutlinedButton(
+                     onPressed: null,
+                     style: OutlinedButton.styleFrom(
+                       padding: const EdgeInsets.symmetric(vertical: 14),
+                     ),
+                     child: const Text('Cancel'),
+                   ),
+                 ),
+               ),
+
               const SizedBox(width: 10),
-              Expanded(
-                child: FilledButton(
-                  onPressed: _saving ? null : _save,
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                  ),
-                  child: _saving
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            strokeWidth: 2,
-                            color: Colors.white,
-                          ),
-                        )
-                      : const Text('Add stock'),
-                ),
-              ),
+               Expanded(
+                 child: HapticWrapper(
+                   profile: HapticProfile.medium,
+                   onTap: _saving ? null : _save,
+                   child: FilledButton(
+                     onPressed: null,
+                     style: FilledButton.styleFrom(
+                       padding: const EdgeInsets.symmetric(vertical: 14),
+                     ),
+                     child: _saving
+                         ? const SizedBox(
+                             width: 18,
+                             height: 18,
+                             child: CircularProgressIndicator(
+                               strokeWidth: 2,
+                               color: Colors.white,
+                             ),
+                           )
+                         : const Text('Add stock'),
+                   ),
+                 ),
+               ),
+
             ],
           ),
         ],

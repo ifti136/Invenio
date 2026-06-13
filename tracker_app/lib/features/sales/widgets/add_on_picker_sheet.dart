@@ -7,6 +7,7 @@ import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
 import 'package:tracker/core/widgets/haptic_wrapper.dart';
+import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/core/widgets/sheet_drag_handle.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/sales/add_on_repository.dart';
@@ -58,7 +59,8 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
     super.initState();
     _entries = List.from(widget.initialEntries);
     for (var entry in _entries) {
-      _controllers[entry.typeId] = TextEditingController(text: entry.amount.toStringAsFixed(2));
+      _controllers[entry.typeId] =
+          TextEditingController(text: entry.amount.toStringAsFixed(2));
     }
   }
 
@@ -131,7 +133,7 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
               ],
             ),
             const SizedBox(height: 16),
-            
+
             // Selected Add-Ons
             if (_entries.isNotEmpty) ...[
               Text(
@@ -151,7 +153,8 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
                   child: GlassPanel(
                     noBlur: true,
                     solid: true,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                     child: Row(
                       children: [
                         Expanded(
@@ -165,15 +168,22 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
                           child: GlassTextField(
                             label: 'Amount',
                             controller: _controllers[item.typeId],
-                            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                            keyboardType: const TextInputType.numberWithOptions(
+                                decimal: true),
                             onChanged: (v) => _updateAmount(idx, v),
                           ),
                         ),
                         const SizedBox(width: 8),
-                        IconButton(
-                          icon: const Icon(Icons.close, size: 18, color: AppColors.danger),
-                          onPressed: () => _removeAddOn(idx),
-                        ),
+                         HapticWrapper(
+                           profile: HapticProfile.light,
+                           onTap: () => _removeAddOn(idx),
+                           child: IconButton(
+                             icon: const Icon(Icons.close,
+                                 size: 18, color: AppColors.danger),
+                             onPressed: null,
+                           ),
+                         ),
+
                       ],
                     ),
                   ),
@@ -205,7 +215,8 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
                   child: GlassPanel(
                     noBlur: true,
                     solid: true,
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 12),
                     child: Row(
                       children: [
                         Expanded(
@@ -213,14 +224,16 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
                             type.name,
                             style: TextStyle(
                               fontSize: 14,
-                              color: isAdded 
-                                  ? scheme.onSurfaceVariant.withOpacity(0.5) 
+                              color: isAdded
+                                  ? scheme.onSurfaceVariant.withOpacity(0.5)
                                   : scheme.onSurface,
                             ),
                           ),
                         ),
                         Icon(
-                          isAdded ? Icons.check_circle : Icons.add_circle_outline,
+                          isAdded
+                              ? Icons.check_circle
+                              : Icons.add_circle_outline,
                           color: isAdded ? AppColors.success : scheme.primary,
                           size: 20,
                         ),
@@ -231,7 +244,7 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
               },
             ),
             const SizedBox(height: 24),
-            
+
             // Footer
             GlassPanel.flush(
               padding: const EdgeInsets.all(16),
@@ -260,13 +273,14 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
                       ],
                     ),
                   ),
-                  HapticWrapper(
-                    onTap: () => Navigator.of(context).pop(_entries),
-                    child: FilledButton(
-                      onPressed: () => Navigator.of(context).pop(_entries),
-                      child: const Text('Done'),
-                    ),
-                  ),
+                   HapticWrapper(
+                     onTap: () => Navigator.of(context).pop(_entries),
+                     child: FilledButton(
+                       onPressed: null,
+                       child: const Text('Done'),
+                     ),
+                   ),
+
                 ],
               ),
             ),
@@ -277,8 +291,9 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
   }
 }
 
-void showAddOnPicker(BuildContext context, {required List<AddOnEntry> initialEntries}) {
-  showModalBottomSheet(
+Future<List<AddOnEntry>?> showAddOnPicker(BuildContext context,
+    {required List<AddOnEntry> initialEntries}) {
+  return showModalBottomSheet(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,

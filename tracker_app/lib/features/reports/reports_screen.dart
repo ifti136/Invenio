@@ -4,6 +4,9 @@ import '../../core/theme/app_colors.dart';
 import '../../core/utils/formatters.dart';
 import '../../core/widgets/app_bottom_nav.dart';
 import '../../core/widgets/glass_panel.dart';
+import '../../core/services/haptic_service.dart';
+import '../../core/widgets/haptic_wrapper.dart';
+import '../../core/widgets/empty_state.dart';
 import '../../db/app_database.dart';
 import '../../models/monthly_report.dart';
 import '../../services/export_service.dart';
@@ -35,13 +38,11 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     _selectedYear = now.year;
   }
 
-  void _prevMonth() =>
-      setState(() => _selectedMonth = DateTime(
-          _selectedMonth.year, _selectedMonth.month - 1, 1));
+  void _prevMonth() => setState(() => _selectedMonth =
+      DateTime(_selectedMonth.year, _selectedMonth.month - 1, 1));
 
-  void _nextMonth() =>
-      setState(() => _selectedMonth = DateTime(
-          _selectedMonth.year, _selectedMonth.month + 1, 1));
+  void _nextMonth() => setState(() => _selectedMonth =
+      DateTime(_selectedMonth.year, _selectedMonth.month + 1, 1));
 
   void _prevYear() => setState(() => _selectedYear = _selectedYear - 1);
 
@@ -100,63 +101,83 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
       noBlur: true,
       child: Row(
         children: [
-          if (_tab == _ReportTab.monthly) ...[
-            IconButton(
-              icon: const Icon(Icons.chevron_left),
-              onPressed: _prevYear,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(yearLabel,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(Icons.chevron_right),
-              onPressed: _nextYear,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-          ] else ...[
-            IconButton(
-              icon: const Icon(Icons.chevron_left),
-              onPressed: _prevMonth,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(monthLabel,
-                  textAlign: TextAlign.center,
-                  style: Theme.of(context).textTheme.titleMedium),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              icon: const Icon(Icons.chevron_right),
-              onPressed: _nextMonth,
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-            ),
-          ],
-          if (_tab == _ReportTab.daily) ...[
-            const SizedBox(width: 8),
-            IconButton(
-              icon: _exporting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(strokeWidth: 2))
-                  : const Icon(Icons.file_download_outlined),
-              onPressed: _exporting ? null : _export,
-              tooltip: 'Export month',
-              padding: EdgeInsets.zero,
-              constraints: const BoxConstraints(),
-              color: cs.primary,
-            ),
-          ],
+            if (_tab == _ReportTab.monthly) ...[
+              HapticWrapper(
+                profile: HapticProfile.light,
+                onTap: _prevYear,
+                child: IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: null,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(yearLabel,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium),
+              ),
+              const SizedBox(width: 8),
+              HapticWrapper(
+                profile: HapticProfile.light,
+                onTap: _nextYear,
+                child: IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: null,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ),
+            ] else ...[
+              HapticWrapper(
+                profile: HapticProfile.light,
+                onTap: _prevMonth,
+                child: IconButton(
+                  icon: const Icon(Icons.chevron_left),
+                  onPressed: null,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(monthLabel,
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.titleMedium),
+              ),
+              const SizedBox(width: 8),
+              HapticWrapper(
+                profile: HapticProfile.light,
+                onTap: _nextMonth,
+                child: IconButton(
+                  icon: const Icon(Icons.chevron_right),
+                  onPressed: null,
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                ),
+              ),
+            ],
+            if (_tab == _ReportTab.daily) ...[
+              const SizedBox(width: 8),
+              HapticWrapper(
+                profile: HapticProfile.medium,
+                onTap: _exporting ? null : _export,
+                child: IconButton(
+                  icon: _exporting
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2))
+                      : const Icon(Icons.file_download_outlined),
+                  onPressed: null,
+                  tooltip: 'Export month',
+                  padding: EdgeInsets.zero,
+                  constraints: const BoxConstraints(),
+                  color: cs.primary,
+                ),
+              ),
+            ],
         ],
       ),
     );
@@ -173,9 +194,10 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
           ButtonSegment(value: _ReportTab.products, label: Text('Products')),
         ],
         selected: {_tab},
-        onSelectionChanged: (v) {
-          setState(() => _tab = v.first);
-        },
+         onSelectionChanged: (v) {
+           HapticService.trigger(HapticProfile.light);
+           setState(() => _tab = v.first);
+         },
         style: ButtonStyle(
           visualDensity: VisualDensity.compact,
         ),
@@ -205,8 +227,18 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
 
   static String _monthName(int m) {
     const names = [
-      'January', 'February', 'March', 'April', 'May', 'June',
-      'July', 'August', 'September', 'October', 'November', 'December'
+      'January',
+      'February',
+      'March',
+      'April',
+      'May',
+      'June',
+      'July',
+      'August',
+      'September',
+      'October',
+      'November',
+      'December'
     ];
     return names[m - 1];
   }
@@ -253,21 +285,16 @@ class _DailyReport extends ConsumerWidget {
                 chart: MonthlyBarChart(snapshots: snapshots),
                 table: _DailyTable(snapshots: snapshots),
               )
-            else
-              GlassPanel(
-                padding: const EdgeInsets.all(32),
-                noBlur: true,
-                child: Center(
-                  child: Text(
-                    'No sales or expenses recorded this month',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.5)),
-                  ),
-                ),
-              ),
+             else
+               const Padding(
+                 padding: EdgeInsets.all(32),
+                 child: EmptyState(
+                   icon: Icons.analytics_outlined,
+                   title: 'No data available',
+                   message: 'No sales or expenses recorded this month.',
+                 ),
+               ),
+
           ],
         );
       },
@@ -314,21 +341,16 @@ class _MonthlyReport extends ConsumerWidget {
                 chart: YearlyBarChart(summaries: summaries),
                 table: _MonthlyTable(summaries: summaries),
               )
-            else
-              GlassPanel(
-                padding: const EdgeInsets.all(32),
-                noBlur: true,
-                child: Center(
-                  child: Text(
-                    'No data for $year',
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: Theme.of(context)
-                            .colorScheme
-                            .onSurface
-                            .withOpacity(0.5)),
-                  ),
-                ),
-              ),
+             else
+               Padding(
+                 padding: const EdgeInsets.all(32),
+                 child: EmptyState(
+                   icon: Icons.calendar_month_outlined,
+                   title: 'No data for $year',
+                   message: 'No sales or expenses recorded for this year.',
+                 ),
+               ),
+
           ],
         );
       },
@@ -347,22 +369,17 @@ class _ProductReport extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => Center(child: Text('Error: $e')),
       data: (rows) {
-        if (rows.isEmpty) {
-          return GlassPanel(
-            padding: const EdgeInsets.all(32),
-            noBlur: true,
-            child: Center(
-              child: Text(
-                'No product sales data yet',
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(context)
-                        .colorScheme
-                        .onSurface
-                        .withOpacity(0.5)),
-              ),
-            ),
-          );
-        }
+         if (rows.isEmpty) {
+           return const Padding(
+             padding: EdgeInsets.all(32),
+             child: EmptyState(
+               icon: Icons.inventory_2_outlined,
+               title: 'No product data',
+               message: 'No product sales data available yet.',
+             ),
+           );
+         }
+
         return GlassPanel(
           padding: const EdgeInsets.all(12),
           noBlur: true,
@@ -443,9 +460,8 @@ class _ProductReportRowTile extends StatelessWidget {
               textAlign: TextAlign.end,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                   fontWeight: FontWeight.w600,
-                  color: row.profit >= 0
-                      ? AppColors.success
-                      : AppColors.danger),
+                  color:
+                      row.profit >= 0 ? AppColors.success : AppColors.danger),
             ),
           ),
         ],
@@ -502,8 +518,10 @@ class _SumItem extends StatelessWidget {
                   ?.copyWith(fontSize: 10)),
           const SizedBox(height: 2),
           Text(value,
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  fontWeight: FontWeight.bold, color: color)),
+              style: Theme.of(context)
+                  .textTheme
+                  .titleSmall
+                  ?.copyWith(fontWeight: FontWeight.bold, color: color)),
         ],
       ),
     );
@@ -517,8 +535,9 @@ class _DailyTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
-    final filtered =
-        snapshots.where((d) => d.revenue > 0 || d.profit > 0 || d.expenses > 0).toList();
+    final filtered = snapshots
+        .where((d) => d.revenue > 0 || d.profit > 0 || d.expenses > 0)
+        .toList();
     if (filtered.isEmpty) return const SizedBox.shrink();
 
     return GlassPanel(
@@ -540,7 +559,8 @@ class _DailyTable extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 4),
               child: Row(
                 children: [
-                  Expanded(flex: 2,
+                  Expanded(
+                      flex: 2,
                       child: Text(formatDay(d.date),
                           style: const TextStyle(fontSize: 12))),
                   Expanded(
@@ -609,8 +629,8 @@ class _MonthlyTable extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                      child: Text(m.label,
-                          style: const TextStyle(fontSize: 12))),
+                      child:
+                          Text(m.label, style: const TextStyle(fontSize: 12))),
                   Expanded(
                       child: Text('${m.salesCount}',
                           style: const TextStyle(fontSize: 12))),

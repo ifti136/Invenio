@@ -6,6 +6,8 @@ import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/empty_state.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
+import 'package:tracker/core/services/haptic_service.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
 import 'package:tracker/features/products/product_provider.dart';
 import 'package:tracker/features/products/widgets/product_tile.dart';
@@ -43,16 +45,25 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
             ),
             actions: [
-              IconButton(
-                tooltip: 'Settings',
-                onPressed: () => context.push('/products/settings'),
-                icon: const Icon(Icons.settings_outlined, color: Colors.white70),
+              HapticWrapper(
+                profile: HapticProfile.light,
+                onTap: () => context.push('/settings'),
+                child: IconButton(
+                  tooltip: 'Settings',
+                  onPressed: null,
+                  icon:
+                      const Icon(Icons.settings_outlined, color: Colors.white70),
+                ),
               ),
               const SizedBox(width: 4),
-              IconButton(
-                tooltip: 'Add product',
-                onPressed: () => context.push('/products/add'),
-                icon: const Icon(Icons.add_rounded, color: AppColors.accent),
+              HapticWrapper(
+                profile: HapticProfile.medium,
+                onTap: () => context.push('/products/add'),
+                child: IconButton(
+                  tooltip: 'Add product',
+                  onPressed: null,
+                  icon: const Icon(Icons.add_rounded, color: AppColors.accent),
+                ),
               ),
               const SizedBox(width: 4),
             ],
@@ -122,13 +133,15 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
           SliverPadding(
             padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
             sliver: SliverToBoxAdapter(
-              child: GlassTextField(
-                controller: _search,
-                hint: 'Search by name…',
-                prefixIcon: Icons.search_rounded,
-                onChanged: (v) =>
-                    ref.read(productFilterProvider.notifier).setSearch(v),
-              ),
+               child: GlassTextField(
+                 controller: _search,
+                 hint: 'Search by name…',
+                 prefixIcon: Icons.search_rounded,
+                 onChanged: (v) {
+                   HapticService.trigger(HapticProfile.light);
+                   ref.read(productFilterProvider.notifier).setSearch(v);
+                 },
+               ),
             ),
           ),
           if (products.isEmpty)
@@ -142,10 +155,13 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
             )
           else
             SliverList.separated(
-              itemBuilder: (_, i) => ProductTile(
-                product: products[i],
-                onTap: () => context.push('/products/${products[i].id}'),
-              ),
+               itemBuilder: (_, i) => ProductTile(
+                 product: products[i],
+                 onTap: () {
+                   HapticService.trigger(HapticProfile.light);
+                   context.push('/products/${products[i].id}');
+                 },
+               ),
               separatorBuilder: (_, __) => Divider(
                 height: 0,
                 thickness: 0.5,
@@ -154,7 +170,8 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
               ),
               itemCount: products.length,
             ),
-          const SliverToBoxAdapter(child: SizedBox(height: kBottomNavClearance)),
+          const SliverToBoxAdapter(
+              child: SizedBox(height: kBottomNavClearance)),
         ],
       ),
     );
@@ -235,7 +252,10 @@ class _FilterChip extends StatelessWidget {
         ),
       ),
       selected: selected,
-      onSelected: (_) => onSelected(),
+      onSelected: (_) {
+        HapticService.trigger(HapticProfile.light);
+        onSelected();
+      },
       side: BorderSide(
         color: selected
             ? scheme.primary.withOpacity(0.5)

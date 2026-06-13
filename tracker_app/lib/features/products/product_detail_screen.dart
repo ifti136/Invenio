@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/empty_state.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
+import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/features/products/product_provider.dart';
 import 'package:tracker/features/products/widgets/restock_sheet.dart';
 import 'package:tracker/features/products/widgets/sale_list_item.dart';
@@ -23,16 +25,18 @@ class ProductDetailScreen extends ConsumerWidget {
       appBar: AppBar(
         title: const Text('Product'),
         actions: [
-          IconButton(
-            tooltip: 'Edit',
-            onPressed: () => context.push('/products/$id/edit'),
-            icon: const Icon(Icons.edit_rounded),
+          HapticWrapper(
+            profile: HapticProfile.light,
+            child: IconButton(
+              tooltip: 'Edit',
+              onPressed: () => context.push('/products/$id/edit'),
+              icon: const Icon(Icons.edit_rounded),
+            ),
           ),
         ],
       ),
       body: productAsync.when(
-        loading: () =>
-            const Center(child: CircularProgressIndicator()),
+        loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Error: $e')),
         data: (p) {
           if (p == null) {
@@ -152,19 +156,18 @@ class ProductDetailScreen extends ConsumerWidget {
                       message: 'Stock changes will appear here.',
                     );
                   }
-                    return GlassPanel(
-                      padding: const EdgeInsets.symmetric(vertical: 6),
-                      noBlur: true,
-                      child: Column(
-                        children: [
-                          for (var i = 0; i < movements.length; i++) ...[
-                            StockMovementItem(movement: movements[i]),
+                  return GlassPanel(
+                    padding: const EdgeInsets.symmetric(vertical: 6),
+                    noBlur: true,
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < movements.length; i++) ...[
+                          StockMovementItem(movement: movements[i]),
                           if (i < movements.length - 1)
                             Divider(
                               height: 0,
                               thickness: 0.5,
-                              color: scheme.onSurfaceVariant
-                                  .withOpacity(0.12),
+                              color: scheme.onSurfaceVariant.withOpacity(0.12),
                               indent: 64,
                             ),
                         ],

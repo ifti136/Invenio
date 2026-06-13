@@ -12,6 +12,7 @@ import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
 import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/core/widgets/sheet_drag_handle.dart';
+import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/dashboard/dashboard_provider.dart';
 import 'package:tracker/features/products/product_provider.dart';
@@ -54,9 +55,9 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
     if (_selectedProductId == null) return null;
     final products = ref.read(productListProvider).value ?? [];
     return products.cast<Product?>().firstWhere(
-      (p) => p!.id == _selectedProductId,
-      orElse: () => null,
-    );
+          (p) => p!.id == _selectedProductId,
+          orElse: () => null,
+        );
   }
 
   int get _quantity => int.tryParse(_qty.text.trim()) ?? 1;
@@ -79,15 +80,18 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
         walletId: null,
         ownership: 'business',
         customerName: _customer.text.trim(),
+        isDiscounted: true,
       ),
       _product!.costPrice,
-      _addOns.map((e) => SaleAddOn(
-        id: 0,
-        saleId: 0,
-        addOnTypeId: e.typeId,
-        quantity: 1,
-        cost: e.amount,
-      )).toList(),
+      _addOns
+          .map((e) => SaleAddOn(
+                id: 0,
+                saleId: 0,
+                addOnTypeId: e.typeId,
+                quantity: 1,
+                cost: e.amount,
+              ))
+          .toList(),
     );
   }
 
@@ -98,29 +102,36 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
     if (product == null) return;
 
     final alerts = ref.read(alertServiceProvider).checkSale(
-      product: product,
-      quantity: _quantity,
-      sellingPrice: _discount,
-    );
+          product: product,
+          quantity: _quantity,
+          sellingPrice: _discount,
+        );
 
-    final hasBlocking = alerts.any((a) => a is BelowCostAlert || a is LowStockAlert);
+    final hasBlocking =
+        alerts.any((a) => a is BelowCostAlert || a is LowStockAlert);
     if (hasBlocking) {
       final proceed = await showGlassDialog<bool>(
         context: context,
         title: 'Sale alerts',
         message: alerts.map((a) => a.message).join('\n\n'),
-        actionsBuilder: (ctx) => [
-          GlassDialogAction(
-            label: 'Cancel',
-            onPressed: () => Navigator.of(ctx).pop(false),
-          ),
-          GlassDialogAction(
-            label: 'Sell anyway',
-            isDestructive: true,
-            isPrimary: true,
-            onPressed: () => Navigator.of(ctx).pop(true),
-          ),
-        ],
+            actionsBuilder: (ctx) => [
+              GlassDialogAction(
+                label: 'Cancel',
+                onPressed: () {
+                  HapticService.trigger(HapticProfile.light);
+                  Navigator.of(ctx).pop(false);
+                },
+              ),
+              GlassDialogAction(
+                label: 'Sell anyway',
+                isDestructive: true,
+                isPrimary: true,
+                onPressed: () {
+                  HapticService.trigger(HapticProfile.medium);
+                  Navigator.of(ctx).pop(true);
+                },
+              ),
+            ],
       );
       if (proceed != true) return;
     }
@@ -128,25 +139,29 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
     setState(() => _saving = true);
     try {
       final result = await ref.read(saleRepositoryProvider).addSale(
-        productId: _selectedProductId!,
-        quantity: _quantity,
-        sellingPrice: _discount,
-        platform: _platform.key,
-        paymentStatus: _payment.key,
-        customerName:
-            _customer.text.trim().isEmpty ? null : _customer.text.trim(),
-        isDiscounted: true,
-        normalPrice: _normal,
-      );
+            productId: _selectedProductId!,
+            quantity: _quantity,
+            sellingPrice: _discount,
+            platform: _platform.key,
+            paymentStatus: _payment.key,
+            customerName:
+                _customer.text.trim().isEmpty ? null : _customer.text.trim(),
+            isDiscounted: true,
+            normalPrice: _normal,
+          );
 
       // Save add-ons
       final addOnRepo = ref.read(addOnRepositoryProvider);
       await addOnRepo.setForSale(
         result.sale.id,
-        _addOns.map((e) => SaleAddOnCompanion.insert(
-              cost: e.amount,
-              quantity: drift.Value(1),
-            )).toList(),
+        _addOns
+            .map((e) => SaleAddOnsCompanion.insert(
+                  saleId: result.sale.id,
+                  addOnTypeId: e.typeId,
+                  cost: drift.Value(e.amount),
+                  quantity: drift.Value(1),
+                ))
+            .toList(),
       );
 
       ref.invalidate(saleListProvider);
@@ -190,9 +205,13 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  onPressed: () => Navigator.of(context).pop(),
+                HapticWrapper(
+                  profile: HapticProfile.light,
+                  onTap: () => Navigator.of(context).pop(),
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: null,
+                  ),
                 ),
               ],
             ),
@@ -206,15 +225,18 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                     controller: _qty,
                     label: 'Quantity',
                     keyboardType: TextInputType.number,
-                    validator: (v) {
-                      final n = int.tryParse(v?.trim() ?? '');
-                      if (n == null || n < 1) return 'Min 1';
-                      if (product != null && n > product.stock) {
-                        return 'Only ${product.stock} available';
-                      }
-                      return null;
-                    },
-                    onChanged: (_) => setState(() {}),
+                     validator: (v) {
+                       final n = int.tryParse(v?.trim() ?? '');
+                       if (n == null || n < 1) return 'Min 1';
+                       if (product != null && n > product.stock) {
+                         return 'Only ${product.stock} available';
+                       }
+                       return null;
+                     },
+                     onChanged: (_) {
+                       HapticService.trigger(HapticProfile.light);
+                       setState(() {});
+                     },
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -222,13 +244,17 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                   child: GlassTextField(
                     controller: _normalPrice,
                     label: 'Normal price (৳)',
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    validator: (v) {
-                      final d = double.tryParse(v?.trim() ?? '');
-                      if (d == null || d <= 0) return 'Enter a valid price';
-                      return null;
-                    },
-                    onChanged: (_) => setState(() {}),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                     validator: (v) {
+                       final d = double.tryParse(v?.trim() ?? '');
+                       if (d == null || d <= 0) return 'Enter a valid price';
+                       return null;
+                     },
+                     onChanged: (_) {
+                       HapticService.trigger(HapticProfile.light);
+                       setState(() {});
+                     },
                   ),
                 ),
               ],
@@ -237,15 +263,19 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
             GlassTextField(
               controller: _discountPrice,
               label: 'Discount price (৳)',
-              keyboardType: const TextInputType.numberWithOptions(decimal: true),
-              validator: (v) {
-                final d = double.tryParse(v?.trim() ?? '');
-                if (d == null || d <= 0) return 'Enter a valid price';
-                final n = double.tryParse(_normalPrice.text.trim()) ?? 0;
-                if (d >= n) return 'Must be less than normal price';
-                return null;
-              },
-              onChanged: (_) => setState(() {}),
+              keyboardType:
+                  const TextInputType.numberWithOptions(decimal: true),
+               validator: (v) {
+                 final d = double.tryParse(v?.trim() ?? '');
+                 if (d == null || d <= 0) return 'Enter a valid price';
+                 final n = double.tryParse(_normalPrice.text.trim()) ?? 0;
+                 if (d >= n) return 'Must be less than normal price';
+                 return null;
+               },
+               onChanged: (_) {
+                 HapticService.trigger(HapticProfile.light);
+                 setState(() {});
+               },
             ),
             const SizedBox(height: 12),
             _segmentedRow<SalePlatform>(
@@ -253,7 +283,10 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
               value: _platform,
               items: SalePlatform.values,
               labelFn: (p) => p.label,
-              onChanged: (v) => setState(() => _platform = v),
+               onChanged: (v) {
+                 HapticService.trigger(HapticProfile.light);
+                 setState(() => _platform = v);
+               },
             ),
             const SizedBox(height: 12),
             _segmentedRow<PaymentStatus>(
@@ -261,55 +294,59 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
               value: _payment,
               items: PaymentStatus.values,
               labelFn: (p) => p.label,
-              onChanged: (v) => setState(() => _payment = v),
+               onChanged: (v) {
+                 HapticService.trigger(HapticProfile.light);
+                 setState(() => _payment = v);
+               },
             ),
             const SizedBox(height: 12),
-             GlassTextField(
-               controller: _customer,
-               label: 'Customer (optional)',
-               hint: 'Name or phone',
-             ),
-             const SizedBox(height: 12),
-             HapticWrapper(
-               onTap: () async {
-                 final result = await showAddOnPicker(
-                   context,
-                   initialEntries: _addOns,
-                 );
-                 if (result != null) {
-                   setState(() => _addOns = result);
-                 }
-               },
-               child: Container(
-                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                 decoration: BoxDecoration(
-                   color: AppColors.accent.withOpacity(0.1),
-                   borderRadius: BorderRadius.circular(10),
-                   border: Border.all(
-                     color: AppColors.accent.withOpacity(0.3),
-                     width: 0.6,
-                   ),
-                 ),
-                 child: Row(
-                   mainAxisAlignment: MainAxisAlignment.center,
-                   children: [
-                     const Icon(Icons.add_circle_outline, size: 18, color: AppColors.accent),
-                     const SizedBox(width: 8),
-                     Text(
-                       '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
-                       style: const TextStyle(
-                         color: AppColors.accent,
-                         fontWeight: FontWeight.w600,
-                         fontSize: 14,
-                       ),
-                     ),
-                   ],
-                 ),
-               ),
-             ),
-             const SizedBox(height: 16),
-             GlassPanel.flush(
-
+            GlassTextField(
+              controller: _customer,
+              label: 'Customer (optional)',
+              hint: 'Name or phone',
+            ),
+            const SizedBox(height: 12),
+            HapticWrapper(
+              onTap: () async {
+                final result = await showAddOnPicker(
+                  context,
+                  initialEntries: _addOns,
+                );
+                if (result != null) {
+                  setState(() => _addOns = result);
+                }
+              },
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                decoration: BoxDecoration(
+                  color: AppColors.accent.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: AppColors.accent.withOpacity(0.3),
+                    width: 0.6,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    const Icon(Icons.add_circle_outline,
+                        size: 18, color: AppColors.accent),
+                    const SizedBox(width: 8),
+                    Text(
+                      '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
+                      style: const TextStyle(
+                        color: AppColors.accent,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            GlassPanel.flush(
               padding: const EdgeInsets.all(12),
               noBlur: true,
               expand: false,
@@ -334,22 +371,28 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                                 : 'Loss: -${formatMoney(_grossProfit.abs())}',
                             style: TextStyle(
                               fontSize: 13,
-                              color: _grossProfit >= 0 ? AppColors.success : AppColors.danger,
+                              color: _grossProfit >= 0
+                                  ? AppColors.success
+                                  : AppColors.danger,
                             ),
                           ),
                       ],
                     ),
                   ),
-                  FilledButton(
-                    onPressed: _saving ? null : _confirm,
-                    child: _saving
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Confirm'),
-                  ),
+                   HapticWrapper(
+                     profile: HapticProfile.medium,
+                     onTap: _saving ? null : _confirm,
+                     child: FilledButton(
+                       onPressed: null,
+                       child: _saving
+                           ? const SizedBox(
+                               width: 18,
+                               height: 18,
+                               child: CircularProgressIndicator(strokeWidth: 2),
+                             )
+                           : const Text('Confirm'),
+                     ),
+                   ),
                 ],
               ),
             ),
@@ -373,7 +416,10 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
             .name;
 
     return InkWell(
-      onTap: () => _pickProduct(context, inStock),
+      onTap: () {
+        HapticService.trigger(HapticProfile.light);
+        _pickProduct(context, inStock);
+      },
       borderRadius: BorderRadius.circular(14),
       child: GlassPanel(
         radius: 14,
@@ -389,7 +435,10 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                 style: TextStyle(
                   color: selectedName != null
                       ? Theme.of(context).colorScheme.onSurface
-                      : Theme.of(context).colorScheme.onSurfaceVariant.withOpacity(0.6),
+                      : Theme.of(context)
+                          .colorScheme
+                          .onSurfaceVariant
+                          .withOpacity(0.6),
                   fontSize: 15,
                 ),
               ),

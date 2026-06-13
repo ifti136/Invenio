@@ -11,6 +11,7 @@ import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
 import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/core/widgets/sheet_drag_handle.dart';
+import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/dashboard/dashboard_provider.dart';
 import 'package:tracker/features/products/product_provider.dart';
@@ -71,14 +72,20 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
       walletId: null,
       ownership: 'business',
       customerName: _customer.text.trim(),
+      isDiscounted: false,
     );
-    return ProfitCalculator.calculateNetProfit(s, widget.product.costPrice, _addOns.map((e) => SaleAddOn(
-      id: 0,
-      saleId: 0,
-      addOnTypeId: e.typeId,
-      quantity: 1,
-      cost: e.amount,
-    )).toList());
+    return ProfitCalculator.calculateNetProfit(
+        s,
+        widget.product.costPrice,
+        _addOns
+            .map((e) => SaleAddOn(
+                  id: 0,
+                  saleId: 0,
+                  addOnTypeId: e.typeId,
+                  quantity: 1,
+                  cost: e.amount,
+                ))
+            .toList());
   }
 
   Future<void> _confirm() async {
@@ -87,29 +94,36 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
     final qty = _qty;
 
     final alerts = ref.read(alertServiceProvider).checkSale(
-      product: widget.product,
-      quantity: qty,
-      sellingPrice: price,
-    );
+          product: widget.product,
+          quantity: qty,
+          sellingPrice: price,
+        );
 
-    final hasBlocking = alerts.any((a) => a is BelowCostAlert || a is LowStockAlert);
+    final hasBlocking =
+        alerts.any((a) => a is BelowCostAlert || a is LowStockAlert);
     if (hasBlocking) {
       final proceed = await showGlassDialog<bool>(
         context: context,
         title: 'Sale alerts',
         message: alerts.map((a) => a.message).join('\n\n'),
-        actionsBuilder: (ctx) => [
-          GlassDialogAction(
-            label: 'Cancel',
-            onPressed: () => Navigator.of(ctx).pop(false),
-          ),
-          GlassDialogAction(
-            label: 'Sell anyway',
-            isDestructive: true,
-            isPrimary: true,
-            onPressed: () => Navigator.of(ctx).pop(true),
-          ),
-        ],
+            actionsBuilder: (ctx) => [
+              GlassDialogAction(
+                label: 'Cancel',
+                onPressed: () {
+                  HapticService.trigger(HapticProfile.light);
+                  Navigator.of(ctx).pop(false);
+                },
+              ),
+              GlassDialogAction(
+                label: 'Sell anyway',
+                isDestructive: true,
+                isPrimary: true,
+                onPressed: () {
+                  HapticService.trigger(HapticProfile.medium);
+                  Navigator.of(ctx).pop(true);
+                },
+              ),
+            ],
       );
       if (proceed != true) return;
     }
@@ -117,26 +131,28 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
     setState(() => _saving = true);
     try {
       final result = await ref.read(saleRepositoryProvider).addSale(
-        productId: widget.product.id,
-        quantity: qty,
-        sellingPrice: price,
-        platform: _platform.key,
-        paymentStatus: _payment.key,
-        customerName: _customer.text.trim().isEmpty
-            ? null
-            : _customer.text.trim(),
-        isDiscounted: false,
-      );
-
+            productId: widget.product.id,
+            quantity: qty,
+            sellingPrice: price,
+            platform: _platform.key,
+            paymentStatus: _payment.key,
+            customerName:
+                _customer.text.trim().isEmpty ? null : _customer.text.trim(),
+            isDiscounted: false,
+          );
 
       // Save add-ons
       final addOnRepo = ref.read(addOnRepositoryProvider);
       await addOnRepo.setForSale(
         result.sale.id,
-        _addOns.map((e) => SaleAddOnCompanion.insert(
-              cost: e.amount,
-              quantity: drift.Value(1),
-            )).toList(),
+        _addOns
+            .map((e) => SaleAddOnsCompanion.insert(
+                  saleId: result.sale.id,
+                  addOnTypeId: e.typeId,
+                  cost: drift.Value(e.amount),
+                  quantity: drift.Value(1),
+                ))
+            .toList(),
       );
 
       ref.invalidate(saleListProvider);
@@ -189,9 +205,13 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
                     ),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  onPressed: () => Navigator.of(context).pop(),
+                HapticWrapper(
+                  profile: HapticProfile.light,
+                  onTap: () => Navigator.of(context).pop(),
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: null,
+                  ),
                 ),
               ],
             ),
@@ -211,13 +231,17 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
                     controller: _quantity,
                     label: 'Quantity',
                     keyboardType: TextInputType.number,
-                    validator: (v) {
-                      final n = int.tryParse(v?.trim() ?? '');
-                      if (n == null || n < 1) return 'Min 1';
-                      if (n > widget.product.stock) return 'Only ${widget.product.stock} available';
-                      return null;
-                    },
-                    onChanged: (_) => setState(() {}),
+                     validator: (v) {
+                       final n = int.tryParse(v?.trim() ?? '');
+                       if (n == null || n < 1) return 'Min 1';
+                       if (n > widget.product.stock)
+                         return 'Only ${widget.product.stock} available';
+                       return null;
+                     },
+                     onChanged: (_) {
+                       HapticService.trigger(HapticProfile.light);
+                       setState(() {});
+                     },
                   ),
                 ),
                 const SizedBox(width: 12),
@@ -226,13 +250,17 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
                     controller: _price,
                     label: 'Selling price (৳)',
                     hint: widget.lastSellingPrice?.toStringAsFixed(2),
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    validator: (v) {
-                      final d = double.tryParse(v?.trim() ?? '');
-                      if (d == null || d <= 0) return 'Enter a valid price';
-                      return null;
-                    },
-                    onChanged: (_) => setState(() {}),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
+                     validator: (v) {
+                       final d = double.tryParse(v?.trim() ?? '');
+                       if (d == null || d <= 0) return 'Enter a valid price';
+                       return null;
+                     },
+                     onChanged: (_) {
+                       HapticService.trigger(HapticProfile.light);
+                       setState(() {});
+                     },
                   ),
                 ),
               ],
@@ -243,7 +271,10 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
               value: _platform,
               items: SalePlatform.values,
               labelFn: (p) => p.label,
-              onChanged: (v) => setState(() => _platform = v),
+               onChanged: (v) {
+                 HapticService.trigger(HapticProfile.light);
+                 setState(() => _platform = v);
+               },
             ),
             const SizedBox(height: 12),
             _segmentedRow<PaymentStatus>(
@@ -251,7 +282,10 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
               value: _payment,
               items: PaymentStatus.values,
               labelFn: (p) => p.label,
-              onChanged: (v) => setState(() => _payment = v),
+               onChanged: (v) {
+                 HapticService.trigger(HapticProfile.light);
+                 setState(() => _payment = v);
+               },
             ),
             const SizedBox(height: 12),
             Row(
@@ -275,7 +309,8 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
                     }
                   },
                   child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 12),
                     decoration: BoxDecoration(
                       color: AppColors.accent.withOpacity(0.1),
                       borderRadius: BorderRadius.circular(10),
@@ -287,7 +322,8 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        const Icon(Icons.add_circle_outline, size: 18, color: AppColors.accent),
+                        const Icon(Icons.add_circle_outline,
+                            size: 18, color: AppColors.accent),
                         const SizedBox(width: 8),
                         Text(
                           '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
@@ -326,182 +362,28 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
                           'Profit: ${_profit >= 0 ? '+' : ''}${formatMoney(_profit)}',
                           style: TextStyle(
                             fontSize: 13,
-                            color: _profit >= 0 ? AppColors.success : AppColors.danger,
+                            color: _profit >= 0
+                                ? AppColors.success
+                                : AppColors.danger,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  FilledButton(
-                    onPressed: _saving ? null : _confirm,
-                    child: _saving
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Confirm'),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                            decoration: BoxDecoration(
-                              color: AppColors.accent.withOpacity(0.1),
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(
-                                color: AppColors.accent.withOpacity(0.3),
-                                width: 0.6,
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(Icons.add_circle_outline, size: 18, color: AppColors.accent),
-                                const SizedBox(width: 8),
-                                Text(
-                                  '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
-                                  style: const TextStyle(
-                                    color: AppColors.accent,
-                                    fontWeight: FontWeight.w600,
-                                    fontSize: 14,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    GlassPanel.flush(
-                      padding: const EdgeInsets.all(12),
-                      noBlur: true,
-                      expand: false,
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'Total: ${formatMoney(_total)}',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w700,
-                                    fontSize: 15,
-                                    color: cs.primary,
-                                  ),
-                                ),
-                                Text(
-                                  'Profit: ${_profit >= 0 ? '+' : ''}${formatMoney(_profit)}',
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: _profit >= 0 ? AppColors.success : AppColors.danger,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          FilledButton(
-                            onPressed: _saving ? null : _confirm,
-                            child: _saving
-                                ? const SizedBox(
-                                    width: 18,
-                                    height: 18,
-                                    child: CircularProgressIndicator(strokeWidth: 2),
-                                  )
-                                : const Text('Confirm'),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  ),
-                  const SizedBox(height: 12),
-                  HapticWrapper(
-                    onTap: () async {
-                      final result = await showAddOnPicker(
-                        context,
-                        initialEntries: _addOns,
-                      );
-                      if (result != null) {
-                        setState(() => _addOns = result);
-                      }
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                      decoration: BoxDecoration(
-                        color: AppColors.accent.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(10),
-                        border: Border.all(
-                          color: AppColors.accent.withOpacity(0.3),
-                          width: 0.6,
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          const Icon(Icons.add_circle_outline, size: 18, color: AppColors.accent),
-                          const SizedBox(width: 8),
-                          Text(
-                            '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
-                            style: const TextStyle(
-                              color: AppColors.accent,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-             GlassPanel.flush(
-
-              padding: const EdgeInsets.all(12),
-              noBlur: true,
-              expand: false,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Total: ${formatMoney(_total)}',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                            color: cs.primary,
-                          ),
-                        ),
-                        Text(
-                          'Profit: ${_profit >= 0 ? '+' : ''}${formatMoney(_profit)}',
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: _profit >= 0 ? AppColors.success : AppColors.danger,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  FilledButton(
-                    onPressed: _saving ? null : _confirm,
-                    child: _saving
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        : const Text('Confirm'),
-                  ),
+                   HapticWrapper(
+                     profile: HapticProfile.medium,
+                     onTap: _saving ? null : _confirm,
+                     child: FilledButton(
+                       onPressed: null,
+                       child: _saving
+                           ? const SizedBox(
+                               width: 18,
+                               height: 18,
+                               child: CircularProgressIndicator(strokeWidth: 2),
+                             )
+                           : const Text('Confirm'),
+                     ),
+                   ),
                 ],
               ),
             ),
@@ -540,7 +422,8 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
   }
 }
 
-void showQuickSellSheet(BuildContext context, {
+void showQuickSellSheet(
+  BuildContext context, {
   required Product product,
   double? lastSellingPrice,
 }) {

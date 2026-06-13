@@ -6,9 +6,10 @@ import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/utils/profit_calculator.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
+import 'package:tracker/core/services/haptic_service.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
-import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/dashboard/dashboard_provider.dart';
 import 'package:tracker/features/products/product_provider.dart';
@@ -66,7 +67,8 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
         if (widget.preselectProductId != null) {
           _selectProduct(widget.preselectProductId!);
         }
-        final lastWalletId = await ref.read(walletRepositoryProvider).getLastUsedWalletId();
+        final lastWalletId =
+            await ref.read(walletRepositoryProvider).getLastUsedWalletId();
         if (lastWalletId != null) {
           final wallets = await ref.read(walletRepositoryProvider).getWallets();
           final wallet = wallets.firstWhere((w) => w.id == lastWalletId);
@@ -99,13 +101,15 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       final wallets = await ref.read(walletRepositoryProvider).getWallets();
       _walletName = wallets.firstWhere((w) => w.id == _walletId).name;
     }
-    final addOns = await ref.read(addOnRepositoryProvider).getForSale(widget.saleId!);
+    final addOns =
+        await ref.read(addOnRepositoryProvider).getForSale(widget.saleId!);
     final types = await ref.read(addOnRepositoryProvider).getActiveTypes();
     setState(() {
       _addOns = addOns.map((a) {
         final type = types.firstWhere(
           (t) => t.id == a.addOnTypeId,
-          orElse: () => AddOnType(id: a.addOnTypeId, name: 'Unknown', isActive: true, createdAt: 0),
+          orElse: () => AddOnType(
+              id: a.addOnTypeId, name: 'Unknown', isActive: true, createdAt: 0),
         );
         return AddOnEntry(
           typeId: a.addOnTypeId,
@@ -116,7 +120,6 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       _loaded = true;
     });
   }
-
 
   Future<void> _selectProduct(int id) async {
     final p = await ref.read(productRepositoryProvider).getById(id);
@@ -164,15 +167,18 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
         walletId: _walletId,
         ownership: _ownership,
         customerName: _customer.text.trim(),
+        isDiscounted: false,
       ),
       _product!.costPrice,
-      _addOns.map((e) => SaleAddOn(
-        id: 0,
-        saleId: 0,
-        addOnTypeId: e.typeId,
-        quantity: 1,
-        cost: e.amount,
-      )).toList(),
+      _addOns
+          .map((e) => SaleAddOn(
+                id: 0,
+                saleId: 0,
+                addOnTypeId: e.typeId,
+                quantity: 1,
+                cost: e.amount,
+              ))
+          .toList(),
     );
   }
 
@@ -221,31 +227,35 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
           walletId: _walletId,
           ownership: _ownership,
         );
-       } else {
-         final result = await repo.addSale(
-           productId: _product!.id,
-           quantity: qty,
-           sellingPrice: price,
-           platform: _platform.key,
-           paymentStatus: _payment.key,
-           customerName:
-               _customer.text.trim().isEmpty ? null : _customer.text.trim(),
-           date: _date,
-           walletId: _walletId,
-           ownership: _ownership,
-           isDiscounted: false,
-         );
-         saleId = result.sale.id;
-       }
+      } else {
+        final result = await repo.addSale(
+          productId: _product!.id,
+          quantity: qty,
+          sellingPrice: price,
+          platform: _platform.key,
+          paymentStatus: _payment.key,
+          customerName:
+              _customer.text.trim().isEmpty ? null : _customer.text.trim(),
+          date: _date,
+          walletId: _walletId,
+          ownership: _ownership,
+          isDiscounted: false,
+        );
+        saleId = result.sale.id;
+      }
 
       // Save add-ons
       final addOnRepo = ref.read(addOnRepositoryProvider);
       await addOnRepo.setForSale(
         saleId,
-        _addOns.map((e) => SaleAddOnCompanion.insert(
-              cost: e.amount,
-              quantity: drift.Value(1),
-            )).toList(),
+        _addOns
+            .map((e) => SaleAddOnsCompanion.insert(
+                  saleId: saleId,
+                  addOnTypeId: e.typeId,
+                  cost: drift.Value(e.amount),
+                  quantity: drift.Value(1),
+                ))
+            .toList(),
       );
 
       if (!mounted) return;
@@ -285,13 +295,16 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       context: context,
       title: 'Could not save',
       message: msg,
-      actionsBuilder: (ctx) => [
-        GlassDialogAction(
-          label: 'OK',
-          isPrimary: true,
-          onPressed: () => Navigator.of(ctx).pop(),
-        ),
-      ],
+         actionsBuilder: (ctx) => [
+           GlassDialogAction(
+             label: 'OK',
+             isPrimary: true,
+             onPressed: () {
+               HapticService.trigger(HapticProfile.light);
+               Navigator.of(ctx).pop();
+             },
+           ),
+         ],
     );
   }
 
@@ -300,21 +313,27 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       context: context,
       title: 'Heads up',
       message: alerts.map((a) => '• ${a.message}').join('\n\n'),
-      actionsBuilder: (ctx) => [
-        GlassDialogAction(
-          label: 'Cancel',
-          onPressed: () => Navigator.of(ctx).pop(false),
-        ),
-        GlassDialogAction(
-          label: 'Save anyway',
-          isPrimary: true,
-          onPressed: () => Navigator.of(ctx).pop(true),
-        ),
-      ],
+       actionsBuilder: (ctx) => [
+         GlassDialogAction(
+           label: 'Cancel',
+           onPressed: () {
+             HapticService.trigger(HapticProfile.light);
+             Navigator.of(ctx).pop(false);
+           },
+         ),
+         GlassDialogAction(
+           label: 'Save anyway',
+           isPrimary: true,
+           onPressed: () {
+             HapticService.trigger(HapticProfile.medium);
+             Navigator.of(ctx).pop(true);
+           },
+         ),
+       ],
     );
   }
 
-    @override
+  @override
   Widget build(BuildContext context) {
     if (!_loaded) {
       return const Scaffold(
@@ -391,8 +410,8 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                           controller: _price,
                           label: 'Selling price (৳)',
                           hint: '0.00',
-                          keyboardType:
-                              const TextInputType.numberWithOptions(decimal: true),
+                          keyboardType: const TextInputType.numberWithOptions(
+                              decimal: true),
                           inputFormatters: [
                             FilteringTextInputFormatter.allow(
                                 RegExp(r'^\d*\.?\d{0,2}')),
@@ -427,7 +446,10 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                         value: _platform,
                         values: SalePlatform.values,
                         labelOf: (v) => v.label,
-                        onChanged: (v) => setState(() => _platform = v),
+                         onChanged: (v) {
+                           HapticService.trigger(HapticProfile.light);
+                           setState(() => _platform = v);
+                         },
                       ),
                       const SizedBox(width: 12),
                       _ToggleGroup<PaymentStatus>(
@@ -435,7 +457,10 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                         value: _payment,
                         values: PaymentStatus.values,
                         labelOf: (v) => v.label,
-                        onChanged: (v) => setState(() => _payment = v),
+                         onChanged: (v) {
+                           HapticService.trigger(HapticProfile.light);
+                           setState(() => _payment = v);
+                         },
                       ),
                     ],
                   ),
@@ -446,27 +471,35 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                         label: 'Ownership',
                         value: _ownership,
                         values: const ['business', 'personal'],
-                        labelOf: (v) => v == 'business' ? 'Business' : 'Personal',
-                        onChanged: (v) => setState(() => _ownership = v),
+                        labelOf: (v) =>
+                            v == 'business' ? 'Business' : 'Personal',
+                         onChanged: (v) {
+                           HapticService.trigger(HapticProfile.light);
+                           setState(() => _ownership = v);
+                         },
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: InkWell(
-                          onTap: () async {
-                            final id = await showWalletPicker(
-                              context,
-                              ref: ref,
-                              selectedId: _walletId,
-                            );
-                            if (id != null) {
-                              final wallets = await ref.read(walletRepositoryProvider).getWallets();
-                              final name = wallets.firstWhere((w) => w.id == id).name;
-                              setState(() {
-                                _walletId = id;
-                                _walletName = name;
-                              });
-                            }
-                          },
+                         onTap: () async {
+                           HapticService.trigger(HapticProfile.light);
+                           final id = await showWalletPicker(
+                             context,
+                             ref: ref,
+                             selectedId: _walletId,
+                           );
+                           if (id != null) {
+                             final wallets = await ref
+                                 .read(walletRepositoryProvider)
+                                 .getWallets();
+                             final name =
+                                 wallets.firstWhere((w) => w.id == id).name;
+                             setState(() {
+                               _walletId = id;
+                               _walletName = name;
+                             });
+                           }
+                         },
                           child: Container(
                             padding: const EdgeInsets.symmetric(
                               vertical: 8,
@@ -482,8 +515,10 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                             ),
                             child: Row(
                               children: [
-                                const Icon(Icons.account_balance_wallet_outlined,
-                                    size: 16, color: AppColors.accent),
+                                const Icon(
+                                    Icons.account_balance_wallet_outlined,
+                                    size: 16,
+                                    color: AppColors.accent),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
@@ -502,102 +537,108 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                   GlassTextField(
-                     controller: _customer,
-                     label: 'Customer (optional)',
-                     hint: 'Name or note',
-                   ),
-                   const SizedBox(height: 12),
+                  GlassTextField(
+                    controller: _customer,
+                    label: 'Customer (optional)',
+                    hint: 'Name or note',
+                  ),
+                  const SizedBox(height: 12),
+                  HapticWrapper(
+                    onTap: () async {
+                      final result = await showAddOnPicker(
+                        context,
+                        initialEntries: _addOns,
+                      );
+                      if (result != null) {
+                        setState(() => _addOns = result);
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 10, horizontal: 12),
+                      decoration: BoxDecoration(
+                        color: AppColors.accent.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: AppColors.accent.withOpacity(0.3),
+                          width: 0.6,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.add_circle_outline,
+                              size: 18, color: AppColors.accent),
+                          const SizedBox(width: 8),
+                          Text(
+                            '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
+                            style: const TextStyle(
+                              color: AppColors.accent,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (_total != null)
+                    GlassPanel(
+                      noBlur: true,
+                      solid: true,
+                      padding: const EdgeInsets.all(14),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: _Metric(
+                              label: 'Total',
+                              value: formatMoney(_total!),
+                              color: AppColors.success,
+                            ),
+                          ),
+                          if (_profit != null)
+                            Expanded(
+                              child: _Metric(
+                                label: 'Est. profit',
+                                value: formatMoney(_profit!),
+                                color: (_profit! < 0)
+                                    ? AppColors.danger
+                                    : AppColors.info,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  const SizedBox(height: 16),
                    HapticWrapper(
-                     onTap: () async {
-                       final result = await showAddOnPicker(
-                         context,
-                         initialEntries: _addOns,
-                       );
-                       if (result != null) {
-                         setState(() => _addOns = result);
-                       }
-                     },
-                     child: Container(
-                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                       decoration: BoxDecoration(
-                         color: AppColors.accent.withOpacity(0.1),
-                         borderRadius: BorderRadius.circular(10),
-                         border: Border.all(
-                           color: AppColors.accent.withOpacity(0.3),
-                           width: 0.6,
-                         ),
+                     profile: HapticProfile.medium,
+                     onTap: _saving ? null : _save,
+                     child: FilledButton(
+                       onPressed: null,
+                       style: FilledButton.styleFrom(
+                         padding: const EdgeInsets.symmetric(vertical: 16),
                        ),
-                       child: Row(
-                         mainAxisAlignment: MainAxisAlignment.center,
-                         children: [
-                           const Icon(Icons.add_circle_outline, size: 18, color: AppColors.accent),
-                           const SizedBox(width: 8),
-                           Text(
-                             '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
-                             style: const TextStyle(
-                               color: AppColors.accent,
-                               fontWeight: FontWeight.w600,
-                               fontSize: 14,
-                             ),
-                           ),
-                         ],
-                       ),
+                       child: _saving
+                           ? const SizedBox(
+                               width: 20,
+                               height: 20,
+                               child: CircularProgressIndicator(
+                                 strokeWidth: 2,
+                                 color: Colors.white,
+                               ),
+                             )
+                           : Text(_isEdit ? 'Save changes' : 'Record sale'),
                      ),
                    ),
-                    const SizedBox(height: 12),
-                    if (_total != null)
-                   GlassPanel(
-                     noBlur: true,
-                     solid: true,
-                     padding: const EdgeInsets.all(14),
-                     child: Row(
-                       children: [
-                         Expanded(
-                           child: _Metric(
-                             label: 'Total',
-                             value: formatMoney(_total!),
-                             color: AppColors.success,
-                           ),
-                         ),
-                         if (_profit != null)
-                           Expanded(
-                             child: _Metric(
-                               label: 'Est. profit',
-                               value: formatMoney(_profit!),
-                               color: (_profit! < 0)
-                                   ? AppColors.danger
-                                   : AppColors.info,
-                             ),
-                           ),
-                       ],
-                     ),
-                   ),
-                   const SizedBox(height: 16),
-                   FilledButton(
-                     onPressed: _saving ? null : _save,
-                     style: FilledButton.styleFrom(
-                       padding: const EdgeInsets.symmetric(vertical: 16),
-                     ),
-                     child: _saving
-                         ? const SizedBox(
-                           width: 20,
-                           height: 20,
-                           child: CircularProgressIndicator(
-                             strokeWidth: 2,
-                             color: Colors.white,
-                           ),
-                         )
-                         : Text(_isEdit ? 'Save changes' : 'Record sale'),
-                   ),
-                 ],
-               ),
-             ),
-           ],
-         ),
-       ),
-     );
-   }
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
 
   Widget _buildProductTile(List<Product> products) {
     final scheme = Theme.of(context).colorScheme;
@@ -736,12 +777,9 @@ class _ToggleGroup<T> extends StatelessWidget {
                         labelOf(v),
                         style: TextStyle(
                           fontSize: 13,
-                          fontWeight: v == value
-                              ? FontWeight.w700
-                              : FontWeight.w500,
-                          color: v == value
-                              ? scheme.primary
-                              : scheme.onSurface,
+                          fontWeight:
+                              v == value ? FontWeight.w700 : FontWeight.w500,
+                          color: v == value ? scheme.primary : scheme.onSurface,
                         ),
                       ),
                     ),

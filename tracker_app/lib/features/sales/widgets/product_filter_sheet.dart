@@ -5,6 +5,7 @@ import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
 import 'package:tracker/core/widgets/sheet_drag_handle.dart';
+import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/features/products/product_provider.dart';
 
 class ProductFilterSheet extends ConsumerStatefulWidget {
@@ -55,9 +56,11 @@ class _ProductFilterSheetState extends ConsumerState<ProductFilterSheet> {
   Widget build(BuildContext context) {
     final all = ref.watch(productListProvider).value ?? const [];
     final q = _query.trim().toLowerCase();
-    final filtered =
-        q.isEmpty ? all : all.where((p) => p.name.toLowerCase().contains(q)).toList();
+    final filtered = q.isEmpty
+        ? all
+        : all.where((p) => p.name.toLowerCase().contains(q)).toList();
     return GlassPanel(
+      solid: true,
       radius: 28,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
       margin: const EdgeInsets.all(12),
@@ -78,7 +81,10 @@ class _ProductFilterSheetState extends ConsumerState<ProductFilterSheet> {
             hint: 'Search products…',
             prefixIcon: Icons.search_rounded,
             autofocus: true,
-            onChanged: (v) => setState(() => _query = v),
+             onChanged: (v) {
+               HapticService.trigger(HapticProfile.light);
+               setState(() => _query = v);
+             },
           ),
           const SizedBox(height: 10),
           ConstrainedBox(
@@ -92,7 +98,10 @@ class _ProductFilterSheetState extends ConsumerState<ProductFilterSheet> {
                     leading: const Icon(Icons.clear_rounded),
                     title: const Text('All products'),
                     selected: widget.currentProductId == null,
-                    onTap: () => Navigator.of(context).pop(0),
+                     onTap: () {
+                       HapticService.trigger(HapticProfile.light);
+                       Navigator.of(context).pop(0);
+                     },
                   );
                 }
                 final p = filtered[i - 1];
@@ -101,7 +110,10 @@ class _ProductFilterSheetState extends ConsumerState<ProductFilterSheet> {
                   title: Text(p.name),
                   subtitle: Text('Stock: ${p.stock}'),
                   selected: widget.currentProductId == p.id,
-                  onTap: () => Navigator.of(context).pop(p.id),
+                   onTap: () {
+                     HapticService.trigger(HapticProfile.light);
+                     Navigator.of(context).pop(p.id);
+                   },
                 );
               },
             ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
@@ -50,7 +51,8 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       WidgetsBinding.instance.addPostFrameCallback((_) => _load());
     } else {
       WidgetsBinding.instance.addPostFrameCallback((_) async {
-        final lastWalletId = await ref.read(walletRepositoryProvider).getLastUsedWalletId();
+        final lastWalletId =
+            await ref.read(walletRepositoryProvider).getLastUsedWalletId();
         if (lastWalletId != null) {
           final wallets = await ref.read(walletRepositoryProvider).getWallets();
           final wallet = wallets.firstWhere((w) => w.id == lastWalletId);
@@ -65,7 +67,8 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   }
 
   Future<void> _load() async {
-    final e = await ref.read(expenseRepositoryProvider).getById(widget.expenseId!);
+    final e =
+        await ref.read(expenseRepositoryProvider).getById(widget.expenseId!);
     if (e == null) {
       if (mounted) Navigator.of(context).pop();
       return;
@@ -82,11 +85,14 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       _walletName = wallets.firstWhere((w) => w.id == _walletId).name;
     }
     if (_allocationRuleId != null) {
-      final rules = await ref.read(allocationRulesRepositoryProvider).getRules();
-      _allocationRuleLabel = rules.firstWhere((r) => r.id == _allocationRuleId).label;
+      final rules =
+          await ref.read(allocationRulesRepositoryProvider).getRules();
+      _allocationRuleLabel =
+          rules.firstWhere((r) => r.id == _allocationRuleId).label;
     }
     if (e.bucketId != null) {
-      final buckets = await ref.read(bucketRepositoryProvider).getById(e.bucketId!);
+      final buckets =
+          await ref.read(bucketRepositoryProvider).getById(e.bucketId!);
       if (buckets != null) {
         _selectedBucketId = e.bucketId;
         _selectedBucketLabel = buckets.name;
@@ -117,7 +123,8 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   Future<void> _pickAllocationRule() async {
     final rules = await ref.read(allocationRulesRepositoryProvider).getRules();
     final activeRules = rules.where((r) => r.isActive).toList();
-    final financials = await ref.read(financeRepositoryProvider).getRuleFinancials();
+    final financials =
+        await ref.read(financeRepositoryProvider).getRuleFinancials();
 
     if (!mounted) return;
 
@@ -187,7 +194,8 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
   }
 
   Future<void> _pickBucket() async {
-    final balances = await ref.read(bucketRepositoryProvider).getBucketBalances();
+    final balances =
+        await ref.read(bucketRepositoryProvider).getBucketWithAvailables();
 
     if (!mounted) return;
 
@@ -223,17 +231,20 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
             else
               ...balances.map((bucket) {
                 return ListTile(
-                      leading: CircleAvatar(
-                        radius: 8,
-                        backgroundColor: bucket.color != null
-                            ? Color(int.parse(bucket.color!.replaceFirst('#', '0xff')))
-                            : AppColors.accent,
-                      ),
+                  leading: CircleAvatar(
+                    radius: 8,
+                    backgroundColor: bucket.color != null
+                        ? Color(
+                            int.parse(bucket.color!.replaceFirst('#', '0xff')))
+                        : AppColors.accent,
+                  ),
                   title: Text(bucket.name),
                   trailing: Text(
                     formatMoney(bucket.available),
                     style: TextStyle(
-                      color: bucket.available < 0 ? AppColors.danger : AppColors.accent,
+                      color: bucket.available < 0
+                          ? AppColors.danger
+                          : AppColors.accent,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -264,10 +275,12 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     final amount = double.tryParse(_amountCtrl.text.trim()) ?? 0.0;
     if (amount <= 0) return;
 
-    final balance = await ref.read(financeRepositoryProvider).getAvailableBalance(ruleId);
+    final balance =
+        await ref.read(financeRepositoryProvider).getAvailableBalance(ruleId);
     if (amount > balance) {
       final overdraw = amount - balance;
-      final rules = await ref.read(allocationRulesRepositoryProvider).getRules();
+      final rules =
+          await ref.read(allocationRulesRepositoryProvider).getRules();
       final rule = rules.firstWhere((r) => r.id == ruleId);
 
       final alert = AllocationOverdrawAlert(
@@ -295,7 +308,8 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     final amount = double.parse(_amountCtrl.text.trim());
 
     if (_selectedBucketId != null) {
-      final balances = await ref.read(bucketRepositoryProvider).getBucketBalances();
+      final balances =
+          await ref.read(bucketRepositoryProvider).getBucketWithAvailables();
       final bucket = balances.firstWhere((b) => b.id == _selectedBucketId);
       if (amount > bucket.available) {
         final overdraw = amount - bucket.available;
@@ -356,16 +370,23 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       message:
           'This removes the ${_category.label.toLowerCase()} expense of ${_amountCtrl.text.isEmpty ? '—' : formatMoney(double.tryParse(_amountCtrl.text) ?? 0)}.',
       actionsBuilder: (ctx) => [
-        GlassDialogAction(
-          label: 'Cancel',
-          onPressed: () => Navigator.of(ctx).pop(false),
-        ),
-        GlassDialogAction(
-          label: 'Delete',
-          isDestructive: true,
-          isPrimary: true,
-          onPressed: () => Navigator.of(ctx).pop(true),
-        ),
+         GlassDialogAction(
+           label: 'Cancel',
+           onPressed: () {
+             HapticService.trigger(HapticProfile.light);
+             Navigator.of(ctx).pop(false);
+           },
+         ),
+         GlassDialogAction(
+           label: 'Delete',
+           isDestructive: true,
+           isPrimary: true,
+           onPressed: () {
+             HapticService.trigger(HapticProfile.medium);
+             Navigator.of(ctx).pop(true);
+           },
+         ),
+
       ],
     );
     if (result != true) return;
@@ -394,21 +415,30 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
     );
   }
 
-  Future<bool?> _confirmBucketOverdraw(String bucketName, double overdrawAmount) {
+  Future<bool?> _confirmBucketOverdraw(
+      String bucketName, double overdrawAmount) {
     return showGlassDialog<bool>(
       context: context,
       title: 'Budget Overdraw',
-      message: 'This expense will overdraw your $bucketName budget by ৳${overdrawAmount.toStringAsFixed(2)}. Do you wish to proceed?',
+      message:
+          'This expense will overdraw your $bucketName budget by ৳${overdrawAmount.toStringAsFixed(2)}. Do you wish to proceed?',
       actionsBuilder: (ctx) => [
-        GlassDialogAction(
-          label: 'Cancel',
-          onPressed: () => Navigator.of(ctx).pop(false),
-        ),
-        GlassDialogAction(
-          label: 'Proceed',
-          isPrimary: true,
-          onPressed: () => Navigator.of(ctx).pop(true),
-        ),
+         GlassDialogAction(
+           label: 'Cancel',
+           onPressed: () {
+             HapticService.trigger(HapticProfile.light);
+             Navigator.of(ctx).pop(false);
+           },
+         ),
+         GlassDialogAction(
+           label: 'Proceed',
+           isPrimary: true,
+           onPressed: () {
+             HapticService.trigger(HapticProfile.medium);
+             Navigator.of(ctx).pop(true);
+           },
+         ),
+
       ],
     );
   }
@@ -441,13 +471,13 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                     const TextInputType.numberWithOptions(decimal: true),
                 prefixIcon: Icons.monetization_on_outlined,
                 inputFormatters: [
-                  FilteringTextInputFormatter.allow(
-                      RegExp(r'^\d*\.?\d{0,2}')),
+                  FilteringTextInputFormatter.allow(RegExp(r'^\d*\.?\d{0,2}')),
                 ],
                 onChanged: (_) => setState(() {}),
                 validator: (v) {
                   final d = double.tryParse(v?.trim() ?? '');
-                  if (d == null || d <= 0) return 'Enter a valid amount greater than 0';
+                  if (d == null || d <= 0)
+                    return 'Enter a valid amount greater than 0';
                   return null;
                 },
               ),
@@ -468,187 +498,192 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                    _ToggleGroup<ExpenseCategory>(
-                      value: _category,
-                      values: ExpenseCategory.values,
-                      labelOf: (v) => v.label,
-                      onChanged: (v) => setState(() => _category = v),
-                    ),
-                  ],
-                ),
+                  _ToggleGroup<ExpenseCategory>(
+                    value: _category,
+                    values: ExpenseCategory.values,
+                    labelOf: (v) => v.label,
+                    onChanged: (v) => setState(() => _category = v),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-                GlassPanel(
-                  noBlur: true,
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            ),
+            const SizedBox(height: 12),
+            GlassPanel(
+              noBlur: true,
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Ownership',
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight: FontWeight.w600,
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
                     children: [
-                      Text(
-                        'Ownership',
-                        style: TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          color: scheme.onSurfaceVariant,
-                        ),
+                      _ToggleGroup<String>(
+                        value: _ownership,
+                        values: const ['business', 'personal'],
+                        labelOf: (v) =>
+                            v == 'business' ? 'Business' : 'Personal',
+                        onChanged: (v) => setState(() => _ownership = v),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          _ToggleGroup<String>(
-                            value: _ownership,
-                            values: const ['business', 'personal'],
-                            labelOf: (v) => v == 'business' ? 'Business' : 'Personal',
-                            onChanged: (v) => setState(() => _ownership = v),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: InkWell(
-                              onTap: () async {
-                                final id = await showWalletPicker(
-                                  context,
-                                  ref: ref,
-                                  selectedId: _walletId,
-                                );
-                                if (id != null) {
-                                  final wallets = await ref.read(walletRepositoryProvider).getWallets();
-                                  final name = wallets.firstWhere((w) => w.id == id).name;
-                                  setState(() {
-                                    _walletId = id;
-                                    _walletName = name;
-                                  });
-                                }
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 8,
-                                  horizontal: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withOpacity(0.04),
-                                  borderRadius: BorderRadius.circular(10),
-                                  border: Border.all(
-                                    color: Colors.white.withOpacity(0.18),
-                                    width: 0.6,
-                                  ),
-                                ),
-                                child: Row(
-                                  children: [
-                                    const Icon(Icons.account_balance_wallet_outlined,
-                                        size: 16, color: AppColors.accent),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        _walletName ?? 'Select Wallet',
-                                        style: const TextStyle(fontSize: 13),
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    const Icon(Icons.expand_more,
-                                        size: 16, color: Colors.white54),
-                                  ],
-                                ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: InkWell(
+                          onTap: () async {
+                            final id = await showWalletPicker(
+                              context,
+                              ref: ref,
+                              selectedId: _walletId,
+                            );
+                            if (id != null) {
+                              final wallets = await ref
+                                  .read(walletRepositoryProvider)
+                                  .getWallets();
+                              final name =
+                                  wallets.firstWhere((w) => w.id == id).name;
+                              setState(() {
+                                _walletId = id;
+                                _walletName = name;
+                              });
+                            }
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              vertical: 8,
+                              horizontal: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.04),
+                              borderRadius: BorderRadius.circular(10),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.18),
+                                width: 0.6,
                               ),
                             ),
+                            child: Row(
+                              children: [
+                                const Icon(
+                                    Icons.account_balance_wallet_outlined,
+                                    size: 16,
+                                    color: AppColors.accent),
+                                const SizedBox(width: 8),
+                                Expanded(
+                                  child: Text(
+                                    _walletName ?? 'Select Wallet',
+                                    style: const TextStyle(fontSize: 13),
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                                const Icon(Icons.expand_more,
+                                    size: 16, color: Colors.white54),
+                              ],
+                            ),
                           ),
-                        ],
+                        ),
                       ),
                     ],
                   ),
-                ),
-                if (_ownership == 'business') ...[
-                  const SizedBox(height: 12),
-                  GlassPanel(
-                    noBlur: true,
-                    padding: const EdgeInsets.all(16),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(14),
-                      onTap: _pickAllocationRule,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.04),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.18),
-                            width: 0.6,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.account_balance_outlined,
-                                size: 16, color: AppColors.accent),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                _allocationRuleLabel ?? 'No fund allocated',
-                                style: const TextStyle(fontSize: 13),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const Icon(Icons.expand_more,
-                                size: 16, color: Colors.white54),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  GlassPanel(
-                    noBlur: true,
-                    padding: const EdgeInsets.all(16),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(14),
-                      onTap: _pickBucket,
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 8,
-                          horizontal: 12,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.04),
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: Colors.white.withOpacity(0.18),
-                            width: 0.6,
-                          ),
-                        ),
-                        child: Row(
-                          children: [
-                            const Icon(Icons.savings_outlined,
-                                size: 16, color: AppColors.accent),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                _selectedBucketLabel ?? 'No budget bucket',
-                                style: const TextStyle(fontSize: 13),
-                                overflow: TextOverflow.ellipsis,
-                              ),
-                            ),
-                            const Icon(Icons.expand_more,
-                                size: 16, color: Colors.white54),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
-                const SizedBox(height: 12),
-               GlassPanel(
-                 noBlur: true,
-                 padding: const EdgeInsets.all(16),
-                 child: GlassTextField(
-                  controller: _noteCtrl,
-                  label: 'Note (optional)',
-                  hint: 'What was this for?',
-                  prefixIcon: Icons.edit_note_rounded,
-                  maxLines: 2,
+              ),
+            ),
+            if (_ownership == 'business') ...[
+              const SizedBox(height: 12),
+              GlassPanel(
+                noBlur: true,
+                padding: const EdgeInsets.all(16),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: _pickAllocationRule,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.04),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.18),
+                        width: 0.6,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.account_balance_outlined,
+                            size: 16, color: AppColors.accent),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _allocationRuleLabel ?? 'No fund allocated',
+                            style: const TextStyle(fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(Icons.expand_more,
+                            size: 16, color: Colors.white54),
+                      ],
+                    ),
+                  ),
                 ),
               ),
-
+              const SizedBox(height: 12),
+              GlassPanel(
+                noBlur: true,
+                padding: const EdgeInsets.all(16),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(14),
+                  onTap: _pickBucket,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 8,
+                      horizontal: 12,
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.04),
+                      borderRadius: BorderRadius.circular(10),
+                      border: Border.all(
+                        color: Colors.white.withOpacity(0.18),
+                        width: 0.6,
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.savings_outlined,
+                            size: 16, color: AppColors.accent),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _selectedBucketLabel ?? 'No budget bucket',
+                            style: const TextStyle(fontSize: 13),
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ),
+                        const Icon(Icons.expand_more,
+                            size: 16, color: Colors.white54),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+            const SizedBox(height: 12),
+            GlassPanel(
+              noBlur: true,
+              padding: const EdgeInsets.all(16),
+              child: GlassTextField(
+                controller: _noteCtrl,
+                label: 'Note (optional)',
+                hint: 'What was this for?',
+                prefixIcon: Icons.edit_note_rounded,
+                maxLines: 2,
+              ),
+            ),
             const SizedBox(height: 12),
             GlassPanel(
               noBlur: true,
@@ -687,7 +722,8 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                       onPressed: _saving ? null : _delete,
                       style: OutlinedButton.styleFrom(
                         foregroundColor: AppColors.danger,
-                        side: BorderSide(color: AppColors.danger.withOpacity(0.4)),
+                        side: BorderSide(
+                            color: AppColors.danger.withOpacity(0.4)),
                         padding: const EdgeInsets.symmetric(vertical: 16),
                       ),
                       child: const Text('Delete'),
@@ -743,7 +779,10 @@ class _ToggleGroup<T> extends StatelessWidget {
         for (final v in values) ...[
           Expanded(
             child: GestureDetector(
-              onTap: () => onChanged(v),
+              onTap: () {
+                HapticService.trigger(HapticProfile.light);
+                onChanged(v);
+              },
               child: AnimatedContainer(
                 duration: const Duration(milliseconds: 160),
                 padding: const EdgeInsets.symmetric(vertical: 10),
@@ -764,8 +803,7 @@ class _ToggleGroup<T> extends StatelessWidget {
                   labelOf(v),
                   style: TextStyle(
                     fontSize: 13,
-                    fontWeight:
-                        v == value ? FontWeight.w700 : FontWeight.w500,
+                    fontWeight: v == value ? FontWeight.w700 : FontWeight.w500,
                     color: v == value ? scheme.primary : scheme.onSurface,
                   ),
                 ),

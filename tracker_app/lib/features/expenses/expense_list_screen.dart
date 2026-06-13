@@ -6,6 +6,8 @@ import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/empty_state.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
+import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/core/extensions/db_extensions.dart';
@@ -44,10 +46,13 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
             ),
             actions: [
-              IconButton(
-                tooltip: 'Add expense',
-                onPressed: () => context.push('/expenses/add'),
-                icon: const Icon(Icons.add_rounded, color: AppColors.accent),
+              HapticWrapper(
+                profile: HapticProfile.medium,
+                child: IconButton(
+                  tooltip: 'Add expense',
+                  onPressed: () => context.push('/expenses/add'),
+                  icon: const Icon(Icons.add_rounded, color: AppColors.accent),
+                ),
               ),
               const SizedBox(width: 4),
             ],
@@ -62,7 +67,8 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 4, 16, 8),
               child: GlassPanel(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                 noBlur: true,
                 child: Row(
                   children: [
@@ -118,7 +124,8 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
                 );
               },
             ),
-          const SliverToBoxAdapter(child: SizedBox(height: kBottomNavClearance)),
+          const SliverToBoxAdapter(
+              child: SizedBox(height: kBottomNavClearance)),
         ],
       ),
     );
