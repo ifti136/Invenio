@@ -28,4 +28,16 @@ class AppColors {
   static const auroraTeal = Color(0xFF1D9E75);
   static const auroraIndigo = Color(0xFF534AB7);
   static const auroraMagenta = Color(0xFFB987FF);
+
+  // Midnight Blue
+  static const midnightBg1 = Color(0xFF050A18);
+  static const midnightBg2 = Color(0xFF0A1428);
+  static const midnightBg3 = Color(0xFF101C38);
+  static const midnightWave1 = Color(0xFF1E3A8A);
+  static const midnightWave2 = Color(0xFF3B82F6);
+  static const midnightWave3 = Color(0xFF60A5FA);
+
+  // Solid Slate
+  static const solidSlateBg = Color(0xFF1E293B);
+  static const solidSlateSurface = Color(0xFF334155);
 }

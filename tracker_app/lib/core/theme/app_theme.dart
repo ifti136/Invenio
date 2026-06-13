@@ -1,13 +1,138 @@
 import 'package:flutter/material.dart';
 import 'app_colors.dart';
 
-class AppTheme {
-  static ThemeData light() => _build(Brightness.light);
-  static ThemeData dark() => _build(Brightness.dark);
+enum AppThemeId {
+  darkAurora,
+  lightAurora,
+  midnightBlue,
+  solidSlate,
+}
 
-  static ThemeData _build(Brightness brightness) {
+class AuroraConfig {
+  final List<Color> backgrounds;
+  final List<List<Color>> waves;
+  final bool enabled;
+
+  const AuroraConfig({
+    required this.backgrounds,
+    required this.waves,
+    this.enabled = true,
+  });
+}
+
+class AppTheme {
+  static ThemeData andAurora(AppThemeId id) {
+    final theme = fromId(id);
+    return theme.data;
+  }
+
+  static AuroraConfig aurora(AppThemeId id) {
+    return fromId(id).aurora;
+  }
+
+  static ThemeSettings fromId(AppThemeId id) {
+    switch (id) {
+      case AppThemeId.lightAurora:
+        return ThemeSettings(
+          data: _build(Brightness.light),
+          aurora: const AuroraConfig(
+            backgrounds: [
+              Color(0xFFF6F2EC),
+              Color(0xFFEFE6DA),
+              Color(0xFFE8D9E8),
+            ],
+            waves: [
+              [
+                AppColors.auroraTeal,
+                AppColors.auroraTeal,
+                AppColors.auroraTeal
+              ],
+              [
+                AppColors.auroraIndigo,
+                AppColors.auroraIndigo,
+                AppColors.auroraIndigo
+              ],
+              [
+                AppColors.auroraMagenta,
+                AppColors.auroraMagenta,
+                AppColors.auroraMagenta
+              ],
+            ],
+          ),
+        );
+      case AppThemeId.midnightBlue:
+        return ThemeSettings(
+          data: _build(Brightness.dark, seed: AppColors.midnightWave1),
+          aurora: const AuroraConfig(
+            backgrounds: [
+              AppColors.midnightBg1,
+              AppColors.midnightBg2,
+              AppColors.midnightBg3,
+            ],
+            waves: [
+              [
+                AppColors.midnightWave1,
+                AppColors.midnightWave1,
+                AppColors.midnightWave1
+              ],
+              [
+                AppColors.midnightWave2,
+                AppColors.midnightWave2,
+                AppColors.midnightWave2
+              ],
+              [
+                AppColors.midnightWave3,
+                AppColors.midnightWave3,
+                AppColors.midnightWave3
+              ],
+            ],
+          ),
+        );
+      case AppThemeId.solidSlate:
+        return ThemeSettings(
+          data: _build(Brightness.dark, seed: AppColors.accent, solid: true),
+          aurora: const AuroraConfig(
+            backgrounds: [AppColors.solidSlateBg],
+            waves: [],
+            enabled: false,
+          ),
+        );
+      case AppThemeId.darkAurora:
+      default:
+        return ThemeSettings(
+          data: _build(Brightness.dark),
+          aurora: const AuroraConfig(
+            backgrounds: [
+              AppColors.auroraBg1,
+              AppColors.auroraBg2,
+              AppColors.auroraBg3,
+            ],
+            waves: [
+              [
+                AppColors.auroraTeal,
+                AppColors.auroraTeal,
+                AppColors.auroraTeal
+              ],
+              [
+                AppColors.auroraIndigo,
+                AppColors.auroraIndigo,
+                AppColors.auroraIndigo
+              ],
+              [
+                AppColors.auroraMagenta,
+                AppColors.auroraMagenta,
+                AppColors.auroraMagenta
+              ],
+            ],
+          ),
+        );
+    }
+  }
+
+  static ThemeData _build(Brightness brightness,
+      {Color? seed, bool solid = false}) {
     final scheme = ColorScheme.fromSeed(
-      seedColor: AppColors.accent,
+      seedColor: seed ?? AppColors.accent,
       brightness: brightness,
     );
     final isDark = brightness == Brightness.dark;
@@ -15,9 +140,12 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       brightness: brightness,
-      colorScheme: scheme,
-      scaffoldBackgroundColor: Colors.transparent,
-      canvasColor: Colors.transparent,
+      colorScheme: solid
+          ? scheme.copyWith(surface: AppColors.solidSlateSurface)
+          : scheme,
+      scaffoldBackgroundColor:
+          solid ? AppColors.solidSlateBg : Colors.transparent,
+      canvasColor: solid ? AppColors.solidSlateBg : Colors.transparent,
       appBarTheme: AppBarTheme(
         backgroundColor: Colors.transparent,
         surfaceTintColor: Colors.transparent,
@@ -35,7 +163,8 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         height: 76,
-        backgroundColor: Colors.transparent,
+        backgroundColor:
+            solid ? AppColors.solidSlateSurface : Colors.transparent,
         surfaceTintColor: Colors.transparent,
         indicatorColor: scheme.primary.withOpacity(isDark ? 0.22 : 0.18),
         labelTextStyle: WidgetStateProperty.resolveWith((states) {
@@ -60,7 +189,8 @@ class AppTheme {
         }),
       ),
       dialogTheme: DialogTheme(
-        backgroundColor: Colors.transparent,
+        backgroundColor:
+            solid ? AppColors.solidSlateSurface : Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(
@@ -69,7 +199,8 @@ class AppTheme {
         insetPadding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
       ),
       bottomSheetTheme: BottomSheetThemeData(
-        backgroundColor: Colors.transparent,
+        backgroundColor:
+            solid ? AppColors.solidSlateSurface : Colors.transparent,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: const RoundedRectangleBorder(
@@ -89,13 +220,17 @@ class AppTheme {
         ),
       ),
       cardTheme: CardTheme(
-        color: scheme.surface.withOpacity(isDark ? 0.55 : 0.65),
+        color: solid
+            ? AppColors.solidSlateSurface
+            : scheme.surface.withOpacity(isDark ? 0.55 : 0.65),
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       ),
       chipTheme: ChipThemeData(
-        backgroundColor: Colors.white.withOpacity(0.04),
+        backgroundColor: solid
+            ? AppColors.solidSlateSurface.withOpacity(0.5)
+            : Colors.white.withOpacity(0.04),
         selectedColor: scheme.primary.withOpacity(isDark ? 0.22 : 0.18),
         side: BorderSide(
           color: scheme.onSurfaceVariant.withOpacity(0.18),
@@ -156,4 +291,11 @@ class AppTheme {
       ),
     );
   }
+}
+
+class ThemeSettings {
+  final ThemeData data;
+  final AuroraConfig aurora;
+
+  const ThemeSettings({required this.data, required this.aurora});
 }
