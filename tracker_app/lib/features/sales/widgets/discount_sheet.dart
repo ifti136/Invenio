@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
+import 'package:tracker/core/utils/profit_calculator.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
@@ -13,7 +14,9 @@ import 'package:tracker/features/dashboard/dashboard_provider.dart';
 import 'package:tracker/features/products/product_provider.dart';
 import 'package:tracker/features/sales/sale_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
+import 'package:tracker/features/sales/add_on_repository.dart';
 import 'package:tracker/features/sales/widgets/product_picker_sheet.dart';
+import 'package:tracker/features/sales/widgets/add_on_picker_sheet.dart';
 import 'package:tracker/services/alert_service.dart';
 
 class DiscountSheet extends ConsumerStatefulWidget {
@@ -29,6 +32,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
   final _normalPrice = TextEditingController();
   final _discountPrice = TextEditingController();
   final _customer = TextEditingController();
+  List<AddOnEntry> _addOns = [];
   int? _selectedProductId;
   SalePlatform _platform = SalePlatform.facebook;
   PaymentStatus _payment = PaymentStatus.paid;
@@ -56,9 +60,32 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
   double get _normal => double.tryParse(_normalPrice.text.trim()) ?? 0;
   double get _discount => double.tryParse(_discountPrice.text.trim()) ?? 0;
   double get _discountAmt => (_normal - _discount) * _quantity;
-  double get _grossProfit => _product != null
-      ? (_discount - _product!.costPrice) * _quantity
-      : 0;
+  double get _grossProfit {
+    if (_product == null) return 0;
+    return ProfitCalculator.calculateNetProfit(
+      Sale(
+        id: 0,
+        productId: _product!.id,
+        quantity: _quantity,
+        sellingPrice: _discount,
+        total: _discount * _quantity,
+        platform: _platform.key,
+        paymentStatus: _payment.key,
+        date: DateTime.now().millisecondsSinceEpoch,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        walletId: null,
+        ownership: 'business',
+        customerName: _customer.text.trim(),
+      ),
+      _addOns.map((e) => SaleAddOn(
+        id: 0,
+        saleId: 0,
+        addOnTypeId: e.typeId,
+        quantity: 1,
+        cost: e.amount,
+      )).toList(),
+    );
+  }
 
   Future<void> _confirm() async {
     if (!_form.currentState!.validate()) return;
@@ -96,7 +123,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
 
     setState(() => _saving = true);
     try {
-      await ref.read(saleRepositoryProvider).addSale(
+      final result = await ref.read(saleRepositoryProvider).addSale(
         productId: _selectedProductId!,
         quantity: _quantity,
         sellingPrice: _discount,
@@ -106,6 +133,16 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
             _customer.text.trim().isEmpty ? null : _customer.text.trim(),
         isDiscounted: true,
         normalPrice: _normal,
+      );
+
+      // Save add-ons
+      final addOnRepo = ref.read(addOnRepositoryProvider);
+      await addOnRepo.setForSale(
+        result.sale.id,
+        _addOns.map((e) => SaleAddOnCompanion.insert(
+              cost: e.amount,
+              quantity: Value(1),
+            )).toList(),
       );
 
       ref.invalidate(saleListProvider);
@@ -223,13 +260,52 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
               onChanged: (v) => setState(() => _payment = v),
             ),
             const SizedBox(height: 12),
-            GlassTextField(
-              controller: _customer,
-              label: 'Customer (optional)',
-              hint: 'Name or phone',
-            ),
-            const SizedBox(height: 16),
-            GlassPanel.flush(
+             GlassTextField(
+               controller: _customer,
+               label: 'Customer (optional)',
+               hint: 'Name or phone',
+             ),
+             const SizedBox(height: 12),
+             HapticWrapper(
+               onTap: () async {
+                 final result = await showAddOnPicker(
+                   context,
+                   initialEntries: _addOns,
+                 );
+                 if (result != null) {
+                   setState(() => _addOns = result);
+                 }
+               },
+               child: Container(
+                 padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                 decoration: BoxDecoration(
+                   color: AppColors.accent.withOpacity(0.1),
+                   borderRadius: BorderRadius.circular(10),
+                   border: Border.all(
+                     color: AppColors.accent.withOpacity(0.3),
+                     width: 0.6,
+                   ),
+                 ),
+                 child: Row(
+                   mainAxisAlignment: MainAxisAlignment.center,
+                   children: [
+                     const Icon(Icons.add_circle_outline, size: 18, color: AppColors.accent),
+                     const SizedBox(width: 8),
+                     Text(
+                       '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
+                       style: const TextStyle(
+                         color: AppColors.accent,
+                         fontWeight: FontWeight.w600,
+                         fontSize: 14,
+                       ),
+                     ),
+                   ],
+                 ),
+               ),
+             ),
+             const SizedBox(height: 16),
+             GlassPanel.flush(
+
               padding: const EdgeInsets.all(12),
               noBlur: true,
               expand: false,

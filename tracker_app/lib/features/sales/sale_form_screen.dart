@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:drift/drift.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/dashboard/dashboard_provider.dart';
 import 'package:tracker/features/products/product_provider.dart';
@@ -13,7 +15,9 @@ import 'package:tracker/features/products/product_repository.dart';
 import 'package:tracker/features/products/wallet_repository.dart';
 import 'package:tracker/features/sales/sale_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
+import 'package:tracker/features/sales/add_on_repository.dart';
 import 'package:tracker/features/sales/widgets/product_picker_sheet.dart';
+import 'package:tracker/features/sales/widgets/add_on_picker_sheet.dart';
 import 'package:tracker/features/products/widgets/wallet_picker_sheet.dart';
 import 'package:tracker/services/alert_service.dart';
 
@@ -36,6 +40,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
   final _qty = TextEditingController(text: '1');
   final _price = TextEditingController();
   final _customer = TextEditingController();
+  List<AddOnEntry> _addOns = [];
   Product? _product;
   SalePlatform _platform = SalePlatform.facebook;
   PaymentStatus _payment = PaymentStatus.paid;
@@ -93,7 +98,22 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       final wallets = await ref.read(walletRepositoryProvider).getWallets();
       _walletName = wallets.firstWhere((w) => w.id == _walletId).name;
     }
-    if (mounted) setState(() => _loaded = true);
+    final addOns = await ref.read(addOnRepositoryProvider).getForSale(widget.saleId!);
+    final types = await ref.read(addOnRepositoryProvider).getActiveTypes();
+    setState(() {
+      _addOns = addOns.map((a) {
+        final type = types.firstWhere(
+          (t) => t.id == a.addOnTypeId,
+          orElse: () => AddOnType(id: a.addOnTypeId, name: 'Unknown', isActive: true, createdAt: 0),
+        );
+        return AddOnEntry(
+          typeId: a.addOnTypeId,
+          name: type.name,
+          amount: a.cost,
+        );
+      }).toList();
+      _loaded = true;
+    });
   }
 
 
@@ -129,8 +149,29 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
   double? get _profit {
     final t = _total;
     if (t == null || _product == null) return null;
-    final q = int.tryParse(_qty.text.trim()) ?? 0;
-    return t - (q * _product!.costPrice);
+    return ProfitCalculator.calculateNetProfit(
+      Sale(
+        id: 0,
+        productId: _product!.id,
+        quantity: int.tryParse(_qty.text.trim()) ?? 0,
+        sellingPrice: double.tryParse(_price.text.trim()) ?? 0,
+        total: t,
+        platform: _platform.key,
+        paymentStatus: _payment.key,
+        date: _date.millisecondsSinceEpoch,
+        createdAt: DateTime.now().millisecondsSinceEpoch,
+        walletId: _walletId,
+        ownership: _ownership,
+        customerName: _customer.text.trim(),
+      ),
+      _addOns.map((e) => SaleAddOn(
+        id: 0,
+        saleId: 0,
+        addOnTypeId: e.typeId,
+        quantity: 1,
+        cost: e.amount,
+      )).toList(),
+    );
   }
 
   Future<void> _save() async {
@@ -162,9 +203,11 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
     }
     setState(() => _saving = true);
     try {
+      int saleId;
       if (_isEdit) {
+        saleId = widget.saleId!;
         await repo.updateSale(
-          id: widget.saleId!,
+          id: saleId,
           productId: _product!.id,
           quantity: qty,
           sellingPrice: price,
@@ -177,7 +220,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
           ownership: _ownership,
         );
       } else {
-        await repo.addSale(
+        final result = await repo.addSale(
           productId: _product!.id,
           quantity: qty,
           sellingPrice: price,
@@ -189,7 +232,19 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
           walletId: _walletId,
           ownership: _ownership,
         );
+        saleId = result.sale.id;
       }
+
+      // Save add-ons
+      final addOnRepo = ref.read(addOnRepositoryProvider);
+      await addOnRepo.setForSale(
+        saleId,
+        _addOns.map((e) => SaleAddOnCompanion.insert(
+              cost: e.amount,
+              quantity: Value(1),
+            )).toList(),
+      );
+
       if (!mounted) return;
       ref.invalidate(saleListProvider);
       ref.invalidate(productListProvider);
@@ -444,17 +499,58 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                     ],
                   ),
                   const SizedBox(height: 12),
-                  GlassTextField(
-                    controller: _customer,
-                    label: 'Customer (optional)',
-                    hint: 'Name or note',
-                    prefixIcon: Icons.person_outline_rounded,
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (_total != null)
+                   GlassTextField(
+                     controller: _customer,
+                     label: 'Customer (optional)',
+                     hint: 'Name or note',
+                   ),
+                   const SizedBox(height: 12),
+                   HapticWrapper(
+                     onTap: () async {
+                       final result = await showAddOnPicker(
+                         context,
+                         initialEntries: _addOns,
+                       );
+                       if (result != null) {
+                         setState(() => _addOns = result);
+                       }
+                     },
+                     child: Container(
+                       padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
+                       decoration: BoxDecoration(
+                         color: AppColors.accent.withOpacity(0.1),
+                         borderRadius: BorderRadius.circular(10),
+                         border: Border.all(
+                           color: AppColors.accent.withOpacity(0.3),
+                           width: 0.6,
+                         ),
+                       ),
+                       child: Row(
+                         mainAxisAlignment: MainAxisAlignment.center,
+                         children: [
+                           const Icon(Icons.add_circle_outline, size: 18, color: AppColors.accent),
+                           const SizedBox(width: 8),
+                           Text(
+                             '${_addOns.length > 0 ? _addOns.length : ''} Add-Ons',
+                             style: const TextStyle(
+                               color: AppColors.accent,
+                               fontWeight: FontWeight.w600,
+                               fontSize: 14,
+                             ),
+                           ),
+                         ],
+                       ),
+                     ),
+                   ),
+                   const SizedBox(height: 12),
+                   if (_total != null)
+                         ],
+                       ),
+                     ),
+                   ),
+                   const SizedBox(height: 12),
+                   if (_total != null)
+
               GlassPanel(
                 noBlur: true,
                 solid: true,

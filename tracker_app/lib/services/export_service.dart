@@ -4,6 +4,7 @@ import 'package:share_plus/share_plus.dart';
 import 'package:syncfusion_flutter_xlsio/xlsio.dart';
 import 'package:path_provider/path_provider.dart';
 import '../db/app_database.dart';
+import '../core/utils/profit_calculator.dart';
 
 class ExportService {
   final AppDatabase _db;
@@ -18,6 +19,15 @@ class ExportService {
               t.date.isBiggerOrEqualValue(start.millisecondsSinceEpoch) &
               t.date.isSmallerOrEqualValue(end.millisecondsSinceEpoch)))
         .get();
+
+    final allAddOns = await (_db.select(_db.saleAddOns)
+          ..where((s) => s.saleId.isIn(sales.map((s) => s.id))))
+        .get();
+
+    final addOnsMap = {
+      for (final s in sales)
+        s.id: allAddOns.where((a) => a.saleId == s.id).toList()
+    };
 
     final expenses = await (_db.select(_db.expenses)
           ..where((t) =>
@@ -38,6 +48,7 @@ class ExportService {
       'Qty',
       'Cost Price',
       'Sell Price',
+      'Add-Ons',
       'Profit',
       'Platform',
       'Status',
@@ -48,7 +59,9 @@ class ExportService {
     for (var r = 0; r < sales.length; r++) {
       final s = sales[r];
       final p = productMap[s.productId];
-      final profit = (s.sellingPrice - (p?.costPrice ?? 0)) * s.quantity;
+      final addOns = addOnsMap[s.id] ?? [];
+      final profit = ProfitCalculator.calculateNetProfit(s, addOns);
+      final addOnTotal = ProfitCalculator.calculateAddOnCost(addOns);
       final row = [
         DateTime.fromMillisecondsSinceEpoch(s.date)
             .toString()
@@ -57,6 +70,7 @@ class ExportService {
         s.quantity.toString(),
         p?.costPrice.toStringAsFixed(2) ?? '-',
         s.sellingPrice.toStringAsFixed(2),
+        addOnTotal.toStringAsFixed(2),
         profit.toStringAsFixed(2),
         s.platform,
         s.paymentStatus,
@@ -65,6 +79,7 @@ class ExportService {
         salesSheet.getRangeByIndex(r + 2, c + 1).setText(row[c]);
       }
     }
+
 
      workbook.worksheets.addWithName('Expenses');
      final expSheet = workbook.worksheets[1];
@@ -91,19 +106,21 @@ class ExportService {
      workbook.worksheets.addWithName('Summary');
      final sumSheet = workbook.worksheets[2];
 
-     // Compute totals from the already-fetched sales/expenses data
-     double grossProfit = 0;
-     double fbProfit = 0;
-     double offlineProfit = 0;
-     for (final s in sales) {
-       final p = productMap[s.productId];
-       final profit = (s.sellingPrice - (p?.costPrice ?? 0)) * s.quantity;
-       grossProfit += profit;
-       if (s.platform == 'facebook') fbProfit += profit;
-       else offlineProfit += profit;
-     }
-     final totalExpenses = expenses.fold(0.0, (sum, e) => sum + e.amount);
-     final netProfit = grossProfit - totalExpenses;
+      // Compute totals from the already-fetched sales/expenses data
+      double grossProfit = 0;
+      double fbProfit = 0;
+      double offlineProfit = 0;
+      for (final s in sales) {
+        final p = productMap[s.productId];
+        final addOns = addOnsMap[s.id] ?? [];
+        final profit = ProfitCalculator.calculateNetProfit(s, addOns);
+        grossProfit += profit;
+        if (s.platform == 'facebook') fbProfit += profit;
+        else offlineProfit += profit;
+      }
+      final totalExpenses = expenses.fold(0.0, (sum, e) => sum + e.amount);
+      final netProfit = grossProfit - totalExpenses;
+
 
      // Write summary rows
      final summaryRows = [
@@ -118,22 +135,23 @@ class ExportService {
        sumSheet.getRangeByIndex(r + 1, 2).setText(summaryRows[r][1]);
      }
 
-     // Top 5 products by profit (optional but spec-required)
-     final productProfits = <int, double>{};
-     for (final s in sales) {
-       final p = productMap[s.productId];
-       final profit = (s.sellingPrice - (p?.costPrice ?? 0)) * s.quantity;
-       productProfits.update(s.productId, (value) => value + profit, ifAbsent: () => profit);
-     }
-      final sorted = productProfits.entries.toList()
-        ..sort((a, b) => b.value.compareTo(a.value));
-      final topProducts = sorted.take(5).toList();
-      for (var i = 0; i < topProducts.length; i++) {
-        final entry = topProducts[i];
-       final product = productMap[entry.key];
-       sumSheet.getRangeByIndex(i + 7, 1).setText(product?.name ?? 'Unknown');
-       sumSheet.getRangeByIndex(i + 7, 2).setText(entry.value.toStringAsFixed(2));
-     }
+      // Top 5 products by profit (optional but spec-required)
+      final productProfits = <int, double>{};
+      for (final s in sales) {
+        final p = productMap[s.productId];
+        final addOns = addOnsMap[s.id] ?? [];
+        final profit = ProfitCalculator.calculateNetProfit(s, addOns);
+        productProfits.update(s.productId, (value) => value + profit, ifAbsent: () => profit);
+      }
+       final sorted = productProfits.entries.toList()
+         ..sort((a, b) => b.value.compareTo(a.value));
+       final topProducts = sorted.take(5).toList();
+       for (var i = 0; i < topProducts.length; i++) {
+         final entry = topProducts[i];
+         final product = productMap[entry.key];
+         sumSheet.getRangeByIndex(i + 7, 1).setText(product?.name ?? 'Unknown');
+         sumSheet.getRangeByIndex(i + 7, 2).setText(entry.value.toStringAsFixed(2));
+       }
 
      return workbook;
   }

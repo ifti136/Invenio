@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../db/app_database.dart';
 import '../../models/dashboard_summary.dart';
+import '../../core/utils/profit_calculator.dart';
 
 part 'dashboard_provider.g.dart';
 
@@ -22,6 +23,15 @@ Future<DashboardSummary> dashboard(Ref ref) async {
             t.date.isSmallerOrEqualValue(endOfDay)))
       .get();
 
+  final allAddOns = await (db.select(db.saleAddOns)
+        ..where((s) => s.saleId.isIn(todaySales.map((s) => s.id))))
+      .get();
+
+  final addOnsMap = {
+    for (final s in todaySales)
+      s.id: allAddOns.where((a) => a.saleId == s.id).toList()
+  };
+
   final todayExpenses = await (db.select(db.expenses)
         ..where((t) =>
             t.ownership.equals('business') &
@@ -40,13 +50,16 @@ Future<DashboardSummary> dashboard(Ref ref) async {
   for (final s in todaySales) {
     final product = productMap[s.productId];
     if (product == null) continue;
-    final profit = s.sellingPrice - product.costPrice;
-    grossProfit += profit * s.quantity;
+    
+    final addOns = addOnsMap[s.id] ?? [];
+    final netProfit = ProfitCalculator.calculateNetProfit(s, addOns);
+    
+    grossProfit += netProfit;
     revenue += s.total;
     if (s.platform == 'facebook') {
-      fbProfit += profit * s.quantity;
+      fbProfit += netProfit;
     } else {
-      offlineProfit += profit * s.quantity;
+      offlineProfit += netProfit;
     }
   }
 

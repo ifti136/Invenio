@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../db/app_database.dart';
 import '../../models/monthly_report.dart';
+import '../../core/utils/profit_calculator.dart';
 
 part 'report_repository.g.dart';
 
@@ -45,6 +46,15 @@ class ReportRepository {
               s.date.isSmallerOrEqualValue(end.millisecondsSinceEpoch)))
         .get();
 
+    final allAddOns = await (_db.select(_db.saleAddOns)
+          ..where((s) => s.saleId.isIn(sales.map((s) => s.id))))
+        .get();
+
+    final addOnsMap = {
+      for (final s in sales)
+        s.id: allAddOns.where((a) => a.saleId == s.id).toList()
+    };
+
     final expenses = await (_db.select(_db.expenses)
           ..where((e) =>
               e.date.isBiggerOrEqualValue(start.millisecondsSinceEpoch) &
@@ -52,7 +62,7 @@ class ReportRepository {
         .get();
 
     final products = await _db.select(_db.products).get();
-    final costMap = {for (final p in products) p.id: p.costPrice};
+    final productMap = {for (final p in products) p.id: p};
 
     final salesByDay = <String, List<Sale>>{};
     for (final s in sales) {
@@ -76,9 +86,11 @@ class ReportRepository {
       var revenue = 0.0;
       var profit = 0.0;
       for (final s in daySales) {
-        final cost = costMap[s.productId] ?? 0;
+        final product = productMap[s.productId];
+        if (product == null) continue;
+        final addOns = addOnsMap[s.id] ?? [];
+        profit += ProfitCalculator.calculateNetProfit(s, addOns);
         revenue += s.total;
-        profit += s.total - (s.quantity * cost);
       }
       var expTotal = 0.0;
       for (final e in dayExpenses) {
@@ -105,6 +117,15 @@ class ReportRepository {
               s.date.isSmallerOrEqualValue(end.millisecondsSinceEpoch)))
         .get();
 
+    final allAddOns = await (_db.select(_db.saleAddOns)
+          ..where((s) => s.saleId.isIn(sales.map((s) => s.id))))
+        .get();
+
+    final addOnsMap = {
+      for (final s in sales)
+        s.id: allAddOns.where((a) => a.saleId == s.id).toList()
+    };
+
     final expenses = await (_db.select(_db.expenses)
           ..where((e) =>
               e.date.isBiggerOrEqualValue(start.millisecondsSinceEpoch) &
@@ -112,7 +133,7 @@ class ReportRepository {
         .get();
 
     final products = await _db.select(_db.products).get();
-    final costMap = {for (final p in products) p.id: p.costPrice};
+    final productMap = {for (final p in products) p.id: p};
 
     final salesByMonth = <int, List<Sale>>{};
     for (final s in sales) {
@@ -138,16 +159,18 @@ class ReportRepository {
       var revenue = 0.0;
       var profit = 0.0;
       for (final s in monthSales) {
-        final cost = costMap[s.productId] ?? 0;
+        final product = productMap[s.productId];
+        if (product == null) continue;
+        final addOns = addOnsMap[s.id] ?? [];
+        profit += ProfitCalculator.calculateNetProfit(s, addOns);
         revenue += s.total;
-        profit += s.total - (s.quantity * cost);
       }
       var expTotal = 0.0;
       for (final e in monthExpenses) {
         expTotal += e.amount;
       }
 
-    months.add(MonthlySummary(
+      months.add(MonthlySummary(
         month: m,
         label: labels[m - 1],
         revenue: revenue,
@@ -170,6 +193,15 @@ class ReportRepository {
               s.ownership.equals('business')))
         .get();
 
+    final allAddOns = await (_db.select(_db.saleAddOns)
+          ..where((s) => s.saleId.isIn(sales.map((s) => s.id))))
+        .get();
+
+    final addOnsMap = {
+      for (final s in sales)
+        s.id: allAddOns.where((a) => a.saleId == s.id).toList()
+    };
+
     final expenses = await (_db.select(_db.expenses)
           ..where((e) =>
               e.date.isBiggerOrEqualValue(start.millisecondsSinceEpoch) &
@@ -178,7 +210,7 @@ class ReportRepository {
         .get();
 
     final products = await _db.select(_db.products).get();
-    final costMap = {for (final p in products) p.id: p.costPrice};
+    final productMap = {for (final p in products) p.id: p};
 
     final salesByMonth = <int, List<Sale>>{};
     for (final s in sales) {
@@ -204,9 +236,11 @@ class ReportRepository {
       var revenue = 0.0;
       var profit = 0.0;
       for (final s in monthSales) {
-        final cost = costMap[s.productId] ?? 0;
+        final product = productMap[s.productId];
+        if (product == null) continue;
+        final addOns = addOnsMap[s.id] ?? [];
+        profit += ProfitCalculator.calculateNetProfit(s, addOns);
         revenue += s.total;
-        profit += s.total - (s.quantity * cost);
       }
       var expTotal = 0.0;
       for (final e in monthExpenses) {
@@ -239,6 +273,16 @@ class ReportRepository {
           (s) => s.date.isSmallerOrEqualValue(to.millisecondsSinceEpoch));
     }
     final sales = await query.get();
+
+    final allAddOns = await (_db.select(_db.saleAddOns)
+          ..where((s) => s.saleId.isIn(sales.map((s) => s.id))))
+        .get();
+
+    final addOnsMap = {
+      for (final s in sales)
+        s.id: allAddOns.where((a) => a.saleId == s.id).toList()
+    };
+
     final products = await _db.select(_db.products).get();
     final productMap = {for (final p in products) p.id: p};
 
@@ -253,11 +297,13 @@ class ReportRepository {
       final cost = product?.costPrice ?? 0;
       var qty = 0;
       var rev = 0.0;
+      var profit = 0.0;
       for (final s in e.value) {
         qty += s.quantity;
         rev += s.total;
+        final addOns = addOnsMap[s.id] ?? [];
+        profit += ProfitCalculator.calculateNetProfit(s, addOns);
       }
-      final profit = rev - (qty * cost);
       return ProductReportRow(
         productId: e.key,
         productName: name,
