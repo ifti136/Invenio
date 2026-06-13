@@ -2935,6 +2935,570 @@ class StockMovementsCompanion extends UpdateCompanion<StockMovement> {
   }
 }
 
+class $AddOnTypesTable extends AddOnTypes
+    with TableInfo<$AddOnTypesTable, AddOnType> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AddOnTypesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+      'name', aliasedName, false,
+      additionalChecks:
+          GeneratedColumn.checkTextLength(minTextLength: 1, maxTextLength: 100),
+      type: DriftSqlType.string,
+      requiredDuringInsert: true);
+  static const VerificationMeta _isActiveMeta =
+      const VerificationMeta('isActive');
+  @override
+  late final GeneratedColumn<bool> isActive = GeneratedColumn<bool>(
+      'is_active', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("is_active" IN (0, 1))'),
+      defaultValue: const Constant(true));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [id, name, isActive, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'add_on_types';
+  @override
+  VerificationContext validateIntegrity(Insertable<AddOnType> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+          _nameMeta, name.isAcceptableOrUnknown(data['name']!, _nameMeta));
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('is_active')) {
+      context.handle(_isActiveMeta,
+          isActive.isAcceptableOrUnknown(data['is_active']!, _isActiveMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  AddOnType map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AddOnType(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      name: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}name'])!,
+      isActive: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}is_active'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $AddOnTypesTable createAlias(String alias) {
+    return $AddOnTypesTable(attachedDatabase, alias);
+  }
+}
+
+class AddOnType extends DataClass implements Insertable<AddOnType> {
+  final int id;
+  final String name;
+  final bool isActive;
+  final int createdAt;
+  const AddOnType(
+      {required this.id,
+      required this.name,
+      required this.isActive,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['name'] = Variable<String>(name);
+    map['is_active'] = Variable<bool>(isActive);
+    map['created_at'] = Variable<int>(createdAt);
+    return map;
+  }
+
+  AddOnTypesCompanion toCompanion(bool nullToAbsent) {
+    return AddOnTypesCompanion(
+      id: Value(id),
+      name: Value(name),
+      isActive: Value(isActive),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory AddOnType.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AddOnType(
+      id: serializer.fromJson<int>(json['id']),
+      name: serializer.fromJson<String>(json['name']),
+      isActive: serializer.fromJson<bool>(json['isActive']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'name': serializer.toJson<String>(name),
+      'isActive': serializer.toJson<bool>(isActive),
+      'createdAt': serializer.toJson<int>(createdAt),
+    };
+  }
+
+  AddOnType copyWith({int? id, String? name, bool? isActive, int? createdAt}) =>
+      AddOnType(
+        id: id ?? this.id,
+        name: name ?? this.name,
+        isActive: isActive ?? this.isActive,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  AddOnType copyWithCompanion(AddOnTypesCompanion data) {
+    return AddOnType(
+      id: data.id.present ? data.id.value : this.id,
+      name: data.name.present ? data.name.value : this.name,
+      isActive: data.isActive.present ? data.isActive.value : this.isActive,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AddOnType(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, name, isActive, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AddOnType &&
+          other.id == this.id &&
+          other.name == this.name &&
+          other.isActive == this.isActive &&
+          other.createdAt == this.createdAt);
+}
+
+class AddOnTypesCompanion extends UpdateCompanion<AddOnType> {
+  final Value<int> id;
+  final Value<String> name;
+  final Value<bool> isActive;
+  final Value<int> createdAt;
+  const AddOnTypesCompanion({
+    this.id = const Value.absent(),
+    this.name = const Value.absent(),
+    this.isActive = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  AddOnTypesCompanion.insert({
+    this.id = const Value.absent(),
+    required String name,
+    this.isActive = const Value.absent(),
+    required int createdAt,
+  })  : name = Value(name),
+        createdAt = Value(createdAt);
+  static Insertable<AddOnType> custom({
+    Expression<int>? id,
+    Expression<String>? name,
+    Expression<bool>? isActive,
+    Expression<int>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (name != null) 'name': name,
+      if (isActive != null) 'is_active': isActive,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  AddOnTypesCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? name,
+      Value<bool>? isActive,
+      Value<int>? createdAt}) {
+    return AddOnTypesCompanion(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      isActive: isActive ?? this.isActive,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (isActive.present) {
+      map['is_active'] = Variable<bool>(isActive.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AddOnTypesCompanion(')
+          ..write('id: $id, ')
+          ..write('name: $name, ')
+          ..write('isActive: $isActive, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SaleAddOnsTable extends SaleAddOns
+    with TableInfo<$SaleAddOnsTable, SaleAddOn> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SaleAddOnsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _saleIdMeta = const VerificationMeta('saleId');
+  @override
+  late final GeneratedColumn<int> saleId = GeneratedColumn<int>(
+      'sale_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES sales (id)'));
+  static const VerificationMeta _addOnTypeIdMeta =
+      const VerificationMeta('addOnTypeId');
+  @override
+  late final GeneratedColumn<int> addOnTypeId = GeneratedColumn<int>(
+      'add_on_type_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES add_on_types (id)'));
+  static const VerificationMeta _quantityMeta =
+      const VerificationMeta('quantity');
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+      'quantity', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(1));
+  static const VerificationMeta _costMeta = const VerificationMeta('cost');
+  @override
+  late final GeneratedColumn<double> cost = GeneratedColumn<double>(
+      'cost', aliasedName, false,
+      type: DriftSqlType.double,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0.0));
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, saleId, addOnTypeId, quantity, cost];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sale_add_ons';
+  @override
+  VerificationContext validateIntegrity(Insertable<SaleAddOn> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('sale_id')) {
+      context.handle(_saleIdMeta,
+          saleId.isAcceptableOrUnknown(data['sale_id']!, _saleIdMeta));
+    } else if (isInserting) {
+      context.missing(_saleIdMeta);
+    }
+    if (data.containsKey('add_on_type_id')) {
+      context.handle(
+          _addOnTypeIdMeta,
+          addOnTypeId.isAcceptableOrUnknown(
+              data['add_on_type_id']!, _addOnTypeIdMeta));
+    } else if (isInserting) {
+      context.missing(_addOnTypeIdMeta);
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(_quantityMeta,
+          quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta));
+    }
+    if (data.containsKey('cost')) {
+      context.handle(
+          _costMeta, cost.isAcceptableOrUnknown(data['cost']!, _costMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SaleAddOn map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SaleAddOn(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      saleId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}sale_id'])!,
+      addOnTypeId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}add_on_type_id'])!,
+      quantity: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}quantity'])!,
+      cost: attachedDatabase.typeMapping
+          .read(DriftSqlType.double, data['${effectivePrefix}cost'])!,
+    );
+  }
+
+  @override
+  $SaleAddOnsTable createAlias(String alias) {
+    return $SaleAddOnsTable(attachedDatabase, alias);
+  }
+}
+
+class SaleAddOn extends DataClass implements Insertable<SaleAddOn> {
+  final int id;
+  final int saleId;
+  final int addOnTypeId;
+  final int quantity;
+  final double cost;
+  const SaleAddOn(
+      {required this.id,
+      required this.saleId,
+      required this.addOnTypeId,
+      required this.quantity,
+      required this.cost});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['sale_id'] = Variable<int>(saleId);
+    map['add_on_type_id'] = Variable<int>(addOnTypeId);
+    map['quantity'] = Variable<int>(quantity);
+    map['cost'] = Variable<double>(cost);
+    return map;
+  }
+
+  SaleAddOnsCompanion toCompanion(bool nullToAbsent) {
+    return SaleAddOnsCompanion(
+      id: Value(id),
+      saleId: Value(saleId),
+      addOnTypeId: Value(addOnTypeId),
+      quantity: Value(quantity),
+      cost: Value(cost),
+    );
+  }
+
+  factory SaleAddOn.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SaleAddOn(
+      id: serializer.fromJson<int>(json['id']),
+      saleId: serializer.fromJson<int>(json['saleId']),
+      addOnTypeId: serializer.fromJson<int>(json['addOnTypeId']),
+      quantity: serializer.fromJson<int>(json['quantity']),
+      cost: serializer.fromJson<double>(json['cost']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'saleId': serializer.toJson<int>(saleId),
+      'addOnTypeId': serializer.toJson<int>(addOnTypeId),
+      'quantity': serializer.toJson<int>(quantity),
+      'cost': serializer.toJson<double>(cost),
+    };
+  }
+
+  SaleAddOn copyWith(
+          {int? id,
+          int? saleId,
+          int? addOnTypeId,
+          int? quantity,
+          double? cost}) =>
+      SaleAddOn(
+        id: id ?? this.id,
+        saleId: saleId ?? this.saleId,
+        addOnTypeId: addOnTypeId ?? this.addOnTypeId,
+        quantity: quantity ?? this.quantity,
+        cost: cost ?? this.cost,
+      );
+  SaleAddOn copyWithCompanion(SaleAddOnsCompanion data) {
+    return SaleAddOn(
+      id: data.id.present ? data.id.value : this.id,
+      saleId: data.saleId.present ? data.saleId.value : this.saleId,
+      addOnTypeId:
+          data.addOnTypeId.present ? data.addOnTypeId.value : this.addOnTypeId,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      cost: data.cost.present ? data.cost.value : this.cost,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SaleAddOn(')
+          ..write('id: $id, ')
+          ..write('saleId: $saleId, ')
+          ..write('addOnTypeId: $addOnTypeId, ')
+          ..write('quantity: $quantity, ')
+          ..write('cost: $cost')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, saleId, addOnTypeId, quantity, cost);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SaleAddOn &&
+          other.id == this.id &&
+          other.saleId == this.saleId &&
+          other.addOnTypeId == this.addOnTypeId &&
+          other.quantity == this.quantity &&
+          other.cost == this.cost);
+}
+
+class SaleAddOnsCompanion extends UpdateCompanion<SaleAddOn> {
+  final Value<int> id;
+  final Value<int> saleId;
+  final Value<int> addOnTypeId;
+  final Value<int> quantity;
+  final Value<double> cost;
+  const SaleAddOnsCompanion({
+    this.id = const Value.absent(),
+    this.saleId = const Value.absent(),
+    this.addOnTypeId = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.cost = const Value.absent(),
+  });
+  SaleAddOnsCompanion.insert({
+    this.id = const Value.absent(),
+    required int saleId,
+    required int addOnTypeId,
+    this.quantity = const Value.absent(),
+    this.cost = const Value.absent(),
+  })  : saleId = Value(saleId),
+        addOnTypeId = Value(addOnTypeId);
+  static Insertable<SaleAddOn> custom({
+    Expression<int>? id,
+    Expression<int>? saleId,
+    Expression<int>? addOnTypeId,
+    Expression<int>? quantity,
+    Expression<double>? cost,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (saleId != null) 'sale_id': saleId,
+      if (addOnTypeId != null) 'add_on_type_id': addOnTypeId,
+      if (quantity != null) 'quantity': quantity,
+      if (cost != null) 'cost': cost,
+    });
+  }
+
+  SaleAddOnsCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? saleId,
+      Value<int>? addOnTypeId,
+      Value<int>? quantity,
+      Value<double>? cost}) {
+    return SaleAddOnsCompanion(
+      id: id ?? this.id,
+      saleId: saleId ?? this.saleId,
+      addOnTypeId: addOnTypeId ?? this.addOnTypeId,
+      quantity: quantity ?? this.quantity,
+      cost: cost ?? this.cost,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (saleId.present) {
+      map['sale_id'] = Variable<int>(saleId.value);
+    }
+    if (addOnTypeId.present) {
+      map['add_on_type_id'] = Variable<int>(addOnTypeId.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (cost.present) {
+      map['cost'] = Variable<double>(cost.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SaleAddOnsCompanion(')
+          ..write('id: $id, ')
+          ..write('saleId: $saleId, ')
+          ..write('addOnTypeId: $addOnTypeId, ')
+          ..write('quantity: $quantity, ')
+          ..write('cost: $cost')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2946,6 +3510,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $BudgetBucketsTable budgetBuckets = $BudgetBucketsTable(this);
   late final $ExpensesTable expenses = $ExpensesTable(this);
   late final $StockMovementsTable stockMovements = $StockMovementsTable(this);
+  late final $AddOnTypesTable addOnTypes = $AddOnTypesTable(this);
+  late final $SaleAddOnsTable saleAddOns = $SaleAddOnsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2957,7 +3523,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         allocationRules,
         budgetBuckets,
         expenses,
-        stockMovements
+        stockMovements,
+        addOnTypes,
+        saleAddOns
       ];
 }
 
@@ -3715,6 +4283,20 @@ final class $$SalesTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: [item]));
   }
+
+  static MultiTypedResultKey<$SaleAddOnsTable, List<SaleAddOn>>
+      _saleAddOnsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.saleAddOns,
+          aliasName: $_aliasNameGenerator(db.sales.id, db.saleAddOns.saleId));
+
+  $$SaleAddOnsTableProcessedTableManager get saleAddOnsRefs {
+    final manager = $$SaleAddOnsTableTableManager($_db, $_db.saleAddOns)
+        .filter((f) => f.saleId.id($_item.id));
+
+    final cache = $_typedResult.readTableOrNull(_saleAddOnsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$SalesTableFilterComposer extends Composer<_$AppDatabase, $SalesTable> {
@@ -3799,6 +4381,27 @@ class $$SalesTableFilterComposer extends Composer<_$AppDatabase, $SalesTable> {
                   $removeJoinBuilderFromRootComposer,
             ));
     return composer;
+  }
+
+  Expression<bool> saleAddOnsRefs(
+      Expression<bool> Function($$SaleAddOnsTableFilterComposer f) f) {
+    final $$SaleAddOnsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.saleAddOns,
+        getReferencedColumn: (t) => t.saleId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SaleAddOnsTableFilterComposer(
+              $db: $db,
+              $table: $db.saleAddOns,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
   }
 }
 
@@ -3976,6 +4579,27 @@ class $$SalesTableAnnotationComposer
             ));
     return composer;
   }
+
+  Expression<T> saleAddOnsRefs<T extends Object>(
+      Expression<T> Function($$SaleAddOnsTableAnnotationComposer a) f) {
+    final $$SaleAddOnsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.saleAddOns,
+        getReferencedColumn: (t) => t.saleId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SaleAddOnsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.saleAddOns,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$SalesTableTableManager extends RootTableManager<
@@ -3989,7 +4613,8 @@ class $$SalesTableTableManager extends RootTableManager<
     $$SalesTableUpdateCompanionBuilder,
     (Sale, $$SalesTableReferences),
     Sale,
-    PrefetchHooks Function({bool productId, bool walletId})> {
+    PrefetchHooks Function(
+        {bool productId, bool walletId, bool saleAddOnsRefs})> {
   $$SalesTableTableManager(_$AppDatabase db, $SalesTable table)
       : super(TableManagerState(
           db: db,
@@ -4068,10 +4693,11 @@ class $$SalesTableTableManager extends RootTableManager<
               .map((e) =>
                   (e.readTable(table), $$SalesTableReferences(db, table, e)))
               .toList(),
-          prefetchHooksCallback: ({productId = false, walletId = false}) {
+          prefetchHooksCallback: (
+              {productId = false, walletId = false, saleAddOnsRefs = false}) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [],
+              explicitlyWatchedTables: [if (saleAddOnsRefs) db.saleAddOns],
               addJoins: <
                   T extends TableManagerState<
                       dynamic,
@@ -4107,7 +4733,20 @@ class $$SalesTableTableManager extends RootTableManager<
                 return state;
               },
               getPrefetchedDataCallback: (items) async {
-                return [];
+                return [
+                  if (saleAddOnsRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable:
+                            $$SalesTableReferences._saleAddOnsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$SalesTableReferences(db, table, p0)
+                                .saleAddOnsRefs,
+                        referencedItemsForCurrentItem: (item,
+                                referencedItems) =>
+                            referencedItems.where((e) => e.saleId == item.id),
+                        typedResults: items)
+                ];
               },
             );
           },
@@ -4125,7 +4764,8 @@ typedef $$SalesTableProcessedTableManager = ProcessedTableManager<
     $$SalesTableUpdateCompanionBuilder,
     (Sale, $$SalesTableReferences),
     Sale,
-    PrefetchHooks Function({bool productId, bool walletId})>;
+    PrefetchHooks Function(
+        {bool productId, bool walletId, bool saleAddOnsRefs})>;
 typedef $$AllocationRulesTableCreateCompanionBuilder = AllocationRulesCompanion
     Function({
   Value<int> id,
@@ -5418,6 +6058,575 @@ typedef $$StockMovementsTableProcessedTableManager = ProcessedTableManager<
     (StockMovement, $$StockMovementsTableReferences),
     StockMovement,
     PrefetchHooks Function({bool productId})>;
+typedef $$AddOnTypesTableCreateCompanionBuilder = AddOnTypesCompanion Function({
+  Value<int> id,
+  required String name,
+  Value<bool> isActive,
+  required int createdAt,
+});
+typedef $$AddOnTypesTableUpdateCompanionBuilder = AddOnTypesCompanion Function({
+  Value<int> id,
+  Value<String> name,
+  Value<bool> isActive,
+  Value<int> createdAt,
+});
+
+final class $$AddOnTypesTableReferences
+    extends BaseReferences<_$AppDatabase, $AddOnTypesTable, AddOnType> {
+  $$AddOnTypesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$SaleAddOnsTable, List<SaleAddOn>>
+      _saleAddOnsRefsTable(_$AppDatabase db) =>
+          MultiTypedResultKey.fromTable(db.saleAddOns,
+              aliasName: $_aliasNameGenerator(
+                  db.addOnTypes.id, db.saleAddOns.addOnTypeId));
+
+  $$SaleAddOnsTableProcessedTableManager get saleAddOnsRefs {
+    final manager = $$SaleAddOnsTableTableManager($_db, $_db.saleAddOns)
+        .filter((f) => f.addOnTypeId.id($_item.id));
+
+    final cache = $_typedResult.readTableOrNull(_saleAddOnsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
+}
+
+class $$AddOnTypesTableFilterComposer
+    extends Composer<_$AppDatabase, $AddOnTypesTable> {
+  $$AddOnTypesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  Expression<bool> saleAddOnsRefs(
+      Expression<bool> Function($$SaleAddOnsTableFilterComposer f) f) {
+    final $$SaleAddOnsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.saleAddOns,
+        getReferencedColumn: (t) => t.addOnTypeId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SaleAddOnsTableFilterComposer(
+              $db: $db,
+              $table: $db.saleAddOns,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$AddOnTypesTableOrderingComposer
+    extends Composer<_$AppDatabase, $AddOnTypesTable> {
+  $$AddOnTypesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get name => $composableBuilder(
+      column: $table.name, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get isActive => $composableBuilder(
+      column: $table.isActive, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$AddOnTypesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AddOnTypesTable> {
+  $$AddOnTypesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<bool> get isActive =>
+      $composableBuilder(column: $table.isActive, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> saleAddOnsRefs<T extends Object>(
+      Expression<T> Function($$SaleAddOnsTableAnnotationComposer a) f) {
+    final $$SaleAddOnsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.saleAddOns,
+        getReferencedColumn: (t) => t.addOnTypeId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SaleAddOnsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.saleAddOns,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+}
+
+class $$AddOnTypesTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $AddOnTypesTable,
+    AddOnType,
+    $$AddOnTypesTableFilterComposer,
+    $$AddOnTypesTableOrderingComposer,
+    $$AddOnTypesTableAnnotationComposer,
+    $$AddOnTypesTableCreateCompanionBuilder,
+    $$AddOnTypesTableUpdateCompanionBuilder,
+    (AddOnType, $$AddOnTypesTableReferences),
+    AddOnType,
+    PrefetchHooks Function({bool saleAddOnsRefs})> {
+  $$AddOnTypesTableTableManager(_$AppDatabase db, $AddOnTypesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AddOnTypesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AddOnTypesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AddOnTypesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> name = const Value.absent(),
+            Value<bool> isActive = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+          }) =>
+              AddOnTypesCompanion(
+            id: id,
+            name: name,
+            isActive: isActive,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String name,
+            Value<bool> isActive = const Value.absent(),
+            required int createdAt,
+          }) =>
+              AddOnTypesCompanion.insert(
+            id: id,
+            name: name,
+            isActive: isActive,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$AddOnTypesTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({saleAddOnsRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (saleAddOnsRefs) db.saleAddOns],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (saleAddOnsRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable: $$AddOnTypesTableReferences
+                            ._saleAddOnsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$AddOnTypesTableReferences(db, table, p0)
+                                .saleAddOnsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.addOnTypeId == item.id),
+                        typedResults: items)
+                ];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$AddOnTypesTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $AddOnTypesTable,
+    AddOnType,
+    $$AddOnTypesTableFilterComposer,
+    $$AddOnTypesTableOrderingComposer,
+    $$AddOnTypesTableAnnotationComposer,
+    $$AddOnTypesTableCreateCompanionBuilder,
+    $$AddOnTypesTableUpdateCompanionBuilder,
+    (AddOnType, $$AddOnTypesTableReferences),
+    AddOnType,
+    PrefetchHooks Function({bool saleAddOnsRefs})>;
+typedef $$SaleAddOnsTableCreateCompanionBuilder = SaleAddOnsCompanion Function({
+  Value<int> id,
+  required int saleId,
+  required int addOnTypeId,
+  Value<int> quantity,
+  Value<double> cost,
+});
+typedef $$SaleAddOnsTableUpdateCompanionBuilder = SaleAddOnsCompanion Function({
+  Value<int> id,
+  Value<int> saleId,
+  Value<int> addOnTypeId,
+  Value<int> quantity,
+  Value<double> cost,
+});
+
+final class $$SaleAddOnsTableReferences
+    extends BaseReferences<_$AppDatabase, $SaleAddOnsTable, SaleAddOn> {
+  $$SaleAddOnsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $SalesTable _saleIdTable(_$AppDatabase db) => db.sales
+      .createAlias($_aliasNameGenerator(db.saleAddOns.saleId, db.sales.id));
+
+  $$SalesTableProcessedTableManager get saleId {
+    final manager = $$SalesTableTableManager($_db, $_db.sales)
+        .filter((f) => f.id($_item.saleId));
+    final item = $_typedResult.readTableOrNull(_saleIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+
+  static $AddOnTypesTable _addOnTypeIdTable(_$AppDatabase db) =>
+      db.addOnTypes.createAlias(
+          $_aliasNameGenerator(db.saleAddOns.addOnTypeId, db.addOnTypes.id));
+
+  $$AddOnTypesTableProcessedTableManager get addOnTypeId {
+    final manager = $$AddOnTypesTableTableManager($_db, $_db.addOnTypes)
+        .filter((f) => f.id($_item.addOnTypeId));
+    final item = $_typedResult.readTableOrNull(_addOnTypeIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$SaleAddOnsTableFilterComposer
+    extends Composer<_$AppDatabase, $SaleAddOnsTable> {
+  $$SaleAddOnsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<double> get cost => $composableBuilder(
+      column: $table.cost, builder: (column) => ColumnFilters(column));
+
+  $$SalesTableFilterComposer get saleId {
+    final $$SalesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.saleId,
+        referencedTable: $db.sales,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SalesTableFilterComposer(
+              $db: $db,
+              $table: $db.sales,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$AddOnTypesTableFilterComposer get addOnTypeId {
+    final $$AddOnTypesTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.addOnTypeId,
+        referencedTable: $db.addOnTypes,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AddOnTypesTableFilterComposer(
+              $db: $db,
+              $table: $db.addOnTypes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$SaleAddOnsTableOrderingComposer
+    extends Composer<_$AppDatabase, $SaleAddOnsTable> {
+  $$SaleAddOnsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get quantity => $composableBuilder(
+      column: $table.quantity, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<double> get cost => $composableBuilder(
+      column: $table.cost, builder: (column) => ColumnOrderings(column));
+
+  $$SalesTableOrderingComposer get saleId {
+    final $$SalesTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.saleId,
+        referencedTable: $db.sales,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SalesTableOrderingComposer(
+              $db: $db,
+              $table: $db.sales,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$AddOnTypesTableOrderingComposer get addOnTypeId {
+    final $$AddOnTypesTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.addOnTypeId,
+        referencedTable: $db.addOnTypes,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AddOnTypesTableOrderingComposer(
+              $db: $db,
+              $table: $db.addOnTypes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$SaleAddOnsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SaleAddOnsTable> {
+  $$SaleAddOnsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<double> get cost =>
+      $composableBuilder(column: $table.cost, builder: (column) => column);
+
+  $$SalesTableAnnotationComposer get saleId {
+    final $$SalesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.saleId,
+        referencedTable: $db.sales,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$SalesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.sales,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+
+  $$AddOnTypesTableAnnotationComposer get addOnTypeId {
+    final $$AddOnTypesTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.addOnTypeId,
+        referencedTable: $db.addOnTypes,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AddOnTypesTableAnnotationComposer(
+              $db: $db,
+              $table: $db.addOnTypes,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$SaleAddOnsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $SaleAddOnsTable,
+    SaleAddOn,
+    $$SaleAddOnsTableFilterComposer,
+    $$SaleAddOnsTableOrderingComposer,
+    $$SaleAddOnsTableAnnotationComposer,
+    $$SaleAddOnsTableCreateCompanionBuilder,
+    $$SaleAddOnsTableUpdateCompanionBuilder,
+    (SaleAddOn, $$SaleAddOnsTableReferences),
+    SaleAddOn,
+    PrefetchHooks Function({bool saleId, bool addOnTypeId})> {
+  $$SaleAddOnsTableTableManager(_$AppDatabase db, $SaleAddOnsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SaleAddOnsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SaleAddOnsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SaleAddOnsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> saleId = const Value.absent(),
+            Value<int> addOnTypeId = const Value.absent(),
+            Value<int> quantity = const Value.absent(),
+            Value<double> cost = const Value.absent(),
+          }) =>
+              SaleAddOnsCompanion(
+            id: id,
+            saleId: saleId,
+            addOnTypeId: addOnTypeId,
+            quantity: quantity,
+            cost: cost,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int saleId,
+            required int addOnTypeId,
+            Value<int> quantity = const Value.absent(),
+            Value<double> cost = const Value.absent(),
+          }) =>
+              SaleAddOnsCompanion.insert(
+            id: id,
+            saleId: saleId,
+            addOnTypeId: addOnTypeId,
+            quantity: quantity,
+            cost: cost,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$SaleAddOnsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({saleId = false, addOnTypeId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (saleId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.saleId,
+                    referencedTable:
+                        $$SaleAddOnsTableReferences._saleIdTable(db),
+                    referencedColumn:
+                        $$SaleAddOnsTableReferences._saleIdTable(db).id,
+                  ) as T;
+                }
+                if (addOnTypeId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.addOnTypeId,
+                    referencedTable:
+                        $$SaleAddOnsTableReferences._addOnTypeIdTable(db),
+                    referencedColumn:
+                        $$SaleAddOnsTableReferences._addOnTypeIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$SaleAddOnsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $SaleAddOnsTable,
+    SaleAddOn,
+    $$SaleAddOnsTableFilterComposer,
+    $$SaleAddOnsTableOrderingComposer,
+    $$SaleAddOnsTableAnnotationComposer,
+    $$SaleAddOnsTableCreateCompanionBuilder,
+    $$SaleAddOnsTableUpdateCompanionBuilder,
+    (SaleAddOn, $$SaleAddOnsTableReferences),
+    SaleAddOn,
+    PrefetchHooks Function({bool saleId, bool addOnTypeId})>;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -5436,6 +6645,10 @@ class $AppDatabaseManager {
       $$ExpensesTableTableManager(_db, _db.expenses);
   $$StockMovementsTableTableManager get stockMovements =>
       $$StockMovementsTableTableManager(_db, _db.stockMovements);
+  $$AddOnTypesTableTableManager get addOnTypes =>
+      $$AddOnTypesTableTableManager(_db, _db.addOnTypes);
+  $$SaleAddOnsTableTableManager get saleAddOns =>
+      $$SaleAddOnsTableTableManager(_db, _db.saleAddOns);
 }
 
 // **************************************************************************

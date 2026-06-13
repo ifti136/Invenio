@@ -7,6 +7,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'tables/products_table.dart';
 import 'tables/sales_table.dart';
+import 'tables/add_on_types_table.dart';
+import 'tables/sale_add_ons_table.dart';
 import 'tables/expenses_table.dart';
 import 'tables/stock_movements_table.dart';
 import 'tables/wallets_table.dart';
@@ -15,17 +17,20 @@ import 'tables/budget_buckets_table.dart';
 
 part 'app_database.g.dart';
 
-@DriftDatabase(tables: [Products, Sales, Expenses, StockMovements, Wallets, AllocationRules, BudgetBuckets])
+@DriftDatabase(tables: [Products, Sales, Expenses, StockMovements, Wallets, AllocationRules, BudgetBuckets, AddOnTypes, SaleAddOns])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    beforeOpen: (details) async {
+      await customStatement('PRAGMA foreign_keys = ON');
+    },
     onUpgrade: (Migrator m, int from, int to) async {
       if (from < 2) {
         await m.addColumn(products, products.alertEnabled);
@@ -51,6 +56,10 @@ class AppDatabase extends _$AppDatabase {
       if (from < 4) {
         await m.createTable(budgetBuckets);
         await m.addColumn(expenses, expenses.bucketId);
+      }
+      if (from < 5) {
+        await m.createTable(addOnTypes);
+        await m.createTable(saleAddOns);
       }
     },
   );
