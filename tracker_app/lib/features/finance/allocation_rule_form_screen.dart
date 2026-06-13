@@ -3,7 +3,6 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/widgets/glass_text_field.dart';
 import 'allocation_rules_repository.dart';
 
-
 class AllocationRuleFormScreen extends ConsumerStatefulWidget {
   final int? ruleId;
   final String? initialLabel;
@@ -19,10 +18,12 @@ class AllocationRuleFormScreen extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<AllocationRuleFormScreen> createState() => _AllocationRuleFormScreenState();
+  ConsumerState<AllocationRuleFormScreen> createState() =>
+      _AllocationRuleFormScreenState();
 }
 
-class _AllocationRuleFormScreenState extends ConsumerState<AllocationRuleFormScreen> {
+class _AllocationRuleFormScreenState
+    extends ConsumerState<AllocationRuleFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _labelController;
   late TextEditingController _percentageController;
@@ -32,7 +33,8 @@ class _AllocationRuleFormScreenState extends ConsumerState<AllocationRuleFormScr
   void initState() {
     super.initState();
     _labelController = TextEditingController(text: widget.initialLabel);
-    _percentageController = TextEditingController(text: widget.initialPercentage?.toString());
+    _percentageController =
+        TextEditingController(text: widget.initialPercentage?.toString());
     _isActive = widget.initialIsActive ?? true;
   }
 
@@ -47,7 +49,8 @@ class _AllocationRuleFormScreenState extends ConsumerState<AllocationRuleFormScr
     if (!_formKey.currentState!.validate()) return;
 
     final label = _labelController.text.trim();
-    final percentage = double.tryParse(_percentageController.text.trim()) ?? 0.0;
+    final percentage =
+        double.tryParse(_percentageController.text.trim()) ?? 0.0;
     final repo = ref.read(allocationRulesRepositoryProvider);
 
     if (widget.ruleId != null) {
@@ -79,32 +82,35 @@ class _AllocationRuleFormScreenState extends ConsumerState<AllocationRuleFormScr
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-               GlassTextField(
-                 controller: _labelController,
-                 label: 'Rule Label',
-                 hint: 'e.g. Savings, Tax, Reinvestment',
-                 validator: (value) {
-                   if (value == null || value.trim().isEmpty) return 'Label is required';
-                   return null;
-                 },
-               ),
-               const SizedBox(height: 16),
-               GlassTextField(
-                 controller: _percentageController,
-                 label: 'Percentage (%)',
-                 hint: '0.0 - 100.0',
-                 keyboardType: TextInputType.numberWithOptions(decimal: true),
-                 validator: (value) {
-                   if (value == null || value.trim().isEmpty) return 'Percentage is required';
-                   final p = double.tryParse(value.trim());
-                   if (p == null) return 'Invalid number';
-                   if (p < 0 || p > 100) return 'Must be between 0 and 100';
-                   return null;
-                 },
-               ),
+              GlassTextField(
+                controller: _labelController,
+                label: 'Rule Label',
+                hint: 'e.g. Savings, Tax, Reinvestment',
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty)
+                    return 'Label is required';
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
+              GlassTextField(
+                controller: _percentageController,
+                label: 'Percentage (%)',
+                hint: '0.0 - 100.0',
+                keyboardType: TextInputType.numberWithOptions(decimal: true),
+                validator: (value) {
+                  if (value == null || value.trim().isEmpty)
+                    return 'Percentage is required';
+                  final p = double.tryParse(value.trim());
+                  if (p == null) return 'Invalid number';
+                  if (p < 0 || p > 100) return 'Must be between 0 and 100';
+                  return null;
+                },
+              ),
               const SizedBox(height: 16),
               SwitchListTile(
-                title: const Text('Active', style: TextStyle(color: Colors.white)),
+                title:
+                    const Text('Active', style: TextStyle(color: Colors.white)),
                 value: _isActive,
                 onChanged: (val) => setState(() => _isActive = val),
                 activeColor: Theme.of(context).colorScheme.primary,
@@ -114,7 +120,8 @@ class _AllocationRuleFormScreenState extends ConsumerState<AllocationRuleFormScr
                 onPressed: _save,
                 style: ElevatedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
                 ),
                 child: Text(isEditing ? 'Update Rule' : 'Create Rule'),
               ),

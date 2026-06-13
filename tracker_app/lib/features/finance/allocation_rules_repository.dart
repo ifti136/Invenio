@@ -2,6 +2,9 @@ import 'package:drift/drift.dart' as drift;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../db/app_database.dart';
+import '../../core/utils/stream_utils.dart';
+
+part 'allocation_rules_repository.g.dart';
 
 class RuleWithSpent {
   final AllocationRule rule;
@@ -9,8 +12,6 @@ class RuleWithSpent {
 
   RuleWithSpent({required this.rule, required this.spent});
 }
-
-part 'allocation_rules_repository.g.dart';
 
 @Riverpod(keepAlive: true)
 AllocationRulesRepository allocationRulesRepository(Ref ref) {
@@ -23,24 +24,26 @@ class AllocationRulesRepository {
   AllocationRulesRepository(this._db);
 
   Stream<List<RuleWithSpent>> watchAllocationRulesWithSpent() {
-    return drift.Rx.combineLatest2(
+    return combineLatest2(
       _db.select(_db.allocationRules).watch(),
       _db.select(_db.expenses).watch(),
       (rules, expenses) {
         final spentMap = <int, double>{};
         for (final e in expenses) {
           if (e.allocationRuleId != null) {
-            spentMap[e.allocationRuleId!] = (spentMap[e.allocationRuleId!] ?? 0.0) + e.amount;
+            spentMap[e.allocationRuleId!] =
+                (spentMap[e.allocationRuleId!] ?? 0.0) + e.amount;
           }
         }
-        return rules.map((r) => RuleWithSpent(
-          rule: r,
-          spent: spentMap[r.id] ?? 0.0,
-        )).toList();
+        return rules
+            .map((r) => RuleWithSpent(
+                  rule: r,
+                  spent: spentMap[r.id] ?? 0.0,
+                ))
+            .toList();
       },
     );
   }
-
 
   Future<List<AllocationRule>> getRules() async {
     return await _db.select(_db.allocationRules).get();
@@ -48,34 +51,41 @@ class AllocationRulesRepository {
 
   Future<int> createRule(String label, double percentage, bool isActive) async {
     return await _db.into(_db.allocationRules).insert(
-      AllocationRulesCompanion.insert(
-        label: label,
-        percentage: percentage,
-        isActive: Value(isActive),
-        createdAt: DateTime.now().millisecondsSinceEpoch,
-      ),
-    );
+          AllocationRulesCompanion.insert(
+            label: label,
+            percentage: percentage,
+            isActive: drift.Value(isActive),
+            createdAt: DateTime.now().millisecondsSinceEpoch,
+          ),
+        );
   }
 
-  Future<bool> updateRule(int id, String label, double percentage, bool isActive) async {
-    return await (_db.update(_db.allocationRules)..where((t) => t.id.equals(id))).replace(
+  Future<bool> updateRule(
+      int id, String label, double percentage, bool isActive) async {
+    return await (_db.update(_db.allocationRules)
+          ..where((t) => t.id.equals(id)))
+        .replace(
       AllocationRulesCompanion(
-        label: Value(label),
-        percentage: Value(percentage),
-        isActive: Value(isActive),
+        label: drift.Value(label),
+        percentage: drift.Value(percentage),
+        isActive: drift.Value(isActive),
       ),
     );
   }
 
   Future<bool> softDeleteRule(int id) async {
-    return await (_db.update(_db.allocationRules)..where((t) => t.id.equals(id))).replace(
+    return await (_db.update(_db.allocationRules)
+          ..where((t) => t.id.equals(id)))
+        .replace(
       AllocationRulesCompanion(
-        isActive: Value(false),
+        isActive: drift.Value(false),
       ),
     );
   }
 
   Future<int> deleteRule(int id) async {
-    return await (_db.delete(_db.allocationRules)..where((t) => t.id.equals(id))).go();
+    return await (_db.delete(_db.allocationRules)
+          ..where((t) => t.id.equals(id)))
+        .go();
   }
 }

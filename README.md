@@ -37,10 +37,15 @@ sales on Facebook Marketplace and in person.
 - Product-level performance report
 - Excel export (Sales + Expenses + Summary sheets) via the Android share sheet
 
+### BFMS (Budget & Financial Management)
+- Multi-wallet tracking (Cash, Bank, etc.)
+- Automated allocation rules for sales revenue
+- Budget buckets for expense tracking and financial planning
+
 ### Design
 - Liquid Glass UI — `glass_kit` panels + animated aurora background
 - Material 3 with a custom color system (teal `#1D9E75` accent)
-- 5-tab bottom navigation with glass chrome
+- 6-tab bottom navigation with glass chrome
 - Custom launcher icon and splash screen
 
 ## Tech stack
@@ -49,9 +54,9 @@ sales on Facebook Marketplace and in person.
 |-------|--------|
 | Framework | Flutter 3.24.4, Dart 3.5.4 |
 | Target | Android (min API 24) |
-| Database | drift (SQLite) — fully offline, schema v2 |
+| Database | drift (SQLite) — fully offline, schema v4 |
 | State | Riverpod (codegen) |
-| Routing | go_router 15 — `StatefulShellRoute.indexedStack` (5 tabs) |
+| Routing | go_router 15 — `StatefulShellRoute.indexedStack` (6 tabs) |
 | Charts | fl_chart 0.69 |
 | Export | syncfusion_flutter_xlsio 27.1.55 + share_plus |
 | Theme | glass_kit 4.0.2 + aurora_background 1.0.2 |

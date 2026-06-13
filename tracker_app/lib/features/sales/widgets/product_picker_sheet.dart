@@ -4,6 +4,8 @@ import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/sheet_drag_handle.dart';
+import 'package:tracker/core/services/haptic_service.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/db/app_database.dart';
 
 Future<int?> showProductPicker(
@@ -12,9 +14,8 @@ Future<int?> showProductPicker(
   int? selectedId,
   bool inStockOnly = true,
 }) {
-  final filtered = inStockOnly
-      ? products.where((p) => p.stock > 0).toList()
-      : products;
+  final filtered =
+      inStockOnly ? products.where((p) => p.stock > 0).toList() : products;
   return showModalBottomSheet<int>(
     context: context,
     isScrollControlled: true,
@@ -70,9 +71,13 @@ class _ProductPickerSheet extends StatelessWidget {
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  onPressed: () => Navigator.of(context).pop(),
+                HapticWrapper(
+                  profile: HapticProfile.light,
+                  onTap: () => Navigator.of(context).pop(),
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: null,
+                  ),
                 ),
               ],
             ),
@@ -89,7 +94,8 @@ class _ProductPickerSheet extends StatelessWidget {
                     title: Text(
                       p.name,
                       style: TextStyle(
-                        fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                        fontWeight:
+                            selected ? FontWeight.w700 : FontWeight.w500,
                         color: selected
                             ? Theme.of(context).colorScheme.primary
                             : null,
@@ -105,7 +111,10 @@ class _ProductPickerSheet extends StatelessWidget {
                             color: Theme.of(context).colorScheme.primary,
                           )
                         : null,
-                    onTap: () => Navigator.of(context).pop(p.id),
+                     onTap: () {
+                       HapticService.trigger(HapticProfile.light);
+                       Navigator.of(context).pop(p.id);
+                     },
                   );
                 },
               ),

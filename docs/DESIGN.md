@@ -113,12 +113,13 @@ The nav bar sits at the **bottom of the screen**, anchored to the bottom safe ar
 - Subtle gradient border (glass border system)
 - Screen body content extends behind the nav bar (`extendBody: true`) so the aurora is visible through the glass even at the bottom
 
-**Tab items — 5 tabs:**
+**Tab items — 6 tabs:**
 1. Dashboard (grid icon)
 2. Products (box/inventory icon)
 3. Sales (receipt icon)
 4. Expenses (wallet icon)
 5. Reports (bar chart icon)
+6. BFMS (finance/wallet icon)
 
 **Tab states:**
 - Selected: icon + label in teal `#1D9E75`, indicator is teal at 22% opacity (dark) / 18% (light) — a soft pill behind the icon

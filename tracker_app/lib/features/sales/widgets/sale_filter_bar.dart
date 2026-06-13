@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
+import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/products/product_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
@@ -58,7 +59,8 @@ class SaleFilterBar extends ConsumerWidget {
                   _Chip(
                     label: p.label,
                     selected: filter.platform == p.key,
-                    onTap: () => onFilterChanged(filter.copyWith(platform: p.key)),
+                    onTap: () =>
+                        onFilterChanged(filter.copyWith(platform: p.key)),
                   ),
                   const SizedBox(width: 6),
                 ],
@@ -71,16 +73,16 @@ class SaleFilterBar extends ConsumerWidget {
                 _Chip(
                   label: 'All',
                   selected: filter.paymentStatus == null,
-                  onTap: () => onFilterChanged(
-                      filter.copyWith(paymentStatus: null)),
+                  onTap: () =>
+                      onFilterChanged(filter.copyWith(paymentStatus: null)),
                 ),
                 const SizedBox(width: 6),
                 for (final s in PaymentStatus.values) ...[
                   _Chip(
                     label: s.label,
                     selected: filter.paymentStatus == s.key,
-                    onTap: () => onFilterChanged(
-                        filter.copyWith(paymentStatus: s.key)),
+                    onTap: () =>
+                        onFilterChanged(filter.copyWith(paymentStatus: s.key)),
                   ),
                   const SizedBox(width: 6),
                 ],
@@ -93,8 +95,8 @@ class SaleFilterBar extends ConsumerWidget {
                 _Chip(
                   label: 'All products',
                   selected: filter.productId == null,
-                  onTap: () => onFilterChanged(
-                      filter.copyWith(productId: null)),
+                  onTap: () =>
+                      onFilterChanged(filter.copyWith(productId: null)),
                 ),
                 const SizedBox(width: 6),
                 _Chip(
@@ -221,15 +223,22 @@ class _Chip extends StatelessWidget {
     final scheme = Theme.of(context).colorScheme;
     return InkWell(
       borderRadius: BorderRadius.circular(999),
-      onTap: onTap,
+      onTap: () {
+        HapticService.trigger(HapticProfile.light);
+        onTap();
+      },
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 160),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: selected ? scheme.primary.withOpacity(0.18) : Colors.white.withOpacity(0.04),
+          color: selected
+              ? scheme.primary.withOpacity(0.18)
+              : Colors.white.withOpacity(0.04),
           borderRadius: BorderRadius.circular(999),
           border: Border.all(
-            color: selected ? scheme.primary.withOpacity(0.5) : scheme.onSurfaceVariant.withOpacity(0.18),
+            color: selected
+                ? scheme.primary.withOpacity(0.5)
+                : scheme.onSurfaceVariant.withOpacity(0.18),
             width: 0.6,
           ),
         ),
@@ -237,7 +246,9 @@ class _Chip extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             if (icon != null) ...[
-              Icon(icon, size: 14, color: selected ? scheme.primary : scheme.onSurfaceVariant),
+              Icon(icon,
+                  size: 14,
+                  color: selected ? scheme.primary : scheme.onSurfaceVariant),
               const SizedBox(width: 4),
             ],
             Text(

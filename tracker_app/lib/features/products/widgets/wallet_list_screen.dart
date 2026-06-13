@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
+import 'package:tracker/core/services/haptic_service.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import '../wallet_repository.dart';
-import 'wallet_form_screen.dart';
-
+import 'wallet_form_sheet.dart';
 
 class WalletListScreen extends ConsumerWidget {
   const WalletListScreen({super.key});
@@ -20,8 +20,8 @@ class WalletListScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: FutureBuilder<List<WalletBalance>>(
-        future: ref.read(walletRepositoryProvider).getWalletBalances(),
+      body: FutureBuilder<List<WalletWithBalance>>(
+        future: ref.read(walletRepositoryProvider).getWalletWithBalances(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -43,18 +43,33 @@ class WalletListScreen extends ConsumerWidget {
                   child: ListTile(
                     title: Text(
                       walletBalance.name,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     trailing: Text(
                       '\$${balance.toStringAsFixed(2)}',
                       style: TextStyle(
-                        color: balance >= 0 ? AppColors.success : AppColors.error,
+                        color:
+                            balance >= 0 ? AppColors.success : AppColors.error,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
-                    onTap: () => context.push('/products/settings/wallets/edit/${walletBalance.walletId}'),
-                    onLongPress: () => _confirmDeleteWallet(context, ref, walletBalance.walletId),
+                      onTap: () async {
+                        HapticService.trigger(HapticProfile.light);
+                        final wallet = await ref
+                            .read(walletRepositoryProvider)
+                            .getWalletById(walletBalance.walletId);
+                        if (context.mounted) {
+                          showWalletFormSheet(context, wallet: wallet);
+                        }
+                      },
+
+                     onLongPress: () {
+                       HapticService.trigger(HapticProfile.heavy);
+                       _confirmDeleteWallet(
+                           context, ref, walletBalance.walletId);
+                     },
                   ),
                 ),
               );
@@ -62,11 +77,16 @@ class WalletListScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.accent,
-        onPressed: () => context.push('/products/settings/wallets/add'),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+        floatingActionButton: HapticWrapper(
+          profile: HapticProfile.medium,
+          onTap: () => showWalletFormSheet(context),
+          child: FloatingActionButton(
+            backgroundColor: AppColors.accent,
+            onPressed: null,
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        ),
+
     );
   }
 
@@ -74,21 +94,27 @@ class WalletListScreen extends ConsumerWidget {
     showGlassDialog(
       context: context,
       title: 'Delete Wallet',
-      message: 'Are you sure you want to delete this wallet? This action cannot be undone.',
-      actionsBuilder: (ctx) => [
-        TextButton(
-          onPressed: () => Navigator.of(ctx).pop(),
-          child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
-        ),
-        TextButton(
-          onPressed: () async {
-            await ref.read(walletRepositoryProvider).deleteWallet(id);
-            Navigator.of(ctx).pop();
-            // The FutureBuilder will rebuild, but we might need to trigger a refresh if using a provider
-          },
-          child: const Text('Delete', style: TextStyle(color: AppColors.error)),
-        ),
-      ],
+      message:
+          'Are you sure you want to delete this wallet? This action cannot be undone.',
+       actionsBuilder: (ctx) => [
+         GlassDialogAction(
+           label: 'Cancel',
+           onPressed: () {
+             HapticService.trigger(HapticProfile.light);
+             Navigator.of(ctx).pop();
+           },
+         ),
+         GlassDialogAction(
+           label: 'Delete',
+           isDestructive: true,
+           isPrimary: true,
+           onPressed: () async {
+             HapticService.trigger(HapticProfile.heavy);
+             await ref.read(walletRepositoryProvider).deleteWallet(id);
+             Navigator.of(ctx).pop();
+           },
+         ),
+       ],
     );
   }
 }

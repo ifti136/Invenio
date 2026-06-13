@@ -55,7 +55,8 @@ class StockMovementItem extends StatelessWidget {
                 Text(
                   [
                     if (productName != null) productName!,
-                    formatDateTime(DateTime.fromMillisecondsSinceEpoch(movement.date)),
+                    formatDateTime(
+                        DateTime.fromMillisecondsSinceEpoch(movement.date)),
                   ].join(' • '),
                   style: TextStyle(
                     color: scheme.onSurfaceVariant,

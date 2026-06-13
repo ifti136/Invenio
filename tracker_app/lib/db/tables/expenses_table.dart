@@ -12,6 +12,8 @@ class Expenses extends Table {
   IntColumn get createdAt => integer()();
   IntColumn get walletId => integer().nullable().references(Wallets, #id)();
   TextColumn get ownership => text().withDefault(const Constant('business'))();
-  IntColumn get allocationRuleId => integer().nullable().references(AllocationRules, #id)();
-  IntColumn get bucketId => integer().nullable().references(BudgetBuckets, #id)();
+  IntColumn get allocationRuleId =>
+      integer().nullable().references(AllocationRules, #id)();
+  IntColumn get bucketId =>
+      integer().nullable().references(BudgetBuckets, #id)();
 }

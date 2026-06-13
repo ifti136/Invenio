@@ -7,8 +7,11 @@ import 'finance_repository.dart';
 part 'allocation_history_screen.g.dart';
 
 @riverpod
-Future<List<RuleMonthlyDetail>> ruleHistory(RuleHistoryRef ref, int ruleId) async {
-  return await ref.watch(financeRepositoryProvider).getRuleMonthlyHistory(ruleId);
+Future<List<RuleMonthlyDetail>> ruleHistory(
+    RuleHistoryRef ref, int ruleId) async {
+  return await ref
+      .watch(financeRepositoryProvider)
+      .getRuleMonthlyHistory(ruleId);
 }
 
 class AllocationHistoryScreen extends ConsumerWidget {
@@ -28,11 +31,14 @@ class AllocationHistoryScreen extends ConsumerWidget {
       ),
       body: historyAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.white))),
+        error: (err, stack) => Center(
+            child: Text('Error: $err',
+                style: const TextStyle(color: Colors.white))),
         data: (history) {
           if (history.isEmpty) {
             return const Center(
-              child: Text('No history available', style: TextStyle(color: Colors.white70)),
+              child: Text('No history available',
+                  style: TextStyle(color: Colors.white70)),
             );
           }
 
@@ -47,23 +53,52 @@ class AllocationHistoryScreen extends ConsumerWidget {
                     child: DataTable(
                       columnSpacing: 20,
                       columns: const [
-                        DataColumn(label: Text('Month', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Profit', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Allocated', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Charged', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
-                        DataColumn(label: Text('Balance', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text('Month',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text('Profit',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text('Allocated',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text('Charged',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold))),
+                        DataColumn(
+                            label: Text('Balance',
+                                style: TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold))),
                       ],
                       rows: history.map((detail) {
                         return DataRow(
                           cells: [
-                            DataCell(Text(detail.month, style: const TextStyle(color: Colors.white70))),
-                            DataCell(Text('\$${detail.monthlyProfit.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white70))),
-                            DataCell(Text('\$${detail.amountAllocated.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white70))),
-                            DataCell(Text('\$${detail.expensesCharged.toStringAsFixed(2)}', style: const TextStyle(color: Colors.white70))),
+                            DataCell(Text(detail.month,
+                                style: const TextStyle(color: Colors.white70))),
+                            DataCell(Text(
+                                '\$${detail.monthlyProfit.toStringAsFixed(2)}',
+                                style: const TextStyle(color: Colors.white70))),
+                            DataCell(Text(
+                                '\$${detail.amountAllocated.toStringAsFixed(2)}',
+                                style: const TextStyle(color: Colors.white70))),
+                            DataCell(Text(
+                                '\$${detail.expensesCharged.toStringAsFixed(2)}',
+                                style: const TextStyle(color: Colors.white70))),
                             DataCell(Text(
                               '\$${detail.runningBalance.toStringAsFixed(2)}',
                               style: TextStyle(
-                                color: detail.runningBalance >= 0 ? Colors.teal : Colors.redAccent,
+                                color: detail.runningBalance >= 0
+                                    ? Colors.teal
+                                    : Colors.redAccent,
                                 fontWeight: FontWeight.bold,
                               ),
                             )),
@@ -94,7 +129,10 @@ class AllocationHistoryScreen extends ConsumerWidget {
             ),
             const Text(
               '2026', // Should be dynamic
-              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold),
             ),
             IconButton(
               icon: const Icon(Icons.chevron_right, color: Colors.white),

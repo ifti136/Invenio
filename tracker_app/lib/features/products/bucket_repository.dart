@@ -2,10 +2,11 @@ import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../db/app_database.dart';
+import '../../core/utils/stream_utils.dart';
 
 part 'bucket_repository.g.dart';
 
-class BucketBalance {
+class BucketWithAvailable {
   final int id;
   final String name;
   final double allocatedAmount;
@@ -13,7 +14,7 @@ class BucketBalance {
   final double available;
   final String? color;
 
-  BucketBalance({
+  BucketWithAvailable({
     required this.id,
     required this.name,
     required this.allocatedAmount,
@@ -77,9 +78,9 @@ class BucketRepository {
     await (_db.delete(_db.budgetBuckets)..where((b) => b.id.equals(id))).go();
   }
 
-  Future<List<BucketBalance>> getBucketBalances() async {
+  Future<List<BucketWithAvailable>> getBucketWithAvailables() async {
     final buckets = await _db.select(_db.budgetBuckets).get();
-    
+
     final expenses = await _db.select(_db.expenses).get();
     final spentMap = <int, double>{};
     for (final e in expenses) {
@@ -90,7 +91,7 @@ class BucketRepository {
 
     return buckets.map((bucket) {
       final spent = spentMap[bucket.id] ?? 0.0;
-      return BucketBalance(
+      return BucketWithAvailable(
         id: bucket.id,
         name: bucket.name,
         allocatedAmount: bucket.allocatedAmount,
@@ -101,8 +102,8 @@ class BucketRepository {
     }).toList();
   }
 
-  Stream<List<BucketBalance>> watchBucketsWithAvailable() {
-    return drift.Rx.combineLatest2(
+  Stream<List<BucketWithAvailable>> watchBucketsWithAvailable() {
+    return combineLatest2(
       _db.select(_db.budgetBuckets).watch(),
       _db.select(_db.expenses).watch(),
       (buckets, expenses) {
@@ -114,7 +115,7 @@ class BucketRepository {
         }
         return buckets.map((bucket) {
           final spent = spentMap[bucket.id] ?? 0.0;
-          return BucketBalance(
+          return BucketWithAvailable(
             id: bucket.id,
             name: bucket.name,
             allocatedAmount: bucket.allocatedAmount,
@@ -130,9 +131,12 @@ class BucketRepository {
   Future<List<(Expense, Wallet)>> getExpensesForBucket(int bucketId) async {
     final query = _db.select(_db.expenses).join([
       innerJoin(_db.wallets, _db.wallets.id.equalsExp(_db.expenses.walletId)),
-    ])..where(_db.expenses.bucketId.equals(bucketId));
+    ])
+      ..where(_db.expenses.bucketId.equals(bucketId));
 
     final rows = await query.get();
-    return rows.map((row) => (row.readTable(_db.expenses), row.readTable(_db.wallets))).toList();
+    return rows
+        .map((row) => (row.readTable(_db.expenses), row.readTable(_db.wallets)))
+        .toList();
   }
 }

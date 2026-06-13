@@ -1,10 +1,6 @@
-import 'package:drift/drift.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import '../../db/app_database.dart';
-import '../../db/tables/expenses_table.dart';
-import '../../db/tables/sales_table.dart';
-import '../../db/tables/allocation_rules_table.dart';
 
 part 'finance_repository.g.dart';
 
@@ -23,22 +19,29 @@ class FinanceRepository {
     final financials = <int, RuleFinancials>{};
 
     // Total Business Profit = ΣSales(business) - ΣExpenses(business)
-    final businessSales = await (_db.select(_db.sales)..where((s) => s.ownership.equals('business'))).get();
+    final businessSales = await (_db.select(_db.sales)
+          ..where((s) => s.ownership.equals('business')))
+        .get();
     final businessRevenue = businessSales.fold(0.0, (sum, s) => sum + s.total);
-    
-    final businessExpenses = await (_db.select(_db.expenses)..where((e) => e.ownership.equals('business'))).get();
-    final totalBusinessExpenses = businessExpenses.fold(0.0, (sum, e) => sum + e.amount);
-    
+
+    final businessExpenses = await (_db.select(_db.expenses)
+          ..where((e) => e.ownership.equals('business')))
+        .get();
+    final totalBusinessExpenses =
+        businessExpenses.fold(0.0, (sum, e) => sum + e.amount);
+
     final totalBusinessProfit = businessRevenue - totalBusinessExpenses;
 
     for (final rule in rules) {
       // Accumulated Profit = Total Business Profit * (rule.percentage / 100)
       final accumulatedProfit = totalBusinessProfit * (rule.percentage / 100);
-      
+
       // Total Spent = ΣExpenses(where allocationRuleId == rule.id)
-      final ruleExpenses = await (_db.select(_db.expenses)..where((e) => e.allocationRuleId.equals(rule.id))).get();
+      final ruleExpenses = await (_db.select(_db.expenses)
+            ..where((e) => e.allocationRuleId.equals(rule.id)))
+          .get();
       final totalSpent = ruleExpenses.fold(0.0, (sum, e) => sum + e.amount);
-      
+
       financials[rule.id] = RuleFinancials(
         accumulatedProfit: accumulatedProfit,
         totalSpent: totalSpent,
@@ -60,8 +63,12 @@ class FinanceRepository {
     final percentage = rule.percentage / 100;
 
     // Fetch all business transactions from the beginning
-    final sales = await (_db.select(_db.sales)..where((s) => s.ownership.equals('business'))).get();
-    final expenses = await (_db.select(_db.expenses)..where((e) => e.ownership.equals('business'))).get();
+    final sales = await (_db.select(_db.sales)
+          ..where((s) => s.ownership.equals('business')))
+        .get();
+    final expenses = await (_db.select(_db.expenses)
+          ..where((e) => e.ownership.equals('business')))
+        .get();
 
     // Group by month
     final monthlyProfit = <String, double>{};
@@ -76,7 +83,7 @@ class FinanceRepository {
     for (final e in expenses) {
       final date = DateTime.fromMillisecondsSinceEpoch(e.date);
       final key = '${date.year}-${date.month.toString().padLeft(2, '0')}';
-      
+
       // Only count expenses allocated to this rule
       if (e.allocationRuleId == ruleId) {
         monthlyExpenses[key] = (monthlyExpenses[key] ?? 0.0) + e.amount;
@@ -84,7 +91,7 @@ class FinanceRepository {
     }
 
     final allMonths = (monthlyProfit.keys.toList()..sort());
-    
+
     double runningBalance = 0.0;
     final history = <RuleMonthlyDetail>[];
 
@@ -92,9 +99,9 @@ class FinanceRepository {
       final profit = monthlyProfit[month] ?? 0.0;
       final allocated = profit * percentage;
       final charged = monthlyExpenses[month] ?? 0.0;
-      
+
       runningBalance += (allocated - charged);
-      
+
       history.add(RuleMonthlyDetail(
         month: month,
         monthlyProfit: profit,
@@ -125,7 +132,6 @@ class RuleMonthlyDetail {
 }
 
 class MonthlyAllocation {
-
   final String month;
   final double totalProfit;
   final Map<int, double> ruleAllocations;

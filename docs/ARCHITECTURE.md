@@ -53,7 +53,7 @@ possible (the schema is normalized for it) but is not on the roadmap for v1.
 
 - **Declarative routes** — deep links (`/products/:id/edit`) are first-class
   in the URL, which makes navigation easy to reason about and test.
-- **`StatefulShellRoute.indexedStack`** keeps each of the 5 bottom-nav tabs
+- **`StatefulShellRoute.indexedStack`** keeps each of the 6 bottom-nav tabs
   mounted, so switching tabs doesn't lose scroll position or re-run
   providers. A plain `ShellRoute` rebuilds the child on every tab switch.
 - **Nested routes** — `/products/:id` and `/products/:id/edit` are naturally
@@ -102,7 +102,7 @@ tracker_app/
 ├── lib/
 │   ├── main.dart              — entry point; wraps app in ProviderScope
 │   ├── app.dart               — MaterialApp.router + aurora backdrop + theme
-│   ├── router.dart            — go_router with StatefulShellRoute.indexedStack (5 tabs)
+│   ├── router.dart            — go_router with StatefulShellRoute.indexedStack (6 tabs)
 │   ├── core/
 │   │   ├── background/        — AuroraBackdrop widget (Liquid Glass)
 │   │   ├── theme/             — AppColors (design tokens) + AppTheme (Material 3)
@@ -110,9 +110,10 @@ tracker_app/
 │   │   ├── utils/             — formatters (money, date, quantity)
 │   │   └── extensions/        — drift row → DateTime helpers
 │   ├── db/
-│   │   ├── app_database.dart  — drift database + Riverpod singleton provider
-│   │   └── tables/            — 4 drift table definitions (schema v2)
+│   │   │   ├── app_database.dart  — drift database + Riverpod singleton provider
+│   │   │   └── tables/            — 7 drift table definitions (schema v4)
 │   ├── features/
+
 │   │   ├── dashboard/         — today's stats, platform breakdown, low stock
 │   │   ├── products/          — CRUD, restock, stock movements, product grid
 │   │   ├── sales/             — log, filter, quick-sell, discounted sales

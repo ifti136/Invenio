@@ -52,7 +52,8 @@ Future<T?> showGlassDialog<T>({
                       ),
                 ),
               if (content != null) ...[
-                if (message != null || title != null) const SizedBox(height: 12),
+                if (message != null || title != null)
+                  const SizedBox(height: 12),
                 content,
               ],
               if (actionWidgets.isNotEmpty) ...[

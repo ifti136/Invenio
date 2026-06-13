@@ -15,9 +15,8 @@ extension ExpenseCategoryX on ExpenseCategory {
         ExpenseCategory.packaging => 'Packaging',
         ExpenseCategory.misc => 'Misc',
       };
-  static ExpenseCategory fromKey(String k) =>
-      ExpenseCategory.values.firstWhere((e) => e.key == k,
-          orElse: () => ExpenseCategory.misc);
+  static ExpenseCategory fromKey(String k) => ExpenseCategory.values
+      .firstWhere((e) => e.key == k, orElse: () => ExpenseCategory.misc);
 }
 
 @Riverpod(keepAlive: true)
@@ -38,12 +37,12 @@ class ExpenseRepository {
   Stream<List<Expense>> watchFiltered(ExpenseFilter f) {
     final q = _db.select(_db.expenses);
     if (f.from != null) {
-      q.where((e) =>
-          e.date.isBiggerOrEqualValue(f.from!.millisecondsSinceEpoch));
+      q.where(
+          (e) => e.date.isBiggerOrEqualValue(f.from!.millisecondsSinceEpoch));
     }
     if (f.to != null) {
-      q.where((e) =>
-          e.date.isSmallerOrEqualValue(f.to!.millisecondsSinceEpoch));
+      q.where(
+          (e) => e.date.isSmallerOrEqualValue(f.to!.millisecondsSinceEpoch));
     }
     q.orderBy([(e) => drift.OrderingTerm.desc(e.date)]);
     return q.watch();
@@ -66,16 +65,16 @@ class ExpenseRepository {
   }) {
     final effectiveDate = date ?? DateTime.now();
     return _db.into(_db.expenses).insert(ExpensesCompanion.insert(
-      amount: amount,
-      category: category,
-      note: drift.Value(note),
-      date: effectiveDate.millisecondsSinceEpoch,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      walletId: drift.Value(walletId),
-      ownership: drift.Value(ownership ?? 'business'),
-      allocationRuleId: drift.Value(allocationRuleId),
-      bucketId: drift.Value(bucketId),
-    ));
+          amount: amount,
+          category: category,
+          note: drift.Value(note),
+          date: effectiveDate.millisecondsSinceEpoch,
+          createdAt: DateTime.now().millisecondsSinceEpoch,
+          walletId: drift.Value(walletId),
+          ownership: drift.Value(ownership ?? 'business'),
+          allocationRuleId: drift.Value(allocationRuleId),
+          bucketId: drift.Value(bucketId),
+        ));
   }
 
   Future<void> update({
@@ -145,9 +144,7 @@ class ExpenseFilter {
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is ExpenseFilter &&
-        other.from == from &&
-        other.to == to;
+    return other is ExpenseFilter && other.from == from && other.to == to;
   }
 
   @override
@@ -167,11 +164,10 @@ List<DateRangePreset> dateRangePresets() {
   return [
     DateRangePreset('All time', DateTime(2000), null),
     DateRangePreset('Today', today, null),
-    DateRangePreset('This week',
-        today.subtract(Duration(days: today.weekday - 1)), null),
+    DateRangePreset(
+        'This week', today.subtract(Duration(days: today.weekday - 1)), null),
     DateRangePreset('This month', DateTime(now.year, now.month, 1), null),
-    DateRangePreset('Last 30 days', today.subtract(const Duration(days: 30)),
-        null),
+    DateRangePreset(
+        'Last 30 days', today.subtract(const Duration(days: 30)), null),
   ];
 }
-

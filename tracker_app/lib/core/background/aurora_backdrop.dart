@@ -16,8 +16,8 @@ class AuroraBackdrop extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!config.enabled) {
       return Container(
-        color: config.backgrounds.isNotEmpty 
-            ? config.backgrounds.first 
+        color: config.backgrounds.isNotEmpty
+            ? config.backgrounds.first
             : Colors.black,
         child: child ?? const SizedBox.expand(),
       );

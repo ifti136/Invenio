@@ -1,7 +1,14 @@
 # Project State — Invenio
 
 ## Current Version
-v1.0.0+2 (Schema v2)
+v1.0.2+1 (Schema v5)
+
+## Liquid Glass UI Transition (Completed)
+- **Phase 3:** Theme System & Haptics Service ✅
+- **Phase 6:** Add-Ons UI & Profit Recalculation ✅
+- **Phase 8:** Dashboard Redesign ✅
+- **Phase 11:** UI Polish & Glass Audit ✅
+- **Phase 12:** Finalization & Documentation ✅
 
 ## BFMS Integration Roadmap
 

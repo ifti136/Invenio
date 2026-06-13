@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
+import 'package:tracker/core/services/haptic_service.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import '../bucket_repository.dart';
-
-
+import 'bucket_form_sheet.dart';
 
 class BucketListScreen extends ConsumerWidget {
   const BucketListScreen({super.key});
@@ -20,8 +20,8 @@ class BucketListScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: FutureBuilder<List<BucketBalance>>(
-        future: ref.read(bucketRepositoryProvider).getBucketBalances(),
+      body: FutureBuilder<List<BucketWithAvailable>>(
+        future: ref.read(bucketRepositoryProvider).getBucketWithAvailables(),
         builder: (context, snapshot) {
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
@@ -54,26 +54,42 @@ class BucketListScreen extends ConsumerWidget {
                       width: 12,
                       height: 12,
                       decoration: BoxDecoration(
-                        color: bucketBalance.color != null 
-                            ? Color(int.parse(bucketBalance.color!.replaceFirst('#', '0xff'))) 
+                        color: bucketBalance.color != null
+                            ? Color(int.parse(
+                                bucketBalance.color!.replaceFirst('#', '0xff')))
                             : AppColors.accent,
                         shape: BoxShape.circle,
                       ),
                     ),
                     title: Text(
                       bucketBalance.name,
-                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     trailing: Text(
                       '\$${available.toStringAsFixed(2)}',
                       style: TextStyle(
-                        color: available >= 0 ? AppColors.success : AppColors.error,
+                        color: available >= 0
+                            ? AppColors.success
+                            : AppColors.error,
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
                       ),
                     ),
-                    onTap: () => context.push('/products/settings/buckets/edit/${bucketBalance.id}'),
-                    onLongPress: () => _confirmDeleteBucket(context, ref, bucketBalance.id),
+                      onTap: () async {
+                        HapticService.trigger(HapticProfile.light);
+                        final bucket = await ref
+                            .read(bucketRepositoryProvider)
+                            .getById(bucketBalance.id);
+                        if (context.mounted) {
+                          showBucketFormSheet(context, bucket: bucket);
+                        }
+                      },
+
+                     onLongPress: () {
+                       HapticService.trigger(HapticProfile.heavy);
+                       _confirmDeleteBucket(context, ref, bucketBalance.id);
+                     },
                   ),
                 ),
               );
@@ -81,11 +97,16 @@ class BucketListScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: FloatingActionButton(
-        backgroundColor: AppColors.accent,
-        onPressed: () => context.push('/products/settings/buckets/add'),
-        child: const Icon(Icons.add, color: Colors.white),
-      ),
+        floatingActionButton: HapticWrapper(
+          profile: HapticProfile.medium,
+          onTap: () => showBucketFormSheet(context),
+          child: FloatingActionButton(
+            backgroundColor: AppColors.accent,
+            onPressed: null,
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        ),
+
     );
   }
 
@@ -93,20 +114,27 @@ class BucketListScreen extends ConsumerWidget {
     showGlassDialog(
       context: context,
       title: 'Delete Bucket',
-      message: 'Are you sure you want to delete this bucket? This action cannot be undone.',
-      actionsBuilder: (ctx) => [
-        TextButton(
-          onPressed: () => Navigator.of(ctx).pop(),
-          child: const Text('Cancel', style: TextStyle(color: Colors.white54)),
-        ),
-        TextButton(
-          onPressed: () async {
-            await ref.read(bucketRepositoryProvider).delete(id);
-            Navigator.of(ctx).pop();
-          },
-          child: const Text('Delete', style: TextStyle(color: AppColors.error)),
-        ),
-      ],
+      message:
+          'Are you sure you want to delete this bucket? This action cannot be undone.',
+       actionsBuilder: (ctx) => [
+         GlassDialogAction(
+           label: 'Cancel',
+           onPressed: () {
+             HapticService.trigger(HapticProfile.light);
+             Navigator.of(ctx).pop();
+           },
+         ),
+         GlassDialogAction(
+           label: 'Delete',
+           isDestructive: true,
+           isPrimary: true,
+           onPressed: () async {
+             HapticService.trigger(HapticProfile.heavy);
+             await ref.read(bucketRepositoryProvider).delete(id);
+             Navigator.of(ctx).pop();
+           },
+         ),
+       ],
     );
   }
 }

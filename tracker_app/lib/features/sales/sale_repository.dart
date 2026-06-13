@@ -13,8 +13,8 @@ extension SalePlatformX on SalePlatform {
         SalePlatform.facebook => 'Facebook',
         SalePlatform.offline => 'Offline',
       };
-  static SalePlatform fromKey(String k) =>
-      SalePlatform.values.firstWhere((e) => e.key == k, orElse: () => SalePlatform.offline);
+  static SalePlatform fromKey(String k) => SalePlatform.values
+      .firstWhere((e) => e.key == k, orElse: () => SalePlatform.offline);
 }
 
 enum PaymentStatus { paid, due }
@@ -25,8 +25,8 @@ extension PaymentStatusX on PaymentStatus {
         PaymentStatus.paid => 'Paid',
         PaymentStatus.due => 'Due',
       };
-  static PaymentStatus fromKey(String k) =>
-      PaymentStatus.values.firstWhere((e) => e.key == k, orElse: () => PaymentStatus.paid);
+  static PaymentStatus fromKey(String k) => PaymentStatus.values
+      .firstWhere((e) => e.key == k, orElse: () => PaymentStatus.paid);
 }
 
 @Riverpod(keepAlive: true)
@@ -62,12 +62,12 @@ class SaleRepository {
       q.where((s) => s.paymentStatus.equals(f.paymentStatus!));
     }
     if (f.from != null) {
-      q.where((s) =>
-          s.date.isBiggerOrEqualValue(f.from!.millisecondsSinceEpoch));
+      q.where(
+          (s) => s.date.isBiggerOrEqualValue(f.from!.millisecondsSinceEpoch));
     }
     if (f.to != null) {
-      q.where((s) =>
-          s.date.isSmallerOrEqualValue(f.to!.millisecondsSinceEpoch));
+      q.where(
+          (s) => s.date.isSmallerOrEqualValue(f.to!.millisecondsSinceEpoch));
     }
     q.orderBy([(s) => drift.OrderingTerm.desc(s.date)]);
     return q.watch();
@@ -106,8 +106,7 @@ class SaleRepository {
           .getSingle();
       final newStock = product.stock - quantity;
       if (newStock < 0) {
-        throw Exception(
-            'Not enough stock — only ${product.stock} available.');
+        throw Exception('Not enough stock — only ${product.stock} available.');
       }
       final effectiveDate = date ?? DateTime.now();
       final total = quantity * sellingPrice;
@@ -124,10 +123,9 @@ class SaleRepository {
               normalPrice: drift.Value(normalPrice),
               date: effectiveDate.millisecondsSinceEpoch,
               createdAt: DateTime.now().millisecondsSinceEpoch,
-               walletId: drift.Value(walletId),
-               ownership: drift.Value(ownership ?? 'business'),
-             ),
-
+              walletId: drift.Value(walletId),
+              ownership: drift.Value(ownership ?? 'business'),
+            ),
           );
       await (_db.update(_db.products)..where((p) => p.id.equals(productId)))
           .write(ProductsCompanion(stock: drift.Value(newStock)));
@@ -183,10 +181,9 @@ class SaleRepository {
           paymentStatus: drift.Value(paymentStatus),
           customerName: drift.Value(customerName),
           date: drift.Value(effectiveDate.millisecondsSinceEpoch),
-           walletId: drift.Value(walletId),
-           ownership: drift.Value(ownership ?? 'business'),
-         ),
-
+          walletId: drift.Value(walletId),
+          ownership: drift.Value(ownership ?? 'business'),
+        ),
       );
       if (qtyDelta != 0) {
         await (_db.update(_db.products)..where((p) => p.id.equals(productId)))
@@ -211,8 +208,7 @@ class SaleRepository {
 
   Future<void> deleteSale(int id) {
     return _db.transaction(() async {
-      final sale = await (_db.select(_db.sales)
-            ..where((s) => s.id.equals(id)))
+      final sale = await (_db.select(_db.sales)..where((s) => s.id.equals(id)))
           .getSingle();
       final product = await (_db.select(_db.products)
             ..where((p) => p.id.equals(sale.productId)))
@@ -222,22 +218,21 @@ class SaleRepository {
             ..where((p) => p.id.equals(sale.productId)))
           .write(ProductsCompanion(
               stock: drift.Value(product.stock + sale.quantity)));
-       await _db.into(_db.stockMovements).insert(
-             StockMovementsCompanion.insert(
-               productId: sale.productId,
-               quantity: sale.quantity,
-               type: 'adjustment',
-               note: const drift.Value('Stock restored — sale deleted'),
-               date: DateTime.now().millisecondsSinceEpoch,
-             ),
-           );
+      await _db.into(_db.stockMovements).insert(
+            StockMovementsCompanion.insert(
+              productId: sale.productId,
+              quantity: sale.quantity,
+              type: 'adjustment',
+              note: const drift.Value('Stock restored — sale deleted'),
+              date: DateTime.now().millisecondsSinceEpoch,
+            ),
+          );
     });
   }
 }
 
 extension on Sale {
-  DateTime get dateAsDateTime =>
-      DateTime.fromMillisecondsSinceEpoch(date);
+  DateTime get dateAsDateTime => DateTime.fromMillisecondsSinceEpoch(date);
 }
 
 class SaleFilter {
@@ -264,8 +259,7 @@ class SaleFilter {
   }) {
     return SaleFilter(
       productId: productId ?? this.productId,
-      platform:
-          platform == _sentinel ? this.platform : platform as String?,
+      platform: platform == _sentinel ? this.platform : platform as String?,
       paymentStatus: paymentStatus == _sentinel
           ? this.paymentStatus
           : paymentStatus as String?,
@@ -306,10 +300,10 @@ List<DateRangePreset> dateRangePresets() {
   return [
     DateRangePreset('All time', DateTime(2000), null),
     DateRangePreset('Today', today, null),
-    DateRangePreset('This week',
-        today.subtract(Duration(days: today.weekday - 1)), null),
+    DateRangePreset(
+        'This week', today.subtract(Duration(days: today.weekday - 1)), null),
     DateRangePreset('This month', DateTime(now.year, now.month, 1), null),
-    DateRangePreset('Last 30 days', today.subtract(const Duration(days: 30)),
-        null),
+    DateRangePreset(
+        'Last 30 days', today.subtract(const Duration(days: 30)), null),
   ];
 }

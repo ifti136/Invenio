@@ -174,5 +174,6 @@ GoRouter router(Ref ref) {
           ),
         ],
       ),
-    );
-  }
+    ],
+  );
+}

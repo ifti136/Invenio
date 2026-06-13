@@ -89,7 +89,8 @@ class ReportRepository {
         final product = productMap[s.productId];
         if (product == null) continue;
         final addOns = addOnsMap[s.id] ?? [];
-        profit += ProfitCalculator.calculateNetProfit(s, addOns);
+        profit +=
+            ProfitCalculator.calculateNetProfit(s, product.costPrice, addOns);
         revenue += s.total;
       }
       var expTotal = 0.0;
@@ -147,8 +148,18 @@ class ReportRepository {
     }
 
     const labels = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
 
     final months = <MonthlySummary>[];
@@ -162,7 +173,8 @@ class ReportRepository {
         final product = productMap[s.productId];
         if (product == null) continue;
         final addOns = addOnsMap[s.id] ?? [];
-        profit += ProfitCalculator.calculateNetProfit(s, addOns);
+        profit +=
+            ProfitCalculator.calculateNetProfit(s, product.costPrice, addOns);
         revenue += s.total;
       }
       var expTotal = 0.0;
@@ -224,8 +236,18 @@ class ReportRepository {
     }
 
     const labels = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec'
     ];
 
     final months = <MonthlySummary>[];
@@ -239,7 +261,8 @@ class ReportRepository {
         final product = productMap[s.productId];
         if (product == null) continue;
         final addOns = addOnsMap[s.id] ?? [];
-        profit += ProfitCalculator.calculateNetProfit(s, addOns);
+        profit +=
+            ProfitCalculator.calculateNetProfit(s, product.costPrice, addOns);
         revenue += s.total;
       }
       var expTotal = 0.0;
@@ -259,7 +282,8 @@ class ReportRepository {
     return months;
   }
 
-  Future<List<SaleReportRow>> getPerSaleReport(DateTime from, DateTime to) async {
+  Future<List<SaleReportRow>> getPerSaleReport(
+      DateTime from, DateTime to) async {
     final sales = await (_db.select(_db.sales)
           ..where((s) =>
               s.date.isBiggerOrEqualValue(from.millisecondsSinceEpoch) &
@@ -288,7 +312,8 @@ class ReportRepository {
         quantity: s.quantity,
         revenue: s.total,
         addOnCost: ProfitCalculator.calculateAddOnCost(addOns),
-        profit: ProfitCalculator.calculateNetProfit(s, addOns),
+        profit:
+            ProfitCalculator.calculateNetProfit(s, p?.costPrice ?? 0, addOns),
         platform: s.platform,
       );
     }).toList();
@@ -311,75 +336,16 @@ class ReportRepository {
     final products = await _db.select(_db.products).get();
     final productMap = {for (final p in products) p.id: p};
 
-    final grouped = <int, List<Sale>>{};
-    for (final s in sales) {
-      grouped.putIfAbsent(s.productId, () => []).add(s);
-    }
-
-    return grouped.entries.map((e) {
-      final product = productMap[e.key];
-      final name = product?.name ?? 'Deleted product';
-      final cost = product?.costPrice ?? 0;
-      var qty = 0;
-      var rev = 0.0;
-      for (final s in e.value) {
-        qty += s.quantity;
-        rev += s.total;
-      }
-      final profit = rev - (qty * cost);
-      return ProductReportRow(
-        productId: e.key,
-        productName: name,
-        quantitySold: qty,
-        revenue: rev,
-        profit: profit,
-        costPrice: cost,
-      );
-    }).toList()
-      ..sort((a, b) => b.revenue.compareTo(a.revenue));
-  }
-
-  Future<List<ProductMonthlyProfit>> getProductProfitHistory(int productId) async {
-    final sales = await (_db.select(_db.sales)..where((s) => s.productId.equals(productId))).get();
-    final allAddOns = await (_db.select(_db.saleAddOns)..where((s) => s.saleId.isIn(sales.map((s) => s.id)))).get();
-    final addOnsMap = {for (final s in sales) s.id: allAddOns.where((a) => a.saleId == s.id).toList()};
-    final product = await (_db.select(_db.products)..where((p) => p.id.equals(productId))).getSingle();
-
-    final monthlyProfits = <String, double>{};
-    for (final s in sales) {
-      final date = DateTime.fromMillisecondsSinceEpoch(s.date);
-      final key = '${date.year}-${date.month.toString().padLeft(2, '0')}';
-      final addOns = addOnsMap[s.id] ?? [];
-      monthlyProfits.update(key, (val) => val + ProfitCalculator.calculateNetProfit(s, addOns), ifAbsent: () => ProfitCalculator.calculateNetProfit(s, addOns));
-    }
-
-    return monthlyProfits.entries.map((e) {
-      final parts = e.key.split('-');
-      return ProductMonthlyProfit(
-        month: e.key,
-        profit: e.value,
-      );
-    }).toList()..sort((a, b) => a.month.compareTo(b.month));
-  }
-    if (to != null) {
-      query.where(
-          (s) => s.date.isSmallerOrEqualValue(to.millisecondsSinceEpoch));
-    }
-    final sales = await query.get();
-
     final allAddOns = await (_db.select(_db.saleAddOns)
           ..where((s) => s.saleId.isIn(sales.map((s) => s.id))))
         .get();
-
     final addOnsMap = {
       for (final s in sales)
         s.id: allAddOns.where((a) => a.saleId == s.id).toList()
     };
 
-    final products = await _db.select(_db.products).get();
-    final productMap = {for (final p in products) p.id: p};
-
     final grouped = <int, List<Sale>>{};
+
     for (final s in sales) {
       grouped.putIfAbsent(s.productId, () => []).add(s);
     }
@@ -395,7 +361,7 @@ class ReportRepository {
         qty += s.quantity;
         rev += s.total;
         final addOns = addOnsMap[s.id] ?? [];
-        profit += ProfitCalculator.calculateNetProfit(s, addOns);
+        profit += ProfitCalculator.calculateNetProfit(s, cost, addOns);
       }
       return ProductReportRow(
         productId: e.key,
@@ -407,6 +373,45 @@ class ReportRepository {
       );
     }).toList()
       ..sort((a, b) => b.revenue.compareTo(a.revenue));
+  }
+
+  Future<List<ProductMonthlyProfit>> getProductProfitHistory(
+      int productId) async {
+    final sales = await (_db.select(_db.sales)
+          ..where((s) => s.productId.equals(productId)))
+        .get();
+    final allAddOns = await (_db.select(_db.saleAddOns)
+          ..where((s) => s.saleId.isIn(sales.map((s) => s.id))))
+        .get();
+    final addOnsMap = {
+      for (final s in sales)
+        s.id: allAddOns.where((a) => a.saleId == s.id).toList()
+    };
+    final product = await (_db.select(_db.products)
+          ..where((p) => p.id.equals(productId)))
+        .getSingle();
+
+    final monthlyProfits = <String, double>{};
+    for (final s in sales) {
+      final date = DateTime.fromMillisecondsSinceEpoch(s.date);
+      final key = '${date.year}-${date.month.toString().padLeft(2, '0')}';
+      final addOns = addOnsMap[s.id] ?? [];
+      monthlyProfits.update(
+          key,
+          (val) =>
+              val +
+              ProfitCalculator.calculateNetProfit(s, product.costPrice, addOns),
+          ifAbsent: () => ProfitCalculator.calculateNetProfit(
+              s, product.costPrice, addOns));
+    }
+
+    return monthlyProfits.entries.map((e) {
+      return ProductMonthlyProfit(
+        month: e.key,
+        profit: e.value,
+      );
+    }).toList()
+      ..sort((a, b) => a.month.compareTo(b.month));
   }
 
   static String _dayKey(int ms) {

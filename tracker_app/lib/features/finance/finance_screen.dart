@@ -164,8 +164,9 @@ class FinanceScreen extends ConsumerWidget {
                     ),
                   ),
                 ),
-              );
-            },
+              ),
+            );
+          },
           );
         },
       ),

@@ -16,6 +16,7 @@ import 'package:tracker/features/products/wallet_repository.dart';
 import 'package:tracker/features/products/bucket_repository.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/features/sales/widgets/quick_sell_sheet.dart';
+import 'package:tracker/features/products/widgets/wallet_form_sheet.dart';
 import 'dashboard_provider.dart';
 
 class DashboardScreen extends ConsumerStatefulWidget {
@@ -45,7 +46,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     '$lowStockCount product${lowStockCount == 1 ? '' : 's'} low on stock'),
                 action: SnackBarAction(
                   label: 'View',
-                  onPressed: () => context.go('/products'),
+                  onPressed: () {
+                    HapticService.trigger(HapticProfile.light);
+                    context.go('/products');
+                  },
                 ),
               ),
             );
@@ -62,12 +66,16 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
         ),
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () => context.push('/settings'),
-          ),
-        ],
+          actions: [
+            HapticWrapper(
+              profile: HapticProfile.light,
+              onTap: () => context.push('/settings'),
+              child: IconButton(
+                icon: const Icon(Icons.settings),
+                onPressed: null,
+              ),
+            ),
+          ],
       ),
       body: summaryAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
@@ -84,7 +92,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 offlineRevenue: s.offlineRevenue,
               ),
               const SizedBox(height: 16),
-              const _WalletBalancesCard(),
+              const _WalletWithBalancesCard(),
               const SizedBox(height: 16),
               const _BudgetBucketsCard(),
               if (s.lowStockProducts.isNotEmpty) ...[
@@ -329,8 +337,8 @@ class _PlatformPerformanceRow extends StatelessWidget {
   }
 }
 
-class _WalletBalancesCard extends ConsumerWidget {
-  const _WalletBalancesCard();
+class _WalletWithBalancesCard extends ConsumerWidget {
+  const _WalletWithBalancesCard();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -338,7 +346,7 @@ class _WalletBalancesCard extends ConsumerWidget {
       (allWallets) async {
         final activeWallets = allWallets.where((w) => w.isActive).toList();
         final repo = ref.read(walletRepositoryProvider);
-        final balances = await repo.getWalletBalances();
+        final balances = await repo.getWalletWithBalances();
         final balanceMap = {for (var b in balances) b.walletId: b.balance};
         return activeWallets
             .map((w) =>
@@ -375,7 +383,10 @@ class _WalletBalancesCard extends ConsumerWidget {
                             ),
                       ),
                       TextButton(
-                        onPressed: () => context.push('/settings/wallets'),
+                        onPressed: () {
+                          HapticService.trigger(HapticProfile.light);
+                          context.push('/settings/wallets');
+                        },
                         child: const Text('+ Add Wallet',
                             style: TextStyle(color: AppColors.accent)),
                       ),
@@ -399,7 +410,7 @@ class _WalletBalancesCard extends ConsumerWidget {
                 spacing: 8,
                 runSpacing: 8,
                 children: walletData
-                    .map((w) => _WalletBalanceChip(
+                    .map((w) => _WalletWithBalanceChip(
                           name: w.name,
                           balance: w.balance,
                           id: w.id,
@@ -414,17 +425,25 @@ class _WalletBalancesCard extends ConsumerWidget {
   }
 }
 
-class _WalletBalanceChip extends StatelessWidget {
+class _WalletWithBalanceChip extends ConsumerWidget {
   final String name;
   final double balance;
   final int id;
-  const _WalletBalanceChip(
+  const _WalletWithBalanceChip(
       {required this.name, required this.balance, required this.id});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return InkWell(
-      onTap: () => context.push('/settings/wallets/edit/$id'),
+      onTap: () async {
+        HapticService.trigger(HapticProfile.light);
+        final wallet = await ref
+            .read(walletRepositoryProvider)
+            .getWalletById(id);
+        if (context.mounted) {
+          showWalletFormSheet(context, wallet: wallet);
+        }
+      },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
@@ -459,9 +478,9 @@ class _BudgetBucketsCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final bucketsAsync =
-        ref.watch(bucketRepositoryProvider).getBucketBalances();
+        ref.watch(bucketRepositoryProvider).getBucketWithAvailables();
 
-    return FutureBuilder<List<BucketBalance>>(
+    return FutureBuilder<List<BucketWithAvailable>>(
       future: bucketsAsync,
       builder: (context, snapshot) {
         if (!snapshot.hasData) {
@@ -489,7 +508,10 @@ class _BudgetBucketsCard extends ConsumerWidget {
                             ),
                       ),
                       TextButton(
-                        onPressed: () => context.push('/settings/buckets'),
+                        onPressed: () {
+                          HapticService.trigger(HapticProfile.light);
+                          context.push('/settings/buckets');
+                        },
                         child: const Text('+ Add Bucket',
                             style: TextStyle(color: AppColors.accent)),
                       ),
@@ -519,7 +541,7 @@ class _BudgetBucketsCard extends ConsumerWidget {
 }
 
 class _BudgetBucketRow extends StatelessWidget {
-  final BucketBalance bucket;
+  final BucketWithAvailable bucket;
   const _BudgetBucketRow({required this.bucket});
 
   @override
@@ -529,7 +551,10 @@ class _BudgetBucketRow extends StatelessWidget {
         : AppColors.accent;
 
     return InkWell(
-      onTap: () => context.push('/settings/buckets/history/${bucket.id}'),
+      onTap: () {
+        HapticService.trigger(HapticProfile.light);
+        context.push('/settings/buckets/history/${bucket.id}');
+      },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
         child: Row(
@@ -599,9 +624,12 @@ class _StockAlertRow extends ConsumerWidget {
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
-          InkWell(
-            onTap: () => context.push('/products/${product.id}'),
-            child: Container(
+           InkWell(
+             onTap: () {
+               HapticService.trigger(HapticProfile.light);
+               context.push('/products/${product.id}');
+             },
+             child: Container(
               width: 46,
               height: 46,
               decoration: BoxDecoration(
@@ -621,9 +649,12 @@ class _StockAlertRow extends ConsumerWidget {
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: InkWell(
-              onTap: () => context.push('/products/${product.id}'),
-              child: Column(
+             child: InkWell(
+               onTap: () {
+                 HapticService.trigger(HapticProfile.light);
+                 context.push('/products/${product.id}');
+               },
+               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(

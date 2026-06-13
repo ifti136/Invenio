@@ -100,7 +100,12 @@ void main() {
   group('update()', () {
     test('name only', () async {
       final id = await repo.create(name: 'Widget', stock: 5, costPrice: 5.0);
-      await repo.update(id: id, name: 'Gadget', costPrice: 5.0, lowStockThreshold: 5, alertEnabled: true);
+      await repo.update(
+          id: id,
+          name: 'Gadget',
+          costPrice: 5.0,
+          lowStockThreshold: 5,
+          alertEnabled: true);
       final product = await repo.getById(id);
       expect(product!.name, 'Gadget');
       expect(product.lowStockThreshold, 5);
@@ -113,7 +118,12 @@ void main() {
         costPrice: 5.0,
         note: 'original',
       );
-      await repo.update(id: id, name: 'Widget', costPrice: 5.0, lowStockThreshold: 5, alertEnabled: true);
+      await repo.update(
+          id: id,
+          name: 'Widget',
+          costPrice: 5.0,
+          lowStockThreshold: 5,
+          alertEnabled: true);
       final product = await repo.getById(id);
       expect(product!.note, 'original');
     });

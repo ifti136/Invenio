@@ -107,31 +107,31 @@ void main() {
     });
   });
 
-   group('MarginDropAlert', () {
-     test('fires when >10pp drop (actual threshold is 10pp)', () {
-       final product = _product(costPrice: 10.0);
-       final last = _sale(sellingPrice: 100.0); // margin 90%
-       final alerts = service.checkSale(
-         product: product,
-         quantity: 1,
-         sellingPrice: 40.0, // margin 60% — 30pp drop > 10
-         lastSale: last,
-       );
-       expect(alerts.whereType<MarginDropAlert>().length, 1);
-     });
+  group('MarginDropAlert', () {
+    test('fires when >10pp drop (actual threshold is 10pp)', () {
+      final product = _product(costPrice: 10.0);
+      final last = _sale(sellingPrice: 100.0); // margin 90%
+      final alerts = service.checkSale(
+        product: product,
+        quantity: 1,
+        sellingPrice: 40.0, // margin 60% — 30pp drop > 10
+        lastSale: last,
+      );
+      expect(alerts.whereType<MarginDropAlert>().length, 1);
+    });
 
-      test('not at exactly 10pp drop', () {
-        final product = _product(costPrice: 10.0);
-        final last = _sale(sellingPrice: 100.0); // margin 90%
-        // margin 80% (at 50 selling price) — exactly 10pp drop
-        final alerts = service.checkSale(
-          product: product,
-          quantity: 1,
-          sellingPrice: 50.0,
-          lastSale: last,
-        );
-        expect(alerts.whereType<MarginDropAlert>(), isEmpty);
-      });
+    test('not at exactly 10pp drop', () {
+      final product = _product(costPrice: 10.0);
+      final last = _sale(sellingPrice: 100.0); // margin 90%
+      // margin 80% (at 50 selling price) — exactly 10pp drop
+      final alerts = service.checkSale(
+        product: product,
+        quantity: 1,
+        sellingPrice: 50.0,
+        lastSale: last,
+      );
+      expect(alerts.whereType<MarginDropAlert>(), isEmpty);
+    });
 
     test('not without lastSale', () {
       final product = _product(costPrice: 10.0);
@@ -221,30 +221,29 @@ Product _product({
   );
 }
 
-  Sale _sale({
-    int id = 1,
-    int productId = 1,
-    int quantity = 1,
-    double sellingPrice = 100.0,
-    double total = 100.0,
-    String platform = 'facebook',
-    String paymentStatus = 'paid',
-    String? customerName,
-  }) {
-    return Sale(
-      id: id,
-      productId: productId,
-      quantity: quantity,
-      sellingPrice: sellingPrice,
-      total: total,
-      platform: platform,
-      paymentStatus: paymentStatus,
-      customerName: customerName,
-      isDiscounted: false,
-      normalPrice: null,
-      date: DateTime.now().millisecondsSinceEpoch,
-      createdAt: DateTime.now().millisecondsSinceEpoch,
-      ownership: 'business',
-    );
-  }
-
+Sale _sale({
+  int id = 1,
+  int productId = 1,
+  int quantity = 1,
+  double sellingPrice = 100.0,
+  double total = 100.0,
+  String platform = 'facebook',
+  String paymentStatus = 'paid',
+  String? customerName,
+}) {
+  return Sale(
+    id: id,
+    productId: productId,
+    quantity: quantity,
+    sellingPrice: sellingPrice,
+    total: total,
+    platform: platform,
+    paymentStatus: paymentStatus,
+    customerName: customerName,
+    isDiscounted: false,
+    normalPrice: null,
+    date: DateTime.now().millisecondsSinceEpoch,
+    createdAt: DateTime.now().millisecondsSinceEpoch,
+    ownership: 'business',
+  );
+}

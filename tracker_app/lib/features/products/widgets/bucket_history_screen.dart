@@ -12,7 +12,8 @@ class BucketHistoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final bucketAsync = ref.watch(bucketRepositoryProvider).getById(bucketId).then(
+    final bucketAsync =
+        ref.watch(bucketRepositoryProvider).getById(bucketId).then(
       (bucket) async {
         final repo = ref.read(bucketRepositoryProvider);
         final expenses = await repo.getExpensesForBucket(bucketId);

@@ -5,20 +5,20 @@ sales, tracking expenses, and viewing profit analytics — fully offline, no
 auth, no cloud sync. This directory is the canonical documentation for the
 project.
 
-## Project state (v1.0.0+2, post-Phase 7.0)
+## Project state (v1.0.1+3, post-Phase 7.0)
 
 | Aspect | Detail |
 |--------|--------|
 | Flutter SDK | 3.24.4 · Dart 3.5.4 |
 | Target | Android (min API 24) |
-| Database | drift (SQLite) — schema v2 |
+| Database | drift (SQLite) — schema v4 |
 | State | Riverpod (codegen) |
 | Routing | go_router 15 (`StatefulShellRoute.indexedStack`) |
 | Theme | Liquid Glass — `glass_kit` + `aurora_background` |
 | Charts | fl_chart 0.69 |
 | Export | syncfusion_flutter_xlsio 27.1.55 + share_plus |
 | Tests | 100/100 passing · `flutter analyze` 20 issues (0 new) |
-| Version | `1.0.0+2` (Phase 7.0 branding) |
+| Version | `1.0.1+3` (Phase 7.0 branding) |
 
 ## If you want to …
 

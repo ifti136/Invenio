@@ -19,11 +19,15 @@ class CurrencyScreen extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.currency_exchange, size: 48, color: AppColors.accent),
+              const Icon(Icons.currency_exchange,
+                  size: 48, color: AppColors.accent),
               const SizedBox(height: 16),
               const Text(
                 'Currency Configuration',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white),
               ),
               const SizedBox(height: 8),
               const Text(

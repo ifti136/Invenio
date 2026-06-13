@@ -37,15 +37,15 @@ class MonthlyBarChart extends StatelessWidget {
                 toY: snap.revenue,
                 color: cs.primary.withOpacity(0.4),
                 width: 8,
-                borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(4)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(4)),
               ),
               BarChartRodData(
                 toY: snap.profit,
                 color: cs.primary,
                 width: 8,
-                borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(4)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(4)),
               ),
             ]);
           }).toList(),
@@ -74,12 +74,12 @@ class MonthlyBarChart extends StatelessWidget {
                 },
               ),
             ),
-            leftTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
+            leftTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
         ),
       ),
@@ -122,15 +122,15 @@ class YearlyBarChart extends StatelessWidget {
                 toY: snap.revenue,
                 color: cs.primary.withOpacity(0.4),
                 width: 12,
-                borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(4)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(4)),
               ),
               BarChartRodData(
                 toY: snap.profit,
                 color: cs.primary,
                 width: 12,
-                borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(4)),
+                borderRadius:
+                    const BorderRadius.vertical(top: Radius.circular(4)),
               ),
             ]);
           }).toList(),
@@ -159,12 +159,12 @@ class YearlyBarChart extends StatelessWidget {
                 },
               ),
             ),
-            leftTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
-            topTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
-            rightTitles: const AxisTitles(
-                sideTitles: SideTitles(showTitles: false)),
+            leftTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            topTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+            rightTitles:
+                const AxisTitles(sideTitles: SideTitles(showTitles: false)),
           ),
         ),
       ),

@@ -45,9 +45,7 @@ class SaleListItem extends StatelessWidget {
                 ),
                 alignment: Alignment.center,
                 child: Icon(
-                  isPaid
-                      ? Icons.check_circle_rounded
-                      : Icons.schedule_rounded,
+                  isPaid ? Icons.check_circle_rounded : Icons.schedule_rounded,
                   color: isPaid ? AppColors.success : AppColors.warning,
                   size: 20,
                 ),

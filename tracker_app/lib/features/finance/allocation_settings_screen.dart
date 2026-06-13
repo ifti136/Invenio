@@ -10,7 +10,8 @@ import 'allocation_rule_form_screen.dart';
 part 'allocation_settings_screen.g.dart';
 
 @riverpod
-Future<List<AllocationRule>> allocationRulesList(AllocationRulesListRef ref) async {
+Future<List<AllocationRule>> allocationRulesList(
+    AllocationRulesListRef ref) async {
   return await ref.watch(allocationRulesRepositoryProvider).getRules();
 }
 
@@ -36,10 +37,13 @@ class AllocationSettingsScreen extends ConsumerWidget {
       ),
       body: rulesAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (err, stack) => Center(child: Text('Error: $err', style: const TextStyle(color: Colors.white))),
+        error: (err, stack) => Center(
+            child: Text('Error: $err',
+                style: const TextStyle(color: Colors.white))),
         data: (rules) {
           final activeRules = rules.where((r) => r.isActive).toList();
-          final totalPercentage = activeRules.fold(0.0, (sum, r) => sum + r.percentage);
+          final totalPercentage =
+              activeRules.fold(0.0, (sum, r) => sum + r.percentage);
 
           return Column(
             children: [
@@ -56,7 +60,9 @@ class AllocationSettingsScreen extends ConsumerWidget {
                         child: ListTile(
                           title: Text(
                             rule.label,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(
                             '${rule.percentage}%',
@@ -68,19 +74,28 @@ class AllocationSettingsScreen extends ConsumerWidget {
                               Switch(
                                 value: rule.isActive,
                                 onChanged: (val) async {
-                                  await ref.read(allocationRulesRepositoryProvider).updateRule(
-                                    rule.id, rule.label, rule.percentage, val,
-                                  );
+                                  await ref
+                                      .read(allocationRulesRepositoryProvider)
+                                      .updateRule(
+                                        rule.id,
+                                        rule.label,
+                                        rule.percentage,
+                                        val,
+                                      );
                                   ref.invalidate(allocationRulesListProvider);
                                 },
                               ),
                               IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.white70),
-                                onPressed: () => _navigateToForm(context, ref, rule: rule),
+                                icon: const Icon(Icons.edit,
+                                    color: Colors.white70),
+                                onPressed: () =>
+                                    _navigateToForm(context, ref, rule: rule),
                               ),
                               IconButton(
-                                icon: const Icon(Icons.delete, color: Colors.redAccent),
-                                onPressed: () => _confirmDelete(context, ref, rule),
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.redAccent),
+                                onPressed: () =>
+                                    _confirmDelete(context, ref, rule),
                               ),
                             ],
                           ),
@@ -106,7 +121,8 @@ class AllocationSettingsScreen extends ConsumerWidget {
         child: Text(
           'Total allocation exceeds 100% (\$${total.toStringAsFixed(1)}%)',
           textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       );
     } else if (total < 100) {
@@ -117,27 +133,32 @@ class AllocationSettingsScreen extends ConsumerWidget {
         child: Text(
           'Unallocated profit: ${(100 - total).toStringAsFixed(1)}%',
           textAlign: TextAlign.center,
-          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+          style:
+              const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
         ),
       );
     }
     return const SizedBox.shrink();
   }
 
-  void _navigateToForm(BuildContext context, WidgetRef ref, {AllocationRule? rule}) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => AllocationRuleFormScreen(
-          ruleId: rule?.id,
-          initialLabel: rule?.label,
-          initialPercentage: rule?.percentage,
-          initialIsActive: rule?.isActive,
-        ),
-      ),
-    ).then((_) => ref.invalidate(allocationRulesListProvider));
+  void _navigateToForm(BuildContext context, WidgetRef ref,
+      {AllocationRule? rule}) {
+    Navigator.of(context)
+        .push(
+          MaterialPageRoute(
+            builder: (context) => AllocationRuleFormScreen(
+              ruleId: rule?.id,
+              initialLabel: rule?.label,
+              initialPercentage: rule?.percentage,
+              initialIsActive: rule?.isActive,
+            ),
+          ),
+        )
+        .then((_) => ref.invalidate(allocationRulesListProvider));
   }
 
-  void _confirmDelete(BuildContext context, WidgetRef ref, AllocationRule rule) {
+  void _confirmDelete(
+      BuildContext context, WidgetRef ref, AllocationRule rule) {
     showGlassDialog(
       context: context,
       title: 'Delete Rule',
@@ -151,7 +172,9 @@ class AllocationSettingsScreen extends ConsumerWidget {
           label: 'Delete',
           isDestructive: true,
           onPressed: () async {
-            await ref.read(allocationRulesRepositoryProvider).softDeleteRule(rule.id);
+            await ref
+                .read(allocationRulesRepositoryProvider)
+                .softDeleteRule(rule.id);
             ref.invalidate(allocationRulesListProvider);
             Navigator.of(ctx).pop();
           },

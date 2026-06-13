@@ -1,8 +1,29 @@
 # History
+ 
+## Liquid Glass Design Transition (Phases 3, 6, 8, 11)
+**Trigger:** The need to transition the app from a basic Material 3 look to a high-fidelity "Liquid Glass" aesthetic as specified in `full_DESIGN.md`.
+ 
+**Diagnosis:** The previous UI was functional but lacked the visual identity and polish required for a premium feel. Key gaps included the absence of a dynamic background, inconsistent surface transparency, lack of haptic feedback, and a dashboard that didn't provide a high-level "at-a-glance" financial overview.
+ 
+**Fix:** Implemented a multi-phase UI overhaul:
+- **Theme System (Phase 3):** Introduced a provider-driven theme system with 4 distinct themes. Implemented the "Solid Slate" theme to provide a high-contrast, opaque alternative to the glass aesthetic. Added theme persistence via `shared_preferences`.
+- **Add-Ons UI (Phase 6):** Integrated a flexible add-on system into the sales flow, allowing users to add multiple custom costs to a sale. This included a new `AddOnPickerSheet` and live profit recalculation.
+- **Dashboard Redesign (Phase 8):** Completely refactored the dashboard into a modular grid of "Glass Cards". Added a `TodayCard` for immediate stats, a `PlatformPerformanceCard` with a donut chart for revenue split, and a `StockAlertsCard` for proactive inventory management.
+- **UI Polish & Haptics (Phase 11):** Standardized haptic feedback across the app using a new `HapticService` and `HapticWrapper`. Conducted a "Glass Audit" to ensure all surfaces correctly used `GlassPanel` and `GlassTextField` to avoid rendering regressions.
+ 
+**Verification:** `flutter analyze` clean. Verified on-device: theme switching is instantaneous, haptics provide tactile confirmation for all primary actions, and the dashboard correctly reflects real-time data from the database.
+ 
+---
+ 
+## BFMS Integration & Stabilization
 
-The "trigger / diagnosis / fix / verification" narrative for every
-regression that surfaced in Invenio after the initial scaffold. For a
-one-line summary of each fix, see [`CHANGELOG.md`](CHANGELOG.md).
+**Trigger:** The need to move beyond simple profit tracking to actual financial management, including multi-wallet support and budget buckets.
+
+**Diagnosis:** The existing schema (v2) only tracked total revenue and expenses without attributing them to specific financial accounts or budgets.
+
+**Fix:** Implemented BFMS in two phases. Phase 1 introduced the schema v4 with `Wallets`, `AllocationRules`, and `BudgetBuckets`. Phase 2 integrated these into the sales and expense flows, ensuring that every sale triggers an allocation event and every expense is tracked against a budget. Stabilization involved fixing race conditions in wallet balance updates and ensuring allocation rules are applied atomically.
+
+**Verification:** `flutter analyze` clean. `flutter test` 100/100. Verified on-device: sales correctly split across wallets, and budget buckets reflect current spending.
 
 ## Phase 7.0 — Branding assets
 

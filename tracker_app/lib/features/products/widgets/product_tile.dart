@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../db/app_database.dart';
+import '../../../core/services/haptic_service.dart';
 import 'stock_badge.dart';
 
 class ProductTile extends StatelessWidget {
@@ -15,7 +16,10 @@ class ProductTile extends StatelessWidget {
     return Material(
       color: Colors.transparent,
       child: InkWell(
-        onTap: onTap,
+        onTap: () {
+          HapticService.trigger(HapticProfile.light);
+          onTap?.call();
+        },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),

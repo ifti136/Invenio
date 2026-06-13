@@ -1,8 +1,48 @@
 # Changelog
-
+ 
 What shipped in Invenio, in order, with one bullet per phase. The detailed
 "why" for each fix lives in [`HISTORY.md`](HISTORY.md); the original
 specs live in [`instructions/`](instructions/).
+ 
+## Phase 12 — Finalization
+- Static analysis cleanup: fixed syntax errors and removed unused imports.
+- Documentation sync: updated CHANGELOG, HISTORY, and project state.
+ 
+## Phase 11 — UI Polish & Haptics
+- Integrated `HapticService` and `HapticWrapper` across all primary interactions (buttons, toggles, list items).
+- Performed "Glass Audit" to ensure consistent use of `GlassPanel` and `GlassTextField`.
+- Implemented empty states for all major lists.
+ 
+## Phase 8 — Dashboard Redesign
+- Refactored Dashboard to a single `ListView` with `kBottomNavClearance`.
+- Implemented `TodayCard` with 2x2 metric grid and `fl_chart` sparkline.
+- Implemented `PlatformPerformanceCard` with donut chart and progress bars.
+- Added `WalletBalancesCard` and `BudgetBucketsCard` with specified empty states.
+- Implemented `StockAlertsCard` with avatar squares and quick-sell buttons.
+ 
+## Phase 6 — Add-Ons UI
+- Implemented `AddOnPickerSheet` for selecting and editing add-on quantities during sales.
+- Integrated add-on system into Sale Form, Quick Sell, and Discount sheets.
+- Updated live profit previews to subtract add-on costs from gross profit.
+ 
+## Phase 3 — Theme System
+- Implemented 4 distinct themes, including "Solid Slate" (disables aurora/transparency).
+- Added theme persistence via `shared_preferences`.
+- Built `ThemeScreen` with animated aurora preview cards.
+- Created `HapticService` for standardized feedback (Light/Medium/Heavy).
+ 
+## BFMS Phase 2 — Integration & Budgeting
+
+- Integrated sales revenue allocation: sales now automatically distribute funds to wallets based on active allocation rules.
+- Wallet balance tracking: real-time balance updates for all wallets (Cash, Bank, etc.).
+- Budget bucket spending: expenses now deduct from specific budget buckets, with over-budget alerts.
+- Wallet & Bucket management screens: CRUD for wallets and budget buckets.
+
+## BFMS Phase 1 — Foundation
+- Schema v4: Added `Wallets`, `AllocationRules`, and `BudgetBuckets` tables.
+- Wallet system: support for multiple financial accounts with custom names and initial balances.
+- Allocation engine: rule-based splitting of sales revenue (e.g., 70% to Business Wallet, 30% to Personal Wallet).
+- Budgeting system: creation of buckets for specific expense categories with monthly limits.
 
 ## Phase 7.0 — v1.0.0 release branding
 

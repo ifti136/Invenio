@@ -37,6 +37,7 @@ tracker_app/windows/
 # AI agent metadata
 .opencode/
 .planning/
+.serena/
 graphify-out/
 
 # Temp / logs

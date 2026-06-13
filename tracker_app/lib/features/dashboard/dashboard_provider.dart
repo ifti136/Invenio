@@ -111,12 +111,12 @@ Future<DashboardSummary> dashboard(Ref ref) async {
 }
 
 @riverpod
-Stream<List<WalletBalance>> walletBalances(Ref ref) {
+Stream<List<WalletWithBalance>> walletBalances(Ref ref) {
   return ref.watch(walletRepositoryProvider).watchWalletsWithBalances();
 }
 
 @riverpod
-Stream<List<BucketBalance>> bucketAvailables(Ref ref) {
+Stream<List<BucketWithAvailable>> bucketAvailables(Ref ref) {
   return ref.watch(bucketRepositoryProvider).watchBucketsWithAvailable();
 }
 

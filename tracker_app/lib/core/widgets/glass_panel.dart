@@ -76,9 +76,8 @@ class GlassPanel extends StatelessWidget {
         margin: margin,
         padding: padding,
         decoration: BoxDecoration(
-          color: solid
-              ? scheme.surface.withOpacity(isDark ? 0.92 : 0.95)
-              : null,
+          color:
+              solid ? scheme.surface.withOpacity(isDark ? 0.92 : 0.95) : null,
           borderRadius: radius > 0 ? BorderRadius.circular(radius) : null,
           gradient: solid
               ? null
@@ -106,13 +105,15 @@ class GlassPanel extends StatelessWidget {
     return LayoutBuilder(
       builder: (context, constraints) {
         return ClipRRect(
-          borderRadius: radius > 0 ? BorderRadius.circular(radius) : BorderRadius.zero,
+          borderRadius:
+              radius > 0 ? BorderRadius.circular(radius) : BorderRadius.zero,
           child: GlassContainer(
             height: expand ? constraints.maxHeight : height,
             width: expand ? constraints.maxWidth : width,
             margin: margin,
             padding: padding,
-            borderRadius: radius > 0 ? BorderRadius.circular(radius) : BorderRadius.zero,
+            borderRadius:
+                radius > 0 ? BorderRadius.circular(radius) : BorderRadius.zero,
             isFrostedGlass: isFrostedGlass,
             blur: blur,
             borderWidth: 1.0,

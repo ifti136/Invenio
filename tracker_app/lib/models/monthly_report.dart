@@ -51,8 +51,7 @@ class ProductReportRow {
     required this.costPrice,
   });
 
-  double get marginPct =>
-      revenue > 0 ? ((profit / revenue) * 100) : 0;
+  double get marginPct => revenue > 0 ? ((profit / revenue) * 100) : 0;
 }
 
 class SaleReportRow {
