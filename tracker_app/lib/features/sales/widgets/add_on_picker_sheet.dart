@@ -74,13 +74,21 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
 
   double get _totalCost => _entries.fold(0.0, (sum, e) => sum + e.amount);
 
+  void _toggleAddOn(AddOnType type) {
+    final existingIndex = _entries.indexWhere((e) => e.typeId == type.id);
+    if (existingIndex != -1) {
+      _removeAddOn(existingIndex);
+    } else {
+      _addAddOn(type);
+    }
+  }
+
   void _addAddOn(AddOnType type) {
-    if (_entries.any((e) => e.typeId == type.id)) return;
     setState(() {
       _entries.add(AddOnEntry(
         typeId: type.id,
         name: type.name,
-        amount: 0.0, // defaultAmount is missing from DB, using 0.0
+        amount: 0.0,
       ));
       _controllers[type.id] = TextEditingController(text: '0.00');
     });
@@ -94,11 +102,14 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
     });
   }
 
-  void _updateAmount(int index, String value) {
+  void _updateAmount(int typeId, String value) {
     final amount = double.tryParse(value.trim()) ?? 0.0;
-    setState(() {
-      _entries[index] = _entries[index].copyWith(amount: amount);
-    });
+    final index = _entries.indexWhere((e) => e.typeId == typeId);
+    if (index != -1) {
+      setState(() {
+        _entries[index] = _entries[index].copyWith(amount: amount);
+      });
+    }
   }
 
   @override
@@ -126,125 +137,88 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
                     style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
                   ),
                 ),
-                IconButton(
-                  icon: const Icon(Icons.close_rounded),
-                  onPressed: () => Navigator.of(context).pop(),
+                HapticWrapper(
+                  profile: HapticProfile.light,
+                  onTap: null,
+                  child: IconButton(
+                    icon: const Icon(Icons.close_rounded),
+                    onPressed: () => Navigator.of(context).pop(),
+                  ),
                 ),
               ],
             ),
             const SizedBox(height: 16),
+            Flexible(
+              child: ListView.separated(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                itemCount: activeTypes.length,
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
+                itemBuilder: (context, index) {
+                  final type = activeTypes[index];
+                  final entry = _entries.cast<AddOnEntry?>().firstWhere(
+                        (e) => e?.typeId == type.id,
+                        orElse: () => null,
+                      );
+                  final isSelected = entry != null;
 
-            // Selected Add-Ons
-            if (_entries.isNotEmpty) ...[
-              Text(
-                'Selected',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.w600,
-                  color: scheme.onSurfaceVariant,
-                ),
-              ),
-              const SizedBox(height: 8),
-              ..._entries.asMap().entries.map((entry) {
-                final idx = entry.key;
-                final item = entry.value;
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: GlassPanel(
-                    noBlur: true,
-                    solid: true,
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            item.name,
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ),
-                        SizedBox(
-                          width: 100,
-                          child: GlassTextField(
-                            label: 'Amount',
-                            controller: _controllers[item.typeId],
-                            keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true),
-                            onChanged: (v) => _updateAmount(idx, v),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        HapticWrapper(
-                          profile: HapticProfile.light,
-                          onTap: () => _removeAddOn(idx),
-                          child: IconButton(
-                            icon: const Icon(Icons.close,
-                                size: 18, color: AppColors.danger),
-                            onPressed: null,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }),
-              const SizedBox(height: 16),
-            ],
-
-            // Available Add-Ons
-            Text(
-              'Available',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: scheme.onSurfaceVariant,
-              ),
-            ),
-            const SizedBox(height: 8),
-            ListView.separated(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              itemCount: activeTypes.length,
-              separatorBuilder: (_, __) => const SizedBox(height: 8),
-              itemBuilder: (context, index) {
-                final type = activeTypes[index];
-                final isAdded = _entries.any((e) => e.typeId == type.id);
-                return HapticWrapper(
-                  onTap: isAdded ? null : () => _addAddOn(type),
-                  child: GlassPanel(
-                    noBlur: true,
-                    solid: true,
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 12),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            type.name,
-                            style: TextStyle(
-                              fontSize: 14,
-                              color: isAdded
-                                  ? scheme.onSurfaceVariant.withOpacity(0.5)
-                                  : scheme.onSurface,
+                  return HapticWrapper(
+                    profile: HapticProfile.light,
+                    onTap: null,
+                    child: GlassPanel(
+                      noBlur: true,
+                      solid: true,
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 12),
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            onTap: () => _toggleAddOn(type),
+                            child: Icon(
+                              isSelected
+                                  ? Icons.check_circle
+                                  : Icons.radio_button_unchecked,
+                              color: isSelected
+                                  ? AppColors.success
+                                  : scheme.primary,
+                              size: 22,
                             ),
                           ),
-                        ),
-                        Icon(
-                          isAdded
-                              ? Icons.check_circle
-                              : Icons.add_circle_outline,
-                          color: isAdded ? AppColors.success : scheme.primary,
-                          size: 20,
-                        ),
-                      ],
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              type.name,
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: isSelected
+                                    ? FontWeight.w600
+                                    : FontWeight.normal,
+                                color: isSelected
+                                    ? scheme.onSurface
+                                    : scheme.onSurfaceVariant,
+                              ),
+                            ),
+                          ),
+                          if (isSelected)
+                            SizedBox(
+                              width: 100,
+                              child: GlassTextField(
+                                label: 'Amount',
+                                controller: _controllers[type.id],
+                                keyboardType:
+                                    const TextInputType.numberWithOptions(
+                                        decimal: true),
+                                onChanged: (v) => _updateAmount(type.id, v),
+                              ),
+                            ),
+                        ],
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
             const SizedBox(height: 24),
-
-            // Footer
             GlassPanel.flush(
               padding: const EdgeInsets.all(16),
               noBlur: true,
@@ -273,9 +247,10 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
                     ),
                   ),
                   HapticWrapper(
-                    onTap: () => Navigator.of(context).pop(_entries),
+                    profile: HapticProfile.medium,
+                    onTap: null,
                     child: FilledButton(
-                      onPressed: null,
+                      onPressed: () => Navigator.of(context).pop(_entries),
                       child: const Text('Done'),
                     ),
                   ),

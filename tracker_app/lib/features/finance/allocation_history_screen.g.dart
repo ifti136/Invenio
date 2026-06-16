@@ -6,7 +6,7 @@ part of 'allocation_history_screen.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$ruleHistoryHash() => r'2f8e00664b33667d319f0abc33a349bad26185fe';
+String _$ruleHistoryHash() => r'4176f0c1c169d4a8200869b406aaf9cc378c7b34';
 
 /// Copied from Dart SDK
 class _SystemHash {

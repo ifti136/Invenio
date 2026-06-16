@@ -7,6 +7,7 @@ import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import '../wallet_repository.dart';
 import 'wallet_form_sheet.dart';
+import '../../dashboard/dashboard_provider.dart';
 
 class WalletListScreen extends ConsumerWidget {
   const WalletListScreen({super.key});
@@ -23,11 +24,32 @@ class WalletListScreen extends ConsumerWidget {
       body: FutureBuilder<List<WalletWithBalance>>(
         future: ref.read(walletRepositoryProvider).getWalletWithBalances(),
         builder: (context, snapshot) {
+          if (snapshot.hasError) {
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Text(
+                  'Error loading wallets: ${snapshot.error}',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(color: Colors.white70),
+                ),
+              ),
+            );
+          }
           if (!snapshot.hasData) {
             return const Center(child: CircularProgressIndicator());
           }
 
           final balances = snapshot.data!;
+
+          if (balances.isEmpty) {
+            return const Center(
+              child: Text(
+                'No wallet available',
+                style: TextStyle(color: Colors.white70, fontSize: 16),
+              ),
+            );
+          }
 
           return ListView.builder(
             padding: const EdgeInsets.all(16),
@@ -78,10 +100,10 @@ class WalletListScreen extends ConsumerWidget {
       ),
       floatingActionButton: HapticWrapper(
         profile: HapticProfile.medium,
-        onTap: () => showWalletFormSheet(context),
+        onTap: null,
         child: FloatingActionButton(
           backgroundColor: AppColors.accent,
-          onPressed: null,
+          onPressed: () => showWalletFormSheet(context),
           child: const Icon(Icons.add, color: Colors.white),
         ),
       ),
@@ -110,6 +132,7 @@ class WalletListScreen extends ConsumerWidget {
             final navigator = Navigator.of(ctx);
             HapticService.trigger(HapticProfile.heavy);
             await ref.read(walletRepositoryProvider).deleteWallet(id);
+            ref.invalidate(dashboardProvider);
             navigator.pop();
           },
         ),

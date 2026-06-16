@@ -7,6 +7,7 @@ import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/features/products/product_provider.dart';
+import 'package:tracker/features/dashboard/dashboard_provider.dart';
 import 'package:tracker/features/products/widgets/restock_sheet.dart';
 import 'package:tracker/features/products/widgets/sale_list_item.dart';
 import 'package:tracker/features/products/widgets/stock_badge.dart';
@@ -112,6 +113,8 @@ class ProductDetailScreen extends ConsumerWidget {
                             );
                             if (ok == true && context.mounted) {
                               ref.invalidate(productListProvider);
+                              ref.invalidate(productByIdProvider(id));
+                              ref.invalidate(dashboardProvider);
                             }
                           },
                           icon: const Icon(Icons.add_rounded),

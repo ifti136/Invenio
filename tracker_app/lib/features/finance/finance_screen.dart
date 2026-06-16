@@ -57,10 +57,10 @@ class FinanceScreen extends ConsumerWidget {
         actions: [
           HapticWrapper(
             profile: HapticProfile.light,
-            onTap: () => context.push('/settings/finance/rules'),
+            onTap: null,
             child: IconButton(
               icon: const Icon(Icons.settings),
-              onPressed: null,
+              onPressed: () => context.push('/settings/finance/settings'),
             ),
           ),
         ],
@@ -93,10 +93,10 @@ class FinanceScreen extends ConsumerWidget {
                 child: GlassPanel(
                   child: HapticWrapper(
                     profile: HapticProfile.light,
-                    onTap: () =>
-                        context.push('/settings/finance/history/${rule.id}'),
+                    onTap: null,
                     child: InkWell(
-                      onTap: null,
+                      onTap: () =>
+                          context.push('/settings/finance/history/${rule.id}'),
                       borderRadius: BorderRadius.circular(16),
                       child: Padding(
                         padding: const EdgeInsets.all(16),

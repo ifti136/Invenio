@@ -82,6 +82,7 @@ class ProductRepository {
   Future<void> restock({
     required int productId,
     required int quantity,
+    double? price,
     String? note,
   }) {
     return _db.transaction(() async {

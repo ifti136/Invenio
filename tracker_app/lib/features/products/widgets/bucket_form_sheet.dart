@@ -9,6 +9,7 @@ import 'package:tracker/core/widgets/sheet_drag_handle.dart';
 import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/db/app_database.dart';
 import '../bucket_repository.dart';
+import '../../dashboard/dashboard_provider.dart';
 
 class BucketFormSheet extends ConsumerStatefulWidget {
   final BudgetBucket? bucket;
@@ -89,6 +90,7 @@ class _BucketFormSheetState extends ConsumerState<BucketFormSheet> {
       }
 
       if (mounted) {
+        ref.invalidate(dashboardProvider);
         Navigator.of(context).pop(true);
       }
     } catch (e) {
@@ -129,10 +131,10 @@ class _BucketFormSheetState extends ConsumerState<BucketFormSheet> {
                 ),
                 HapticWrapper(
                   profile: HapticProfile.light,
-                  onTap: () => Navigator.of(context).pop(),
+                  onTap: null,
                   child: IconButton(
                     icon: const Icon(Icons.close_rounded),
-                    onPressed: null,
+                    onPressed: () => Navigator.of(context).pop(),
                   ),
                 ),
               ],
@@ -194,9 +196,9 @@ class _BucketFormSheetState extends ConsumerState<BucketFormSheet> {
             const SizedBox(height: 24),
             HapticWrapper(
               profile: HapticProfile.medium,
-              onTap: _saving ? null : _save,
+              onTap: null,
               child: FilledButton(
-                onPressed: null,
+                onPressed: _saving ? null : _save,
                 child: _saving
                     ? const SizedBox(
                         width: 18,

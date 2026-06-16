@@ -2,12 +2,64 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/widgets/glass_panel.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/widgets/glass_text_field.dart';
+import '../../core/services/haptic_service.dart';
+import '../../core/services/currency_service.dart';
 
-class CurrencyScreen extends ConsumerWidget {
+class CurrencyScreen extends ConsumerStatefulWidget {
   const CurrencyScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CurrencyScreen> createState() => _CurrencyScreenState();
+}
+
+class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
+  late final _symbol = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final symbol = ref.read(currencySymbolProvider);
+      _symbol.text = symbol;
+    });
+  }
+
+  @override
+  void dispose() {
+    _symbol.dispose();
+    super.dispose();
+  }
+
+  Future<void> _save() async {
+    final symbol = _symbol.text.trim();
+    if (symbol.isEmpty) return;
+    final service = await ref.read(currencyServiceProvider.future);
+    await service.setSymbol(symbol);
+    ref.invalidate(currencySymbolProvider);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Currency symbol updated')),
+      );
+    }
+  }
+
+  Future<void> _reset() async {
+    final service = await ref.read(currencyServiceProvider.future);
+    await service.reset();
+    ref.invalidate(currencySymbolProvider);
+    setState(() {
+      _symbol.text = '৳';
+    });
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Currency reset to default')),
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('CURRENCY'),
@@ -34,6 +86,44 @@ class CurrencyScreen extends ConsumerWidget {
                 'Set your preferred currency symbol and formatting.',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.white70),
+              ),
+              const SizedBox(height: 24),
+              GlassTextField(
+                controller: _symbol,
+                label: 'Currency Symbol',
+                hint: 'e.g. USD',
+                onChanged: (v) {},
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        HapticService.trigger(HapticProfile.light);
+                        _reset();
+                      },
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: Colors.white70,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text('Reset'),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: FilledButton(
+                      onPressed: () {
+                        HapticService.trigger(HapticProfile.medium);
+                        _save();
+                      },
+                      style: FilledButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text('Save'),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),

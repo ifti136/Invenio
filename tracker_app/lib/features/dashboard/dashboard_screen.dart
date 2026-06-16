@@ -8,7 +8,6 @@ import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/section_header.dart';
 import 'package:tracker/core/widgets/metric_cell.dart';
-import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/models/dashboard_summary.dart';
@@ -67,13 +66,12 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         centerTitle: true,
         actions: [
-          HapticWrapper(
-            profile: HapticProfile.light,
-            onTap: () => context.push('/settings'),
-            child: IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: null,
-            ),
+          IconButton(
+            icon: const Icon(Icons.settings),
+            onPressed: () {
+              HapticService.trigger(HapticProfile.light);
+              context.push('/settings');
+            },
           ),
         ],
       ),
@@ -691,18 +689,17 @@ class _StockAlertRow extends ConsumerWidget {
           const SizedBox(width: 8),
           const Icon(Icons.chevron_right, size: 16, color: Colors.white38),
           const SizedBox(width: 8),
-          HapticWrapper(
-            profile: HapticProfile.medium,
-            onTap: () => _sell(context, ref),
-            child: FilledButton.tonal(
-              onPressed: null, // HapticWrapper handles the tap
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 12),
-                visualDensity: VisualDensity.compact,
-              ),
-              child: const Text('SELL',
-                  style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+          FilledButton.tonal(
+            onPressed: () {
+              HapticService.trigger(HapticProfile.medium);
+              _sell(context, ref);
+            },
+            style: FilledButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              visualDensity: VisualDensity.compact,
             ),
+            child: const Text('SELL',
+                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
           ),
         ],
       ),

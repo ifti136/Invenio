@@ -6,7 +6,7 @@ part of 'finance_screen.dart';
 // RiverpodGenerator
 // **************************************************************************
 
-String _$financeDataHash() => r'6a6816d7839e2b8fa97386a7bc751b53103cde8f';
+String _$financeDataHash() => r'2547beb3deeb39cbf099d831a5ffa04508afee13';
 
 /// See also [financeData].
 @ProviderFor(financeData)

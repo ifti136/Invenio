@@ -40,38 +40,49 @@ Future<int?> showWalletPicker(
               ),
             ),
             Flexible(
-              child: ListView.builder(
-                shrinkWrap: true,
-                itemCount: wallets.length,
-                itemBuilder: (context, index) {
-                  final wallet = wallets[index];
-                  final balance = balances
-                      .firstWhere(
-                        (b) => b.walletId == wallet.id,
-                        orElse: () => WalletWithBalance(
-                            walletId: -1, name: '', balance: 0.0),
-                      )
-                      .balance;
-                  final isSelected = wallet.id == selectedId;
-
-                  return ListTile(
-                    title: Text(wallet.name),
-                    trailing: Text(
-                      formatMoney(balance),
-                      style: TextStyle(
-                        color:
-                            balance >= 0 ? AppColors.success : AppColors.danger,
-                        fontWeight: FontWeight.bold,
+              child: wallets.isEmpty
+                  ? const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(24.0),
+                        child: Text(
+                          'No wallet available',
+                          style: TextStyle(color: Colors.white70, fontSize: 16),
+                        ),
                       ),
+                    )
+                  : ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: wallets.length,
+                      itemBuilder: (context, index) {
+                        final wallet = wallets[index];
+                        final balance = balances
+                            .firstWhere(
+                              (b) => b.walletId == wallet.id,
+                              orElse: () => WalletWithBalance(
+                                  walletId: -1, name: '', balance: 0.0),
+                            )
+                            .balance;
+                        final isSelected = wallet.id == selectedId;
+
+                        return ListTile(
+                          title: Text(wallet.name),
+                          trailing: Text(
+                            formatMoney(balance),
+                            style: TextStyle(
+                              color: balance >= 0
+                                  ? AppColors.success
+                                  : AppColors.danger,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          selected: isSelected,
+                          onTap: () {
+                            HapticService.trigger(HapticProfile.light);
+                            Navigator.of(context).pop(wallet.id);
+                          },
+                        );
+                      },
                     ),
-                    selected: isSelected,
-                    onTap: () {
-                      HapticService.trigger(HapticProfile.light);
-                      Navigator.of(context).pop(wallet.id);
-                    },
-                  );
-                },
-              ),
             ),
           ],
         ),

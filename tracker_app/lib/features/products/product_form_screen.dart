@@ -199,18 +199,6 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(isEdit ? 'Edit Product' : 'Add Product'),
-        actions: [
-          if (isEdit)
-            HapticWrapper(
-              profile: HapticProfile.heavy,
-              onTap: _delete,
-              child: IconButton(
-                tooltip: 'Delete',
-                onPressed: null,
-                icon: const Icon(Icons.delete_outline_rounded),
-              ),
-            ),
-        ],
       ),
       body: Form(
         key: _form,
@@ -334,9 +322,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
             const SizedBox(height: 16),
             HapticWrapper(
               profile: HapticProfile.medium,
-              onTap: _saving ? null : _save,
+              onTap: null,
               child: FilledButton(
-                onPressed: null,
+                onPressed: _saving ? null : _save,
                 style: FilledButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 16),
                 ),
@@ -356,9 +344,9 @@ class _ProductFormScreenState extends ConsumerState<ProductFormScreen> {
               const SizedBox(height: 8),
               HapticWrapper(
                 profile: HapticProfile.heavy,
-                onTap: _saving ? null : _delete,
+                onTap: null,
                 child: TextButton(
-                  onPressed: null,
+                  onPressed: _saving ? null : _delete,
                   style: TextButton.styleFrom(
                     foregroundColor: Theme.of(context).colorScheme.error,
                   ),

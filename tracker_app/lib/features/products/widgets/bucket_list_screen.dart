@@ -1,18 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
-import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
+import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/services/haptic_service.dart';
-import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import '../bucket_repository.dart';
 import 'bucket_form_sheet.dart';
+import '../../dashboard/dashboard_provider.dart';
 
 class BucketListScreen extends ConsumerWidget {
   const BucketListScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final bucketAvailablesAsync = ref.watch(bucketAvailablesProvider);
     return Scaffold(
       backgroundColor: Colors.transparent,
       appBar: AppBar(
@@ -20,15 +22,12 @@ class BucketListScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
       ),
-      body: FutureBuilder<List<BucketWithAvailable>>(
-        future: ref.read(bucketRepositoryProvider).getBucketWithAvailables(),
-        builder: (context, snapshot) {
-          if (!snapshot.hasData) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          final balances = snapshot.data!;
-
+      body: bucketAvailablesAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, stack) => Center(
+            child: Text('Error: $err',
+                style: const TextStyle(color: Colors.white))),
+        data: (balances) {
           if (balances.isEmpty) {
             return const Center(
               child: Text(
@@ -67,7 +66,7 @@ class BucketListScreen extends ConsumerWidget {
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     trailing: Text(
-                      '\$${available.toStringAsFixed(2)}',
+                      formatMoney(available),
                       style: TextStyle(
                         color: available >= 0
                             ? AppColors.success
@@ -96,14 +95,13 @@ class BucketListScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: HapticWrapper(
-        profile: HapticProfile.medium,
-        onTap: () => showBucketFormSheet(context),
-        child: FloatingActionButton(
-          backgroundColor: AppColors.accent,
-          onPressed: null,
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
+      floatingActionButton: FloatingActionButton(
+        backgroundColor: AppColors.accent,
+        onPressed: () {
+          HapticService.trigger(HapticProfile.medium);
+          showBucketFormSheet(context);
+        },
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -130,6 +128,7 @@ class BucketListScreen extends ConsumerWidget {
             final navigator = Navigator.of(ctx);
             HapticService.trigger(HapticProfile.heavy);
             await ref.read(bucketRepositoryProvider).delete(id);
+            ref.invalidate(dashboardProvider);
             navigator.pop();
           },
         ),

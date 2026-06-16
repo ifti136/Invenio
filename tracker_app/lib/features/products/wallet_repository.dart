@@ -42,20 +42,26 @@ class WalletRepository {
           'SELECT walletId, SUM(total) as total FROM sales GROUP BY walletId',
         )
         .get();
-    final salesMap = {
-      for (var row in salesQuery)
-        row.read<int>('walletId'): row.read<double?>('total') ?? 0.0
-    };
+    final salesMap = <int, double>{};
+    for (var row in salesQuery) {
+      final id = row.read<int?>('walletId');
+      if (id != null) {
+        salesMap[id] = row.read<double?>('total') ?? 0.0;
+      }
+    }
 
     final expensesQuery = await _db
         .customSelect(
           'SELECT walletId, SUM(amount) as total FROM expenses GROUP BY walletId',
         )
         .get();
-    final expensesMap = {
-      for (var row in expensesQuery)
-        row.read<int>('walletId'): row.read<double?>('total') ?? 0.0
-    };
+    final expensesMap = <int, double>{};
+    for (var row in expensesQuery) {
+      final id = row.read<int?>('walletId');
+      if (id != null) {
+        expensesMap[id] = row.read<double?>('total') ?? 0.0;
+      }
+    }
 
     return wallets.map((w) {
       final balance = w.openingBalance +

@@ -5,7 +5,6 @@ import '../../../core/widgets/app_bottom_nav.dart';
 import '../../../core/widgets/glass_dialog.dart';
 import '../../../core/widgets/glass_panel.dart';
 import '../../../core/widgets/glass_text_field.dart';
-import '../../../core/widgets/haptic_wrapper.dart';
 import '../../../core/services/haptic_service.dart';
 import '../../../core/widgets/sheet_drag_handle.dart';
 import '../product_repository.dart';
@@ -60,18 +59,21 @@ class RestockSheet extends ConsumerStatefulWidget {
 
 class _RestockSheetState extends ConsumerState<RestockSheet> {
   final _qty = TextEditingController();
+  final _price = TextEditingController();
   final _note = TextEditingController();
   bool _saving = false;
 
   @override
   void dispose() {
     _qty.dispose();
+    _price.dispose();
     _note.dispose();
     super.dispose();
   }
 
   Future<void> _save() async {
     final qty = int.tryParse(_qty.text.trim());
+    final price = double.tryParse(_price.text.trim());
     if (qty == null || qty <= 0) {
       await showGlassDialog(
         context: context,
@@ -92,6 +94,7 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
       await ref.read(productRepositoryProvider).restock(
             productId: widget.productId,
             quantity: qty,
+            price: price,
             note: _note.text.trim().isEmpty ? null : _note.text.trim(),
           );
       if (mounted) Navigator.of(context).pop(true);
@@ -148,6 +151,18 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
           ),
           const SizedBox(height: 12),
           GlassTextField(
+            controller: _price,
+            label: 'Unit price (৳)',
+            hint: '0.00',
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+          ),
+          const SizedBox(height: 4),
+          const Text(
+            'Price is for reference only',
+            style: TextStyle(color: Colors.white54, fontSize: 11),
+          ),
+          const SizedBox(height: 8),
+          GlassTextField(
             controller: _note,
             label: 'Note (optional)',
             hint: 'Supplier, batch, etc.',
@@ -156,40 +171,41 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
           Row(
             children: [
               Expanded(
-                child: HapticWrapper(
-                  profile: HapticProfile.medium,
-                  onTap:
-                      _saving ? null : () => Navigator.of(context).pop(false),
-                  child: OutlinedButton(
-                    onPressed: null,
-                    style: OutlinedButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text('Cancel'),
+                child: OutlinedButton(
+                  onPressed: _saving
+                      ? null
+                      : () {
+                          HapticService.trigger(HapticProfile.medium);
+                          Navigator.of(context).pop(false);
+                        },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
+                  child: const Text('Cancel'),
                 ),
               ),
               const SizedBox(width: 10),
               Expanded(
-                child: HapticWrapper(
-                  profile: HapticProfile.medium,
-                  onTap: _saving ? null : _save,
-                  child: FilledButton(
-                    onPressed: null,
-                    style: FilledButton.styleFrom(
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: _saving
-                        ? const SizedBox(
-                            width: 18,
-                            height: 18,
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Colors.white,
-                            ),
-                          )
-                        : const Text('Add stock'),
+                child: FilledButton(
+                  onPressed: _saving
+                      ? null
+                      : () {
+                          HapticService.trigger(HapticProfile.medium);
+                          _save();
+                        },
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
+                  child: _saving
+                      ? const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: Colors.white,
+                          ),
+                        )
+                      : const Text('Add stock'),
                 ),
               ),
             ],

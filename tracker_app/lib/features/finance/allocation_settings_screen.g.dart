@@ -7,7 +7,7 @@ part of 'allocation_settings_screen.dart';
 // **************************************************************************
 
 String _$allocationRulesListHash() =>
-    r'45ea8bbe1da8ca24cc23e7a918cb8459c24c2b11';
+    r'b694f52bb01bf2ab85eb2eaf5dc6811d142415eb';
 
 /// See also [allocationRulesList].
 @ProviderFor(allocationRulesList)
