@@ -12,31 +12,6 @@ v1.0.2+1 (Schema v5)
 
 ## BFMS Integration Roadmap
 
-### Phase 1: Financial Foundation (Schema v3)
-**Goal:** Implement mandatory money tracking, ownership separation, and the cumulative Profit Allocation system.
-
-1. **Schema Migration (v3):**
-   - Create `Wallets` table.
-   - Add `walletId` (mandatory) to `Sales` and `Expenses`.
-   - Add `ownership` ('business'/'personal') to `Sales` and `Expenses`.
-   - Create `AllocationRules` table.
-   - Add `allocationRuleId` (nullable) to `Expenses`.
-2. **Wallet Management:**
-   - `WalletRepository` + Provider.
-   - Wallet List & Form screens (nested in Products $\rightarrow$ Settings).
-   - Mandatory Wallet Picker in Sale and Expense forms.
-   - Dashboard "Wallet Balances" card.
-3. **Ownership Tagging:**
-   - Ownership toggle in Sale and Expense forms.
-   - Dashboard filtering logic (Strictly Business-only).
-4. **Profit Allocation System:**
-   - `AllocationRulesRepository` + Provider.
-   - **New 6th Tab: Finance** (`/finance`) showing available balances per rule.
-   - `AllocationHistoryScreen` showing monthly credit/debit breakdown.
-   - `AllocationSettingsScreen` for CRUD of rules (sum $\le$ 100%).
-   - Expense form: "Allocate to fund" picker for business expenses.
-   - `AlertService`: `AllocationOverdrawAlert` (amber warning).
-
 ### Phase 2: Budgetary Control (Schema v4)
 **Goal:** Implement logical spending limits and alerts.
 
@@ -50,3 +25,17 @@ v1.0.2+1 (Schema v5)
 3. **Smart Alerts:**
    - Extend `AlertService` with `BucketOverdrawAlert`.
    - Pre-save warning in Expense form when a bucket is overdrawn.
+
+## Screen & Popup Bug-Fix Session (Committed)
+- Commit `c70603b` fixed the reported wallet, finance, dashboard refresh, product/restock, bucket, add-on picker, currency, and add-on types screen issues.
+- Key decisions:
+  - Kept `dashboardProvider` as a `FutureProvider` and added comprehensive `ref.invalidate(dashboardProvider)` coverage across mutation sites.
+  - Fixed nullable `walletId` handling in `WalletRepository.getWalletWithBalances()` for legacy sales/expenses.
+  - Corrected Finance settings navigation to `/settings/finance/settings`.
+  - Added currency symbol persistence via `CurrencyService`.
+  - Deferred restock-price persistence because it would require a Drift schema migration; the field is reference-only in the restock sheet.
+- Verification:
+  - `dart run build_runner build --delete-conflicting-outputs` succeeded.
+  - `flutter analyze` passed with 0 errors; warnings/info are non-blocking.
+  - `dart format` applied formatting fixes.
+
