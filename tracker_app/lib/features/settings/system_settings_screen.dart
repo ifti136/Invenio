@@ -25,7 +25,7 @@ class SystemSettingsScreen extends StatelessWidget {
                       ),
                 ),
                 const SizedBox(height: 12),
-                _infoRow(context, 'Version', '1.0.2+1'),
+                _infoRow(context, 'Version', '1.3.2+5'),
                 _infoRow(context, 'Schema', 'v5'),
                 _infoRow(context, 'Min SDK', 'Android 24'),
                 _infoRow(context, 'Framework', 'Flutter 3.24.4'),
