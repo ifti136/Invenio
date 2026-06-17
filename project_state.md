@@ -1,7 +1,7 @@
 # Project State — Invenio
 
 ## Current Version
-v1.0.1+3 (Schema v5) · 9 tables · 100/100 tests passing
+v1.3.1+4 (Schema v5) · 9 tables · 100/100 tests passing
 
 ## Completed Features
 

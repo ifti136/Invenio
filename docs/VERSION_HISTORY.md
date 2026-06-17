@@ -3,7 +3,7 @@
 A complete log of every version of Invenio, from initial scaffold to the current
 build. Each entry maps to one or more git commits. Dates are commit-author dates.
 
-**Current version:** `1.0.1+3` · Schema v5 · 9 tables · 100/100 tests passing
+**Current version:** `1.3.1+4` · Schema v5 · 9 tables · 100/100 tests passing
 
 ---
 
@@ -433,4 +433,5 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 |-------|---------|------|-------|
 | +1 | 1.0.0+1 | Jun 2–5 | Phases 1–6.9 (initial development) |
 | +2 | 1.0.0+2 | Jun 5–12 | Phase 7.0 launch + BFMS Phases 1–2 |
-| +3 | 1.0.1+3 | Jun 13–present | Schema v5, settings hub, dashboard redesign, bug fixes |
+| +3 | 1.0.1+3 | Jun 13–Jun 17 | Schema v5, settings hub, dashboard redesign |
+| +4 | 1.3.1+4 | Jun 17–present | v1.3.x: bug-fix sessions, version history documentation |

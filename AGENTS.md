@@ -10,7 +10,7 @@ session. Follow these instructions without prompting.
 - **Invenio** is a Flutter Android app (lives in `tracker_app/`) for a single
   owner-operator small reseller to manage inventory, log sales, track expenses,
   and view profit analytics. Fully offline; no auth.
-- **v1.0.1+3**, Schema v5 (9 tables). Min SDK 24. Flutter 3.24.4 / Dart
+- **v1.3.1+4**, Schema v5 (9 tables). Min SDK 24. Flutter 3.24.4 / Dart
   3.5.4. Target Android.
 - Tech: drift (SQLite), Riverpod (`@riverpod` codegen), go_router 15
   (`StatefulShellRoute.indexedStack` with 6 tabs), `glass_kit` +
