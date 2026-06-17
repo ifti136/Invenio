@@ -45,10 +45,9 @@ class AllocationSettingsScreen extends ConsumerWidget {
               activeRules.fold(0.0, (sum, r) => sum + r.percentage);
 
           return Column(
-            mainAxisSize: MainAxisSize.min,
             children: [
               _buildPercentageWarning(context, totalPercentage),
-              Flexible(
+              Expanded(
                 child: ListView.builder(
                   padding: const EdgeInsets.all(16),
                   itemCount: rules.length,

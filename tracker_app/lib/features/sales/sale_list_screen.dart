@@ -34,7 +34,7 @@ class SaleListScreen extends ConsumerWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
-            centerTitle: false,
+            centerTitle: true,
             title: const Text(
               'Sales',
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),

@@ -38,22 +38,12 @@ class _ProductListScreenState extends ConsumerState<ProductListScreen> {
         slivers: [
           SliverAppBar(
             pinned: true,
-            centerTitle: false,
+            centerTitle: true,
             title: const Text(
               'Products',
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
             ),
             actions: [
-              IconButton(
-                tooltip: 'Settings',
-                onPressed: () {
-                  HapticService.trigger(HapticProfile.light);
-                  context.push('/settings');
-                },
-                icon:
-                    const Icon(Icons.settings_outlined, color: Colors.white70),
-              ),
-              const SizedBox(width: 4),
               IconButton(
                 tooltip: 'Add product',
                 onPressed: () {

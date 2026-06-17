@@ -3,7 +3,7 @@
 A complete log of every version of Invenio, from initial scaffold to the current
 build. Each entry maps to one or more git commits. Dates are commit-author dates.
 
-**Current version:** `1.3.1+4` · Schema v5 · 9 tables · 100/100 tests passing
+**Current version:** `1.3.2+5` · Schema v5 · 9 tables · 100/100 tests passing
 
 ---
 
@@ -397,7 +397,7 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 ### v1.3.1 (Build 1.0.1+3) — Bug-Fix Session 2
 **Date:** 2026-06-17  
 **Commit:** `15f5582`
-
+ 
 - Fixed FAB position: `centerDocked` → `endFloat` (app_bottom_nav.dart)
 - Fixed wallet SQL: `walletId` → `wallet_id` in raw `customSelect` queries (wallet_repository.dart)
 - Fixed finance error text color `Colors.white` → `Colors.white70` (finance_screen.dart)
@@ -407,12 +407,22 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 - Fixed sell button `onPressed: null` → conditional callback, removed `HapticWrapper` (sale_list_screen.dart)
 - Fixed add-on picker: wrapped in `SingleChildScrollView`, simplified Done button (add_on_picker_sheet.dart)
 - Fixed dashboard card staleness: removed `const` from card instantiations (dashboard_screen.dart)
-- `dart run build_runner build --delete-conflicting-outputs` succeeded
-- `flutter analyze` passed with 0 errors (2 warnings, 7 info)
-- `dart format` passed (128 files formatted, 0 changed)
-
+ 
 ---
-
+ 
+### v1.3.2 (Build 1.3.2+5) — Bug-Fix Session 3
+**Date:** 2026-06-17  
+**Commit:** (current)
+ 
+- Removed settings gear from Products screen AppBar; centered titles on Products, Sales, and Expenses screens.
+- Added wallet picker to Quick Sell and Discount sheets (auto-selects last-used wallet, saves wallet ID with sale).
+- Fixed Finance screen blank state (added `noBlur: true` and padding to GlassPanel) and updated currency formatting.
+- Fixed Allocation Settings screen blank state (removed `mainAxisSize: min` and changed `Flexible` → `Expanded`).
+- Fixed Theme screen blank state (replaced nested `AuroraBackdrop` with colored container previews).
+- Version bump to v1.3.2+5.
+ 
+---
+ 
 ## Schema Evolution
 
 | Version | Tables | Added In | Change |
@@ -434,4 +444,5 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 | +1 | 1.0.0+1 | Jun 2–5 | Phases 1–6.9 (initial development) |
 | +2 | 1.0.0+2 | Jun 5–12 | Phase 7.0 launch + BFMS Phases 1–2 |
 | +3 | 1.0.1+3 | Jun 13–Jun 17 | Schema v5, settings hub, dashboard redesign |
-| +4 | 1.3.1+4 | Jun 17–present | v1.3.x: bug-fix sessions, version history documentation |
+| +4 | 1.3.1+4 | Jun 17–Jun 17 2026 | v1.3.x: bug-fix sessions, version history documentation |
+| +5 | 1.3.2+5 | Jun 17 2026 | v1.3.2: UI fixes, wallet picker in quick sell/discount, doc updates |

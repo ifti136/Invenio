@@ -40,7 +40,7 @@ class _ExpenseListScreenState extends ConsumerState<ExpenseListScreen> {
         slivers: [
           SliverAppBar(
             pinned: true,
-            centerTitle: false,
+            centerTitle: true,
             title: const Text(
               'Expenses',
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),

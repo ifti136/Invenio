@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../theme/app_theme.dart';
 import '../theme/theme_provider.dart';
-import '../background/aurora_backdrop.dart';
 import 'glass_panel.dart';
 import 'haptic_wrapper.dart';
 import '../services/haptic_service.dart';
@@ -39,8 +38,19 @@ class ThemeCard extends ConsumerWidget {
               child: SizedBox(
                 height: 60,
                 width: double.infinity,
-                child: AuroraBackdrop(
-                  config: settings.aurora,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: settings.aurora.backgrounds.length > 1
+                        ? LinearGradient(
+                            colors: settings.aurora.backgrounds,
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
+                    color: settings.aurora.backgrounds.length == 1
+                        ? settings.aurora.backgrounds.first
+                        : null,
+                  ),
                 ),
               ),
             ),

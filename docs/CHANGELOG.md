@@ -1,10 +1,13 @@
 # Changelog
  
-What shipped in Invenio, in order, with one bullet per phase. The detailed
-"why" for each fix lives in [`HISTORY.md`](HISTORY.md); the original
-specs live in [`instructions/`](instructions/).
-For the full micro-version breakdown see [`VERSION_HISTORY.md`](VERSION_HISTORY.md).
- 
+## Bug-Fix Session 3 (v1.3.2)
+- Removed settings gear from Products screen AppBar; centered titles on Products, Sales, and Expenses screens.
+- Added wallet picker to Quick Sell and Discount sheets (auto-selects last-used wallet, saves wallet ID with sale).
+- Fixed Finance screen blank state (added `noBlur: true` and padding to GlassPanel) and updated currency formatting.
+- Fixed Allocation Settings screen blank state (removed `mainAxisSize: min` and changed `Flexible` → `Expanded`).
+- Fixed Theme screen blank state (replaced nested `AuroraBackdrop` with colored container previews).
+- Version bump to v1.3.2+5.
+
 ## Bug-Fix Session 2 (v1.3.1)
 - Fixed FAB position: `centerDocked` → `endFloat` (app_bottom_nav.dart).
 - Fixed wallet SQL: `walletId` → `wallet_id` in raw `customSelect` queries (wallet_repository.dart).

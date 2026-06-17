@@ -21,6 +21,8 @@ import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/features/sales/add_on_repository.dart';
 import 'package:tracker/features/sales/widgets/product_picker_sheet.dart';
 import 'package:tracker/features/sales/widgets/add_on_picker_sheet.dart';
+import 'package:tracker/features/products/wallet_repository.dart';
+import 'package:tracker/features/products/widgets/wallet_picker_sheet.dart';
 import 'package:tracker/services/alert_service.dart';
 
 class DiscountSheet extends ConsumerStatefulWidget {
@@ -40,7 +42,28 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
   int? _selectedProductId;
   SalePlatform _platform = SalePlatform.facebook;
   PaymentStatus _payment = PaymentStatus.paid;
+  int? _walletId;
+  String? _walletName;
   bool _saving = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      final lastWalletId =
+          await ref.read(walletRepositoryProvider).getLastUsedWalletId();
+      if (lastWalletId != null) {
+        final wallets = await ref.read(walletRepositoryProvider).getWallets();
+        final wallet = wallets.firstWhere((w) => w.id == lastWalletId);
+        if (mounted) {
+          setState(() {
+            _walletId = wallet.id;
+            _walletName = wallet.name;
+          });
+        }
+      }
+    });
+  }
 
   @override
   void dispose() {
@@ -77,7 +100,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
         paymentStatus: _payment.key,
         date: DateTime.now().millisecondsSinceEpoch,
         createdAt: DateTime.now().millisecondsSinceEpoch,
-        walletId: null,
+        walletId: _walletId,
         ownership: 'business',
         customerName: _customer.text.trim(),
         isDiscounted: true,
@@ -148,6 +171,8 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                 _customer.text.trim().isEmpty ? null : _customer.text.trim(),
             isDiscounted: true,
             normalPrice: _normal,
+            walletId: _walletId,
+            ownership: 'business',
           );
 
       // Save add-ons
@@ -298,6 +323,63 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
                 HapticService.trigger(HapticProfile.light);
                 setState(() => _payment = v);
               },
+            ),
+            const SizedBox(height: 12),
+            Row(
+              children: [
+                Expanded(
+                  child: InkWell(
+                    onTap: () async {
+                      HapticService.trigger(HapticProfile.light);
+                      final id = await showWalletPicker(
+                        context,
+                        ref: ref,
+                        selectedId: _walletId,
+                      );
+                      if (id != null) {
+                        final wallets = await ref
+                            .read(walletRepositoryProvider)
+                            .getWallets();
+                        final name = wallets.firstWhere((w) => w.id == id).name;
+                        setState(() {
+                          _walletId = id;
+                          _walletName = name;
+                        });
+                      }
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 8,
+                        horizontal: 12,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.04),
+                        borderRadius: BorderRadius.circular(10),
+                        border: Border.all(
+                          color: Colors.white.withOpacity(0.18),
+                          width: 0.6,
+                        ),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.account_balance_wallet_outlined,
+                              size: 16, color: AppColors.accent),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              _walletName ?? 'Select Wallet',
+                              style: const TextStyle(fontSize: 13),
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                          const Icon(Icons.expand_more,
+                              size: 16, color: Colors.white54),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
             const SizedBox(height: 12),
             GlassTextField(

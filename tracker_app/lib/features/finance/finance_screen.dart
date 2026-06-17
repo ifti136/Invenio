@@ -6,6 +6,7 @@ import '../../core/widgets/glass_panel.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/haptic_wrapper.dart';
 import '../../core/services/haptic_service.dart';
+import '../../core/utils/formatters.dart';
 import 'finance_repository.dart';
 import 'allocation_rules_repository.dart';
 import '../../db/app_database.dart';
@@ -91,6 +92,8 @@ class FinanceScreen extends ConsumerWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 16),
                 child: GlassPanel(
+                  noBlur: true,
+                  padding: const EdgeInsets.all(16),
                   child: HapticWrapper(
                     profile: HapticProfile.light,
                     onTap: null,
@@ -185,7 +188,7 @@ class FinanceScreen extends ConsumerWidget {
         ),
         const SizedBox(height: 4),
         Text(
-          '\$${value.toStringAsFixed(2)}',
+          formatMoney(value),
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: color ?? Colors.white,

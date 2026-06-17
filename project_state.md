@@ -1,9 +1,16 @@
 # Project State — Invenio
 
 ## Current Version
-v1.3.1+4 (Schema v5) · 9 tables · 100/100 tests passing
+v1.3.2+5 (Schema v5) · 9 tables · 100/100 tests passing
 
 ## Completed Features
+
+### v1.3.2 — Bug-Fix Session 3 ✅
+- Removed settings gear from Products screen; centered titles on Products, Sales, and Expenses screens.
+- Added wallet picker to Quick Sell and Discount sheets.
+- Fixed Finance and Allocation Settings screens blank states.
+- Fixed Theme screen blank state (replaced nested AuroraBackdrop).
+- Version bump to v1.3.2+5.
 
 ### v1.3.1 — Bug-Fix Session 2 ✅
 - FAB position fix, wallet SQL fix, allocation rules layout, version screen, dashboard popup, sell button, add-on picker, dashboard card staleness.
