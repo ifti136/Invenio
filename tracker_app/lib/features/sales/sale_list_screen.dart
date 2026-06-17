@@ -258,16 +258,17 @@ class _ProductSellCard extends ConsumerWidget {
               ),
             ),
             const SizedBox(width: 8),
-            HapticWrapper(
-              profile: HapticProfile.medium,
-              onTap: inStock ? () => _sell(context, ref) : null,
-              child: FilledButton.tonalIcon(
-                onPressed: null,
-                icon: const Icon(Icons.point_of_sale_rounded, size: 18),
-                label: const Text('Sell'),
-                style: FilledButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                ),
+            FilledButton.tonalIcon(
+              onPressed: inStock
+                  ? () {
+                      HapticService.trigger(HapticProfile.medium);
+                      _sell(context, ref);
+                    }
+                  : null,
+              icon: const Icon(Icons.point_of_sale_rounded, size: 18),
+              label: const Text('Sell'),
+              style: FilledButton.styleFrom(
+                padding: const EdgeInsets.symmetric(horizontal: 14),
               ),
             ),
           ],

@@ -69,7 +69,7 @@ class FinanceScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(
             child: Text('Error: $err',
-                style: const TextStyle(color: Colors.white))),
+                style: const TextStyle(color: Colors.white70))),
         data: (data) {
           if (data.isEmpty) {
             return const Center(

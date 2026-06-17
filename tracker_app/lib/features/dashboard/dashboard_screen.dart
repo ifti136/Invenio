@@ -90,9 +90,9 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 offlineRevenue: s.offlineRevenue,
               ),
               const SizedBox(height: 16),
-              const _WalletWithBalancesCard(),
+              _WalletWithBalancesCard(),
               const SizedBox(height: 16),
-              const _BudgetBucketsCard(),
+              _BudgetBucketsCard(),
               if (s.lowStockProducts.isNotEmpty) ...[
                 const SizedBox(height: 16),
                 _StockAlertsCard(products: s.lowStockProducts),

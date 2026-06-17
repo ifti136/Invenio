@@ -45,6 +45,7 @@ class AppScaffold extends ConsumerWidget {
   void _showQuickActionSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
       barrierColor: Colors.black.withOpacity(0.5),
       useSafeArea: false,
       builder: (ctx) => Padding(
@@ -55,36 +56,40 @@ class AppScaffold extends ConsumerWidget {
             (MediaQuery.of(ctx).viewInsets.bottom > 0
                 ? MediaQuery.of(ctx).viewInsets.bottom
                 : kBottomNavHeight + 8)),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 40,
-              height: 4,
-              margin: const EdgeInsets.only(bottom: 24),
-              decoration: BoxDecoration(
-                color: Colors.white24,
-                borderRadius: BorderRadius.circular(2),
+        child: GlassPanel(
+          solid: true,
+          radius: 28,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: Colors.white24,
+                  borderRadius: BorderRadius.circular(2),
+                ),
               ),
-            ),
-            Text(
-              'QUICK ACTIONS',
-              style: TextStyle(
-                color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.8,
+              Text(
+                'QUICK ACTIONS',
+                style: TextStyle(
+                  color: Theme.of(ctx).colorScheme.onSurfaceVariant,
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.8,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            _buildActionTile(
-                ctx, 'New Sale', Icons.add_shopping_cart, '/sales/add'),
-            _buildActionTile(
-                ctx, 'New Expense', Icons.money_off, '/expenses/add'),
-            _buildActionTile(
-                ctx, 'New Product', Icons.add_box, '/products/add'),
-            const SizedBox(height: 16),
-          ],
+              const SizedBox(height: 16),
+              _buildActionTile(
+                  ctx, 'New Sale', Icons.add_shopping_cart, '/sales/add'),
+              _buildActionTile(
+                  ctx, 'New Expense', Icons.money_off, '/expenses/add'),
+              _buildActionTile(
+                  ctx, 'New Product', Icons.add_box, '/products/add'),
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
@@ -172,7 +177,7 @@ class AppScaffold extends ConsumerWidget {
               ),
             )
           : null,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       bottomNavigationBar: SafeArea(
         top: false,
         child: Padding(

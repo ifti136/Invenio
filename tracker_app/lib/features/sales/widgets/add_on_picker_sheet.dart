@@ -2,7 +2,6 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:tracker/core/theme/app_colors.dart';
-import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_text_field.dart';
@@ -72,8 +71,6 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
     super.dispose();
   }
 
-  double get _totalCost => _entries.fold(0.0, (sum, e) => sum + e.amount);
-
   void _toggleAddOn(AddOnType type) {
     final existingIndex = _entries.indexWhere((e) => e.typeId == type.id);
     if (existingIndex != -1) {
@@ -123,141 +120,110 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
       noBlur: true,
       solid: true,
-      child: Form(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            const SheetDragHandle(),
-            Row(
-              children: [
-                const Expanded(
-                  child: Text(
-                    'Add-Ons',
-                    style: TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
-                  ),
-                ),
-                HapticWrapper(
-                  profile: HapticProfile.light,
-                  onTap: null,
-                  child: IconButton(
-                    icon: const Icon(Icons.close_rounded),
-                    onPressed: () => Navigator.of(context).pop(),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Flexible(
-              child: ListView.separated(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: activeTypes.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 8),
-                itemBuilder: (context, index) {
-                  final type = activeTypes[index];
-                  final entry = _entries.cast<AddOnEntry?>().firstWhere(
-                        (e) => e?.typeId == type.id,
-                        orElse: () => null,
-                      );
-                  final isSelected = entry != null;
-
-                  return HapticWrapper(
-                    profile: HapticProfile.light,
-                    onTap: null,
-                    child: GlassPanel(
-                      noBlur: true,
-                      solid: true,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 12),
-                      child: Row(
-                        children: [
-                          GestureDetector(
-                            onTap: () => _toggleAddOn(type),
-                            child: Icon(
-                              isSelected
-                                  ? Icons.check_circle
-                                  : Icons.radio_button_unchecked,
-                              color: isSelected
-                                  ? AppColors.success
-                                  : scheme.primary,
-                              size: 22,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              type.name,
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: isSelected
-                                    ? FontWeight.w600
-                                    : FontWeight.normal,
-                                color: isSelected
-                                    ? scheme.onSurface
-                                    : scheme.onSurfaceVariant,
-                              ),
-                            ),
-                          ),
-                          if (isSelected)
-                            SizedBox(
-                              width: 100,
-                              child: GlassTextField(
-                                label: 'Amount',
-                                controller: _controllers[type.id],
-                                keyboardType:
-                                    const TextInputType.numberWithOptions(
-                                        decimal: true),
-                                onChanged: (v) => _updateAmount(type.id, v),
-                              ),
-                            ),
-                        ],
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 24),
-            GlassPanel.flush(
-              padding: const EdgeInsets.all(16),
-              noBlur: true,
-              child: Row(
+      child: SingleChildScrollView(
+        child: Form(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SheetDragHandle(),
+              Row(
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Total add-on cost',
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: scheme.onSurfaceVariant,
-                          ),
-                        ),
-                        Text(
-                          formatMoney(_totalCost),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                            color: AppColors.accent,
-                          ),
-                        ),
-                      ],
+                  const Expanded(
+                    child: Text(
+                      'Add-Ons',
+                      style:
+                          TextStyle(fontWeight: FontWeight.w700, fontSize: 17),
                     ),
                   ),
                   HapticWrapper(
-                    profile: HapticProfile.medium,
+                    profile: HapticProfile.light,
                     onTap: null,
-                    child: FilledButton(
-                      onPressed: () => Navigator.of(context).pop(_entries),
-                      child: const Text('Done'),
+                    child: IconButton(
+                      icon: const Icon(Icons.close_rounded),
+                      onPressed: () => Navigator.of(context).pop(),
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 16),
+              Flexible(
+                child: ListView.separated(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  itemCount: activeTypes.length,
+                  separatorBuilder: (_, __) => const SizedBox(height: 8),
+                  itemBuilder: (context, index) {
+                    final type = activeTypes[index];
+                    final entry = _entries.cast<AddOnEntry?>().firstWhere(
+                          (e) => e?.typeId == type.id,
+                          orElse: () => null,
+                        );
+                    final isSelected = entry != null;
+
+                    return HapticWrapper(
+                      profile: HapticProfile.light,
+                      onTap: null,
+                      child: GlassPanel(
+                        noBlur: true,
+                        solid: true,
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 12, vertical: 12),
+                        child: Row(
+                          children: [
+                            GestureDetector(
+                              onTap: () => _toggleAddOn(type),
+                              child: Icon(
+                                isSelected
+                                    ? Icons.check_circle
+                                    : Icons.radio_button_unchecked,
+                                color: isSelected
+                                    ? AppColors.success
+                                    : scheme.primary,
+                                size: 22,
+                              ),
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Text(
+                                type.name,
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w600
+                                      : FontWeight.normal,
+                                  color: isSelected
+                                      ? scheme.onSurface
+                                      : scheme.onSurfaceVariant,
+                                ),
+                              ),
+                            ),
+                            if (isSelected)
+                              SizedBox(
+                                width: 100,
+                                child: GlassTextField(
+                                  label: 'Amount',
+                                  controller: _controllers[type.id],
+                                  keyboardType:
+                                      const TextInputType.numberWithOptions(
+                                          decimal: true),
+                                  onChanged: (v) => _updateAmount(type.id, v),
+                                ),
+                              ),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(_entries),
+                child: const Text('Done'),
+              ),
+            ],
+          ),
         ),
       ),
     );

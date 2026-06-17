@@ -39,12 +39,12 @@ class WalletRepository {
 
     final salesQuery = await _db
         .customSelect(
-          'SELECT walletId, SUM(total) as total FROM sales GROUP BY walletId',
+          'SELECT wallet_id, SUM(total) as total FROM sales GROUP BY wallet_id',
         )
         .get();
     final salesMap = <int, double>{};
     for (var row in salesQuery) {
-      final id = row.read<int?>('walletId');
+      final id = row.read<int?>('wallet_id');
       if (id != null) {
         salesMap[id] = row.read<double?>('total') ?? 0.0;
       }
@@ -52,12 +52,12 @@ class WalletRepository {
 
     final expensesQuery = await _db
         .customSelect(
-          'SELECT walletId, SUM(amount) as total FROM expenses GROUP BY walletId',
+          'SELECT wallet_id, SUM(amount) as total FROM expenses GROUP BY wallet_id',
         )
         .get();
     final expensesMap = <int, double>{};
     for (var row in expensesQuery) {
-      final id = row.read<int?>('walletId');
+      final id = row.read<int?>('wallet_id');
       if (id != null) {
         expensesMap[id] = row.read<double?>('total') ?? 0.0;
       }
