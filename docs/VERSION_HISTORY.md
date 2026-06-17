@@ -7,7 +7,7 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 
 ---
 
-## Pre-release (Development Phases)
+## Pre-release
 
 ### v0.0.1 — Foundation
 **Date:** 2026-06-02  
@@ -249,7 +249,7 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 
 ---
 
-### v1.1.0 (Build 1.0.0+2) — BFMS Phase 1 (Schema v4)
+### v1.1.0 (Build 1.0.0+2) — BFMS — Schema v4
 **Date:** 2026-06-11  
 **Commit:** `89750d0`
 
@@ -263,7 +263,7 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 
 ---
 
-### v1.1.1 (Build 1.0.0+2) — BFMS Phase 2 – Integration & Budgeting
+### v1.1.1 (Build 1.0.0+2) — BFMS — Integration & Budgeting
 **Date:** 2026-06-12  
 **Commit:** `e123c8b`
 
@@ -374,12 +374,12 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 
 - Static analysis cleanup: fixed syntax errors and removed unused imports
 - Documentation sync: updated CHANGELOG, HISTORY, and project state
-- All Phase 0–9 features merged into main
+- All features merged into main
 - Schema v5 finalized with 9 database tables
 
 ---
 
-### v1.3.0 (Build 1.0.1+3) — Bug-Fix Session 1
+### v1.3.0 (Build 1.0.1+3) — Bug Fixes
 **Date:** 2026-06-16  
 **Commit:** `c70603b`
 
@@ -394,7 +394,7 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 
 ---
 
-### v1.3.1 (Build 1.0.1+3) — Bug-Fix Session 2
+### v1.3.1 (Build 1.0.1+3) — Bug Fixes
 **Date:** 2026-06-17  
 **Commit:** `15f5582`
  
@@ -410,7 +410,7 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
  
 ---
  
-### v1.3.2 (Build 1.3.2+5) — Bug-Fix Session 3
+### v1.3.2 (Build 1.3.2+5) — UI Fixes & Wallet Picker
 **Date:** 2026-06-17  
 **Commit:** (current)
  
@@ -439,10 +439,10 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 
 ## Build History (pubspec.yaml)
 
-| Build | Version | Date | Phase |
-|-------|---------|------|-------|
-| +1 | 1.0.0+1 | Jun 2–5 | Phases 1–6.9 (initial development) |
-| +2 | 1.0.0+2 | Jun 5–12 | Phase 7.0 launch + BFMS Phases 1–2 |
+| Build | Version | Date | Summary |
+|-------|---------|------|--------|
+| +1 | 1.0.0+1 | Jun 2–5 | v0.1.0–v0.6.9 (initial development) |
+| +2 | 1.0.0+2 | Jun 5–12 | Launch + BFMS integration |
 | +3 | 1.0.1+3 | Jun 13–Jun 17 | Schema v5, settings hub, dashboard redesign |
-| +4 | 1.3.1+4 | Jun 17–Jun 17 2026 | v1.3.x: bug-fix sessions, version history documentation |
+| +4 | 1.3.1+4 | Jun 17–Jun 17 2026 | v1.3.x: bug fixes, version history documentation |
 | +5 | 1.3.2+5 | Jun 17 2026 | v1.3.2: UI fixes, wallet picker in quick sell/discount, doc updates |

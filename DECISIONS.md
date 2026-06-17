@@ -4,7 +4,7 @@ This file logs important decisions made during development. Each entry has a dat
 
 ---
 
-## 2026-06-16 — Screen/Popup Bug-Fix Session
+## 2026-06-16 — Screen/Popup Bug Fixes
 
 **Context:** User reported widespread functional and UI bugs across wallet, finance, dashboard, product, restock, bucket, add-on picker, and settings screens.
 
@@ -33,7 +33,7 @@ This file logs important decisions made during development. Each entry has a dat
 
 ---
 
-## 2026-06-17 — Bug-Fix Session 3 (v1.3.2+5)
+## 2026-06-17 — v1.3.2 (UI Fixes & Wallet Picker)
 
 **Context:** User reported Products screen had a settings button inconsistent with other screens; Quick Sell and Discount sheets lacked wallet picker; Finance, Allocation Settings, and Theme screens were blank; screen titles inconsistently aligned.
 

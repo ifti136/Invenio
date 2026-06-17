@@ -657,7 +657,7 @@ These appear as small colored text labels or dots on sale tiles and dashboard br
 
 ---
 
-## Phase 6.8–6.9 — Pop-up & Sheet Surface Rules
+## Pop-up & Sheet Surface Rules (v0.6.8–v0.6.9)
 
 These rules apply **on top of** the glass surface system above. They
 were added to fix on-device complaints about translucent pop-ups and
@@ -707,7 +707,7 @@ without making the screen feel blacked-out.
 ### Bottom-sheet positioning (replaces `useSafeArea: true`)
 
 `showModalBottomSheet` is called with `useSafeArea: false` (dropped in
-Phase 6.8) and the builder is wrapped in
+v0.6.8) and the builder is wrapped in
 `Column(mainAxisSize: MainAxisSize.min, children: [Padding(bottom: max(viewInsets.bottom, padding.bottom + kBottomNavHeight + 8), child: Sheet)])`.
 
 - `Column(mainAxisSize: min)` makes the sheet intrinsic-height so the

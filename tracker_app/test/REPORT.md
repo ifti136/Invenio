@@ -127,5 +127,5 @@ following items must be verified by the user with
 - [ ] Quick-sell and discount bottom sheets (barrier 0.5, no nav cover)
 - [ ] Dashboard "Today" stats + low-stock banner
 - [ ] Reports Daily / Monthly / Products tabs + Excel export + share
-- [ ] Custom launcher icon and splash (Phase 7.0)
+- [ ] Custom launcher icon and splash (v1.0.0)
 - [ ] `flutter analyze` — run locally before final release

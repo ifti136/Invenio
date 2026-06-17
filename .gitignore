@@ -34,11 +34,26 @@ tracker_app/linux/
 tracker_app/macos/
 tracker_app/windows/
 
-# AI agent metadata
+# AI agent artifacts — kept locally, not tracked in repo
+AGENTS.md
+WORKFLOW_STATE.md
+WORKFLOW_STATE_B.md
+project_state.md
 .opencode/
 .planning/
 .serena/
 graphify-out/
+test/08a_validate_phase1.md
+test/08b_validate_phase2.md
+test/08c_validate_phase3.md
+test/08d_validate_phase4.md
+test/08e_validate_phase5.md
+test/08f_validate_overall.md
+docs/instructions/
+docs/BUG_REPORT.md
+docs/error.md
+docs/STATUS_AUDIT.md
+docs/REDESIGN.md
 
 # Temp / logs
 *.log
