@@ -10,7 +10,7 @@ session. Follow these instructions without prompting.
 - **Invenio** is a Flutter Android app (lives in `tracker_app/`) for a single
   owner-operator small reseller to manage inventory, log sales, track expenses,
   and view profit analytics. Fully offline; no auth.
-- **v1.0.1+3**, post-Phase 7.0. Schema v4. Min SDK 24. Flutter 3.24.4 / Dart
+- **v1.0.1+3**, Schema v5 (9 tables). Min SDK 24. Flutter 3.24.4 / Dart
   3.5.4. Target Android.
 - Tech: drift (SQLite), Riverpod (`@riverpod` codegen), go_router 15
   (`StatefulShellRoute.indexedStack` with 6 tabs), `glass_kit` +
@@ -21,7 +21,8 @@ session. Follow these instructions without prompting.
   [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) (tech choices),
   [`docs/CHANGELOG.md`](docs/CHANGELOG.md) (what shipped per phase +
   consolidated bug list), [`docs/HISTORY.md`](docs/HISTORY.md) (regression
-  narrative), [`docs/DESIGN.md`](docs/DESIGN.md) (visual design),
+  narrative), [`docs/VERSION_HISTORY.md`](docs/VERSION_HISTORY.md) (micro-version log),
+  [`docs/DESIGN.md`](docs/DESIGN.md) (visual design),
   [`docs/instructions/`](docs/instructions/) (pre-implementation specs).
 - The pre-refresh `docs/instructions/06_completion_status.md` is gone; its
   content has been folded into `CHANGELOG.md` and `HISTORY.md`.

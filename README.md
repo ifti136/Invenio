@@ -109,6 +109,7 @@ Invenio/
 │   ├── CHANGELOG.md           ← phase log + bug list
 │   ├── HISTORY.md             ← per-phase regression narrative
 │   ├── DESIGN.md              ← visual design spec
+│   ├── VERSION_HISTORY.md     ← full micro-version log
 │   └── instructions/          ← pre-implementation specs
 └── tracker_app/
     ├── README.md              ← pointer to root README + docs
@@ -131,6 +132,7 @@ doc to read for what.
 | See the key tech choices and trade-offs | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
 | See what was built, in order | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) |
 | Understand what broke and why | [`docs/HISTORY.md`](docs/HISTORY.md) |
+| See the full version history (micro-versions) | [`docs/VERSION_HISTORY.md`](docs/VERSION_HISTORY.md) |
 | Look up a color or screen layout | [`docs/DESIGN.md`](docs/DESIGN.md) |
 | Read the detailed specs (requirements, design, code contracts, scaffold, implementation) | [`docs/instructions/`](docs/instructions/) |
 | Check the test status and known limitations | [`tracker_app/test/REPORT.md`](tracker_app/test/REPORT.md) |

@@ -1,30 +1,46 @@
 # Project State — Invenio
 
 ## Current Version
-v1.0.2+1 (Schema v5)
+v1.0.1+3 (Schema v5) · 9 tables · 100/100 tests passing
 
-## Liquid Glass UI Transition (Completed)
-- **Phase 3:** Theme System & Haptics Service ✅
-- **Phase 6:** Add-Ons UI & Profit Recalculation ✅
-- **Phase 8:** Dashboard Redesign ✅
-- **Phase 11:** UI Polish & Glass Audit ✅
-- **Phase 12:** Finalization & Documentation ✅
+## Completed Features
 
-## BFMS Integration Roadmap
+### v1.3.1 — Bug-Fix Session 2 ✅
+- FAB position fix, wallet SQL fix, allocation rules layout, version screen, dashboard popup, sell button, add-on picker, dashboard card staleness.
 
-### Phase 2: Budgetary Control (Schema v4)
-**Goal:** Implement logical spending limits and alerts.
+### v1.3.0 — Bug-Fix Session 1 ✅
+- Wallet balance, finance navigation, dashboard refresh, restock flow, bucket updates, add-on picker, currency persistence, add-on types screen.
 
-1. **Schema Migration (v4):**
-   - Create `BudgetBuckets` table.
-   - Add `bucketId` (optional) to `Expenses`.
-2. **Budget Buckets:**
-   - `BucketRepository` + CRUD.
-   - Bucket picker in Expense form.
-   - Dashboard "Buckets" status card.
-3. **Smart Alerts:**
-   - Extend `AlertService` with `BucketOverdrawAlert`.
-   - Pre-save warning in Expense form when a bucket is overdrawn.
+### v1.2.x — Schema v5 & Feature Expansion ✅
+- **v1.2.8 (Phase 12):** Finalization & Documentation
+- **v1.2.7 (Phase 11):** UI Polish & Haptics
+- **v1.2.6 (Phase 10):** Dashboard Redesign
+- **v1.2.5 (Phase 9):** Add-Ons UI & Currency Settings
+- **v1.2.4 (Phase 8):** Finance Integration & Profit Recalculation
+- **v1.2.3 (Phase 7):** Settings Hub & Router Restructure
+- **v1.2.2 (Phase 6):** Theme System (4 themes)
+- **v1.2.1:** Schema v5 — AddOnTypes, SaleAddOns tables
+- **v1.2.0:** Stabilization & Build Bump (1.0.0+2 → 1.0.1+3)
+
+### v1.1.x — BFMS (Budget & Financial Management) ✅
+- **v1.1.1 (BFMS Phase 2):** Integration & Budgeting
+- **v1.1.0 (BFMS Phase 1):** Schema v4 — Wallets, AllocationRules, BudgetBuckets
+
+### v1.0.0 — Launch ✅
+- Custom launcher icon, splash, "Invenio" android:label
+- Build: 1.0.0+2
+
+### v0.x — Pre-release Development ✅
+- v0.6.0–0.6.9: Liquid Glass alignment & bug-fix iterations
+- v0.5.0–0.5.2: Reports & Export + bug fixes
+- v0.4.0: Expenses
+- v0.3.0: Sales
+- v0.2.0: Products
+- v0.1.0: Liquid Glass Theme
+- v0.0.1: Foundation (drift schema, router, scaffold)
+
+## Version History Reference
+See [`docs/VERSION_HISTORY.md`](docs/VERSION_HISTORY.md) for the complete micro-version log.
 
 ## Screen & Popup Bug-Fix Session 1 (Committed)
 - Commit `c70603b` fixed wallet, finance, dashboard refresh, product/restock, bucket, add-on picker, currency, and add-on types screen issues.

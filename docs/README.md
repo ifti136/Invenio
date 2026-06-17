@@ -5,20 +5,20 @@ sales, tracking expenses, and viewing profit analytics — fully offline, no
 auth, no cloud sync. This directory is the canonical documentation for the
 project.
 
-## Project state (v1.0.1+3, post-Phase 7.0)
+## Project state (v1.0.1+3, Schema v5)
 
 | Aspect | Detail |
 |--------|--------|
 | Flutter SDK | 3.24.4 · Dart 3.5.4 |
 | Target | Android (min API 24) |
-| Database | drift (SQLite) — schema v4 |
+| Database | drift (SQLite) — schema v5 (9 tables) |
 | State | Riverpod (codegen) |
 | Routing | go_router 15 (`StatefulShellRoute.indexedStack`) |
 | Theme | Liquid Glass — `glass_kit` + `aurora_background` |
 | Charts | fl_chart 0.69 |
 | Export | syncfusion_flutter_xlsio 27.1.55 + share_plus |
-| Tests | 100/100 passing · `flutter analyze` 20 issues (0 new) |
-| Version | `1.0.1+3` (Phase 7.0 branding) |
+| Tests | 100/100 passing · `flutter analyze` 0 errors |
+| Version | `1.0.1+3` (build 3) |
 
 ## If you want to …
 
@@ -26,6 +26,7 @@ project.
 |---|---|
 | Understand the key tech choices in 5 minutes | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
 | See what was built, in order, with one bullet per phase | [`CHANGELOG.md`](CHANGELOG.md) |
+| See the full micro-version history from initial build to current | [`VERSION_HISTORY.md`](VERSION_HISTORY.md) |
 | Understand what broke, why, and how it was fixed | [`HISTORY.md`](HISTORY.md) |
 | Look up a color, a spacing token, a screen layout | [`DESIGN.md`](DESIGN.md) |
 | Read the original functional requirements | [`instructions/01_requirements.md`](instructions/01_requirements.md) |
