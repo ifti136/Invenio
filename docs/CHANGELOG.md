@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.3.3 (Build 1.3.3+6)
+- Refactored Finance section: removed Allocation Settings screen, moved rule creation/editing to Finance screen.
+- Replaced popup menus with visible Edit/Delete icons on allocation rules, expense list items, and budget buckets.
+- Fixed Theme screen blank state (transparent background + GlassPanel).
+- Fixed Allocation History bug: union of profit and expense month keys ensures months with only expenses are displayed.
+- Redesigned Budget flow: Dashboard → Budget List → Bucket Detail → Edit Popup.
+- Fixed dynamic year derivation in Allocation History.
+
 ## v1.3.2 (Build 1.3.2+5)
 - Removed settings gear from Products screen AppBar; centered titles on Products, Sales, and Expenses screens.
 - Added wallet picker to Quick Sell and Discount sheets (auto-selects last-used wallet, saves wallet ID with sale).
