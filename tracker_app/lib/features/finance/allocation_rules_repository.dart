@@ -49,6 +49,12 @@ class AllocationRulesRepository {
     return await _db.select(_db.allocationRules).get();
   }
 
+  Future<AllocationRule> getRuleById(int id) async {
+    return await (_db.select(_db.allocationRules)
+          ..where((t) => t.id.equals(id)))
+        .getSingle();
+  }
+
   Future<int> createRule(String label, double percentage, bool isActive) async {
     return await _db.into(_db.allocationRules).insert(
           AllocationRulesCompanion.insert(

@@ -36,6 +36,20 @@ class _AllocationRuleFormScreenState
     _percentageController =
         TextEditingController(text: widget.initialPercentage?.toString());
     _isActive = widget.initialIsActive ?? true;
+
+    if (widget.ruleId != null) {
+      _loadRule();
+    }
+  }
+
+  Future<void> _loadRule() async {
+    final repo = ref.read(allocationRulesRepositoryProvider);
+    final rule = await repo.getRuleById(widget.ruleId!);
+    setState(() {
+      _labelController.text = rule.label;
+      _percentageController.text = rule.percentage.toString();
+      _isActive = rule.isActive;
+    });
   }
 
   @override

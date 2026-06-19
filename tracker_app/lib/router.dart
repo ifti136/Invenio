@@ -13,7 +13,7 @@ import 'features/expenses/expense_form_screen.dart';
 import 'features/reports/reports_screen.dart';
 import 'features/finance/finance_screen.dart';
 import 'features/finance/allocation_history_screen.dart';
-import 'features/finance/allocation_settings_screen.dart';
+import 'features/finance/allocation_rule_form_screen.dart';
 import 'features/settings/settings_screen.dart';
 import 'features/settings/add_on_types_screen.dart';
 import 'features/settings/currency_screen.dart';
@@ -22,6 +22,7 @@ import 'features/settings/theme_screen.dart';
 import 'features/products/widgets/bucket_history_screen.dart';
 import 'features/products/widgets/wallet_list_screen.dart';
 import 'features/products/widgets/bucket_list_screen.dart';
+import 'features/products/widgets/bucket_detail_screen.dart';
 
 part 'router.g.dart';
 
@@ -133,6 +134,12 @@ GoRouter router(Ref ref) {
             builder: (_, __) => const BucketListScreen(),
             routes: [
               GoRoute(
+                path: 'detail/:id',
+                builder: (_, s) => BucketDetailScreen(
+                  bucketId: int.parse(s.pathParameters['id']!),
+                ),
+              ),
+              GoRoute(
                 path: 'history/:id',
                 builder: (_, s) => BucketHistoryScreen(
                   bucketId: int.parse(s.pathParameters['id']!),
@@ -155,8 +162,13 @@ GoRouter router(Ref ref) {
                 ),
               ),
               GoRoute(
-                path: 'settings',
-                builder: (_, __) => const AllocationSettingsScreen(),
+                path: 'rule/:ruleId?',
+                builder: (_, s) {
+                  final id = s.pathParameters['ruleId'];
+                  return AllocationRuleFormScreen(
+                    ruleId: id != null ? int.parse(id) : null,
+                  );
+                },
               ),
             ],
           ),

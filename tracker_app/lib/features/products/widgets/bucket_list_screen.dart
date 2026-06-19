@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/services/haptic_service.dart';
+import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import '../bucket_repository.dart';
 import 'bucket_form_sheet.dart';
 import '../../dashboard/dashboard_provider.dart';
@@ -65,28 +67,55 @@ class BucketListScreen extends ConsumerWidget {
                       style: const TextStyle(
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
-                    trailing: Text(
-                      formatMoney(available),
-                      style: TextStyle(
-                        color: available >= 0
-                            ? AppColors.success
-                            : AppColors.error,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
+                    trailing: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        HapticWrapper(
+                          profile: HapticProfile.light,
+                          onTap: null,
+                          child: IconButton(
+                            icon: const Icon(Icons.edit,
+                                color: Colors.white70, size: 20),
+                            onPressed: () async {
+                              final bucket = await ref
+                                  .read(bucketRepositoryProvider)
+                                  .getById(bucketBalance.id);
+                              if (context.mounted) {
+                                showBucketFormSheet(context, bucket: bucket);
+                              }
+                            },
+                          ),
+                        ),
+                        HapticWrapper(
+                          profile: HapticProfile.light,
+                          onTap: null,
+                          child: IconButton(
+                            icon: const Icon(Icons.delete,
+                                color: Colors.redAccent, size: 20),
+                            onPressed: () {
+                              HapticService.trigger(HapticProfile.heavy);
+                              _confirmDeleteBucket(
+                                  context, ref, bucketBalance.id);
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          formatMoney(available),
+                          style: TextStyle(
+                            color: available >= 0
+                                ? AppColors.success
+                                : AppColors.error,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
-                    onTap: () async {
+                    onTap: () {
                       HapticService.trigger(HapticProfile.light);
-                      final bucket = await ref
-                          .read(bucketRepositoryProvider)
-                          .getById(bucketBalance.id);
-                      if (context.mounted) {
-                        showBucketFormSheet(context, bucket: bucket);
-                      }
-                    },
-                    onLongPress: () {
-                      HapticService.trigger(HapticProfile.heavy);
-                      _confirmDeleteBucket(context, ref, bucketBalance.id);
+                      context
+                          .push('/settings/buckets/detail/${bucketBalance.id}');
                     },
                   ),
                 ),

@@ -43,7 +43,7 @@ class AllocationHistoryScreen extends ConsumerWidget {
 
           return Column(
             children: [
-              _buildMonthSelector(context),
+              _buildMonthSelector(context, history),
               Expanded(
                 child: SingleChildScrollView(
                   scrollDirection: Axis.vertical,
@@ -115,7 +115,8 @@ class AllocationHistoryScreen extends ConsumerWidget {
     );
   }
 
-  Widget _buildMonthSelector(BuildContext context) {
+  Widget _buildMonthSelector(
+      BuildContext context, List<RuleMonthlyDetail> history) {
     return Padding(
       padding: const EdgeInsets.all(16),
       child: GlassPanel(
@@ -126,9 +127,11 @@ class AllocationHistoryScreen extends ConsumerWidget {
               icon: const Icon(Icons.chevron_left, color: Colors.white),
               onPressed: () {}, // Implementation for navigating years/months
             ),
-            const Text(
-              '2026', // Should be dynamic
-              style: TextStyle(
+            Text(
+              history.isNotEmpty
+                  ? history.last.month.substring(0, 4)
+                  : DateTime.now().year.toString(),
+              style: const TextStyle(
                   color: Colors.white,
                   fontSize: 18,
                   fontWeight: FontWeight.bold),

@@ -175,72 +175,73 @@ class _ExpenseRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final category = ExpenseCategoryX.fromKey(expense.category);
     final scheme = Theme.of(context).colorScheme;
-    return PopupMenuButton<String>(
-      tooltip: 'More',
-      icon: const Icon(Icons.more_vert_rounded),
-      onSelected: (v) {
-        switch (v) {
-          case 'edit':
-            onEdit();
-            break;
-          case 'delete':
-            onDelete();
-            break;
-        }
-      },
-      itemBuilder: (_) => [
-        const PopupMenuItem(value: 'edit', child: Text('Edit')),
-        const PopupMenuItem(
-          value: 'delete',
-          child: Text('Delete', style: TextStyle(color: AppColors.danger)),
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: scheme.primary.withOpacity(0.12),
+        child: Icon(
+          _categoryIcon(category),
+          color: scheme.primary,
+          size: 20,
         ),
-      ],
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: scheme.primary.withOpacity(0.12),
-          child: Icon(
-            _categoryIcon(category),
-            color: scheme.primary,
-            size: 20,
-          ),
+      ),
+      title: Text(
+        category.label,
+        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
+      ),
+      subtitle: Text(
+        expense.note != null && expense.note!.isNotEmpty
+            ? expense.note!
+            : formatDate(expense.dateAsDateTime),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: TextStyle(
+          fontSize: 12,
+          color: scheme.onSurfaceVariant,
         ),
-        title: Text(
-          category.label,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 15),
-        ),
-        subtitle: Text(
-          expense.note != null && expense.note!.isNotEmpty
-              ? expense.note!
-              : formatDate(expense.dateAsDateTime),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: TextStyle(
-            fontSize: 12,
-            color: scheme.onSurfaceVariant,
-          ),
-        ),
-        trailing: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.end,
-          children: [
-            Text(
-              formatMoney(expense.amount),
-              style: TextStyle(
-                fontWeight: FontWeight.w700,
-                fontSize: 15,
-                color: AppColors.warning,
-              ),
+      ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          HapticWrapper(
+            profile: HapticProfile.light,
+            onTap: null,
+            child: IconButton(
+              icon: const Icon(Icons.edit, color: Colors.white70, size: 20),
+              onPressed: onEdit,
             ),
-            if (expense.note != null && expense.note!.isNotEmpty)
+          ),
+          HapticWrapper(
+            profile: HapticProfile.light,
+            onTap: null,
+            child: IconButton(
+              icon: const Icon(Icons.delete, color: Colors.redAccent, size: 20),
+              onPressed: onDelete,
+            ),
+          ),
+          const SizedBox(width: 8),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
               Text(
-                formatDate(expense.dateAsDateTime),
+                formatMoney(expense.amount),
                 style: TextStyle(
-                  fontSize: 11,
-                  color: scheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 15,
+                  color: AppColors.warning,
                 ),
               ),
-          ],
-        ),
+              if (expense.note != null && expense.note!.isNotEmpty)
+                Text(
+                  formatDate(expense.dateAsDateTime),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+            ],
+          ),
+        ],
       ),
     );
   }

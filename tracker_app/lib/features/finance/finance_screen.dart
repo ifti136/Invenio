@@ -60,8 +60,8 @@ class FinanceScreen extends ConsumerWidget {
             profile: HapticProfile.light,
             onTap: null,
             child: IconButton(
-              icon: const Icon(Icons.settings),
-              onPressed: () => context.push('/settings/finance/settings'),
+              icon: const Icon(Icons.add),
+              onPressed: () => context.push('/settings/finance/rule'),
             ),
           ),
         ],
@@ -118,6 +118,31 @@ class FinanceScreen extends ConsumerWidget {
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
                                         ),
+                                  ),
+                                ),
+                                HapticWrapper(
+                                  profile: HapticProfile.light,
+                                  onTap: null,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.edit,
+                                        color: Colors.white70, size: 20),
+                                    onPressed: () => context.push(
+                                        '/settings/finance/rule/${rule.id}'),
+                                  ),
+                                ),
+                                HapticWrapper(
+                                  profile: HapticProfile.light,
+                                  onTap: null,
+                                  child: IconButton(
+                                    icon: const Icon(Icons.delete,
+                                        color: Colors.redAccent, size: 20),
+                                    onPressed: () async {
+                                      await ref
+                                          .read(
+                                              allocationRulesRepositoryProvider)
+                                          .softDeleteRule(rule.id);
+                                      ref.invalidate(financeDataProvider);
+                                    },
                                   ),
                                 ),
                                 Container(

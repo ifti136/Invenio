@@ -90,7 +90,8 @@ class FinanceRepository {
       }
     }
 
-    final allMonths = (monthlyProfit.keys.toList()..sort());
+    final allMonths = {...monthlyProfit.keys, ...monthlyExpenses.keys}.toList()
+      ..sort();
 
     double runningBalance = 0.0;
     final history = <RuleMonthlyDetail>[];

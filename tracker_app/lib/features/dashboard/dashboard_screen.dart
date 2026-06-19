@@ -550,7 +550,7 @@ class _BudgetBucketRow extends StatelessWidget {
     return InkWell(
       onTap: () {
         HapticService.trigger(HapticProfile.light);
-        context.push('/settings/buckets/history/${bucket.id}');
+        context.push('/settings/buckets');
       },
       child: Padding(
         padding: const EdgeInsets.symmetric(vertical: 6),
