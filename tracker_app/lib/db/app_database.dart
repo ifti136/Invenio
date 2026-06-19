@@ -60,11 +60,11 @@ class AppDatabase extends _$AppDatabase {
 
             // Use custom SQL for data migration
             await customStatement(
-                'INSERT INTO wallets (name, type, openingBalance, isActive, createdAt) VALUES (\'Cash\', \'cash\', 0.0, 1, ${DateTime.now().millisecondsSinceEpoch})');
+                'INSERT INTO wallets (name, type, opening_balance, is_active, created_at) VALUES (\'Cash\', \'cash\', 0.0, 1, ${DateTime.now().millisecondsSinceEpoch})');
             await customStatement(
-                'UPDATE sales SET walletId = (SELECT id FROM wallets WHERE name = \'Cash\')');
+                'UPDATE sales SET wallet_id = (SELECT id FROM wallets WHERE name = \'Cash\')');
             await customStatement(
-                'UPDATE expenses SET walletId = (SELECT id FROM wallets WHERE name = \'Cash\')');
+                'UPDATE expenses SET wallet_id = (SELECT id FROM wallets WHERE name = \'Cash\')');
           }
           if (from < 4) {
             await m.createTable(budgetBuckets);
