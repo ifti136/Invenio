@@ -68,25 +68,27 @@ class AllocationRulesRepository {
 
   Future<bool> updateRule(
       int id, String label, double percentage, bool isActive) async {
-    return await (_db.update(_db.allocationRules)
+    final count = await (_db.update(_db.allocationRules)
           ..where((t) => t.id.equals(id)))
-        .replace(
+        .write(
       AllocationRulesCompanion(
         label: drift.Value(label),
         percentage: drift.Value(percentage),
         isActive: drift.Value(isActive),
       ),
     );
+    return count > 0;
   }
 
   Future<bool> softDeleteRule(int id) async {
-    return await (_db.update(_db.allocationRules)
+    final count = await (_db.update(_db.allocationRules)
           ..where((t) => t.id.equals(id)))
-        .replace(
+        .write(
       AllocationRulesCompanion(
         isActive: drift.Value(false),
       ),
     );
+    return count > 0;
   }
 
   Future<int> deleteRule(int id) async {

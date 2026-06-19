@@ -116,8 +116,8 @@ class WalletRepository {
 
   Future<bool> updateWallet(int id, String name, String type,
       double openingBalance, bool isActive) async {
-    return await (_db.update(_db.wallets)..where((t) => t.id.equals(id)))
-        .replace(
+    final count =
+        await (_db.update(_db.wallets)..where((t) => t.id.equals(id))).write(
       WalletsCompanion(
         name: drift.Value(name),
         type: drift.Value(type),
@@ -125,6 +125,7 @@ class WalletRepository {
         isActive: drift.Value(isActive),
       ),
     );
+    return count > 0;
   }
 
   Future<int?> getLastUsedWalletId() async {
