@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/widgets/glass_panel.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/glass_text_field.dart';
+import '../../core/utils/formatters.dart';
 import '../../core/services/haptic_service.dart';
 import '../../core/services/currency_service.dart';
 
@@ -36,6 +37,7 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
     if (symbol.isEmpty) return;
     final service = await ref.read(currencyServiceProvider.future);
     await service.setSymbol(symbol);
+    setCurrencySymbol(symbol);
     ref.invalidate(currencySymbolProvider);
     if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -47,6 +49,7 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
   Future<void> _reset() async {
     final service = await ref.read(currencyServiceProvider.future);
     await service.reset();
+    setCurrencySymbol('৳');
     ref.invalidate(currencySymbolProvider);
     setState(() {
       _symbol.text = '৳';

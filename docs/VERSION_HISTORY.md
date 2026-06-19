@@ -3,11 +3,20 @@
 A complete log of every version of Invenio, from initial scaffold to the current
 build. Each entry maps to one or more git commits. Dates are commit-author dates.
 
-**Current version:** `1.4.0+8` · Schema v6 · 10 tables · 100/100 tests passing
+**Current version:** `1.4.0+9` · Schema v6 · 10 tables · 100/100 tests passing
 
 ---
 
 ## Release
+
+### v1.4.0 (Build 1.4.0+9) — Currency Fix
+**Date:** 2026-06-20  
+**Commit:** preparing commit
+
+- Fixed `formatMoney()` to use stored currency symbol from `CurrencyService` instead of hardcoded `'৳'`.
+- Currency symbol syncs on save and initializes on app startup.
+
+---
 
 ### v1.4.0 (Build 1.4.0+8) — Wallet Transfers
 **Date:** 2026-06-20  
@@ -83,3 +92,4 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 | +6 | 1.3.3+6 | Jun 19 2026 | v1.3.3: Finance & Budget refactor |
 | +7 | 1.3.3+7 | Jun 20 2026 | v1.3.3: Fix migration crash (snake_case columns) |
 | +8 | 1.4.0+8 | Jun 20 2026 | v1.4.0: Wallet Transfers (schema v6) |
+| +9 | 1.4.0+9 | Jun 20 2026 | v1.4.0: Currency format fix |

@@ -24,11 +24,16 @@ import 'features/products/widgets/wallet_list_screen.dart';
 import 'features/products/widgets/bucket_list_screen.dart';
 import 'features/products/widgets/bucket_detail_screen.dart';
 import 'features/transfers/transfer_history_screen.dart';
+import 'core/utils/formatters.dart';
+import 'core/services/currency_service.dart';
 
 part 'router.g.dart';
 
 @riverpod
 GoRouter router(Ref ref) {
+  // Initialize currency symbol for formatMoney()
+  final symbol = ref.watch(currencySymbolProvider);
+  setCurrencySymbol(symbol);
   return GoRouter(
     initialLocation: '/dashboard',
     routes: [

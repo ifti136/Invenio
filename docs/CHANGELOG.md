@@ -6,7 +6,11 @@
 - Transfer form sheet with balance validation (prevents negative balances).
 - Transfer history screen accessible from Wallet settings.
 - Wallet balance calculation now includes transfer sums.
-- Updated version history and documentation.
+
+### v1.4.0 (Build 1.4.0+9) — Currency Fix
+- `formatMoney()` now uses the stored currency symbol from `CurrencyService` instead of hardcoded `'৳'`.
+- Added `setCurrencySymbol()` to sync the formatter when the user changes the symbol.
+- Currency symbol initializes on app startup from saved preferences.
 
 ## v1.3.3 (Build 1.3.3+7)
 - Fixed crash on Dashboard and Reports screens during migration: corrected raw SQL column names in `AppDatabase.onUpgrade` from camelCase to snake_case.
