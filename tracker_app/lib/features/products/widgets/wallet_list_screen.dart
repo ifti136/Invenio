@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/widgets/glass_dialog.dart';
 import 'package:tracker/core/services/haptic_service.dart';
-import 'package:tracker/core/widgets/haptic_wrapper.dart';
+import 'package:tracker/core/utils/formatters.dart';
 import '../wallet_repository.dart';
 import 'wallet_form_sheet.dart';
+import '../../transfers/transfer_form_sheet.dart';
 import '../../dashboard/dashboard_provider.dart';
 
 class WalletListScreen extends ConsumerWidget {
@@ -20,6 +22,13 @@ class WalletListScreen extends ConsumerWidget {
         title: const Text('Wallets'),
         backgroundColor: Colors.transparent,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.history, color: Colors.white70),
+            tooltip: 'Transfer History',
+            onPressed: () => context.push('/settings/wallets/transfers'),
+          ),
+        ],
       ),
       body: FutureBuilder<List<WalletWithBalance>>(
         future: ref.read(walletRepositoryProvider).getWalletWithBalances(),
@@ -69,7 +78,7 @@ class WalletListScreen extends ConsumerWidget {
                           color: Colors.white, fontWeight: FontWeight.bold),
                     ),
                     trailing: Text(
-                      '\$${balance.toStringAsFixed(2)}',
+                      formatMoney(balance),
                       style: TextStyle(
                         color:
                             balance >= 0 ? AppColors.success : AppColors.error,
@@ -98,14 +107,29 @@ class WalletListScreen extends ConsumerWidget {
           );
         },
       ),
-      floatingActionButton: HapticWrapper(
-        profile: HapticProfile.medium,
-        onTap: null,
-        child: FloatingActionButton(
-          backgroundColor: AppColors.accent,
-          onPressed: () => showWalletFormSheet(context),
-          child: const Icon(Icons.add, color: Colors.white),
-        ),
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          FloatingActionButton.small(
+            heroTag: 'transfer',
+            backgroundColor: AppColors.accent.withOpacity(0.8),
+            onPressed: () {
+              HapticService.trigger(HapticProfile.medium);
+              showTransferFormSheet(context);
+            },
+            child: const Icon(Icons.swap_horiz, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          FloatingActionButton(
+            heroTag: 'add',
+            backgroundColor: AppColors.accent,
+            onPressed: () {
+              HapticService.trigger(HapticProfile.medium);
+              showWalletFormSheet(context);
+            },
+            child: const Icon(Icons.add, color: Colors.white),
+          ),
+        ],
       ),
     );
   }

@@ -23,6 +23,7 @@ import 'features/products/widgets/bucket_history_screen.dart';
 import 'features/products/widgets/wallet_list_screen.dart';
 import 'features/products/widgets/bucket_list_screen.dart';
 import 'features/products/widgets/bucket_detail_screen.dart';
+import 'features/transfers/transfer_history_screen.dart';
 
 part 'router.g.dart';
 
@@ -128,6 +129,12 @@ GoRouter router(Ref ref) {
           GoRoute(
             path: 'wallets',
             builder: (_, __) => const WalletListScreen(),
+            routes: [
+              GoRoute(
+                path: 'transfers',
+                builder: (_, __) => const TransferHistoryScreen(),
+              ),
+            ],
           ),
           GoRoute(
             path: 'buckets',

@@ -3,11 +3,31 @@
 A complete log of every version of Invenio, from initial scaffold to the current
 build. Each entry maps to one or more git commits. Dates are commit-author dates.
 
-**Current version:** `1.3.3+6` · Schema v5 · 9 tables · 100/100 tests passing
+**Current version:** `1.4.0+8` · Schema v6 · 10 tables · 100/100 tests passing
 
 ---
 
 ## Release
+
+### v1.4.0 (Build 1.4.0+8) — Wallet Transfers
+**Date:** 2026-06-20  
+**Commit:** preparing commit
+
+- Added Wallet Transfer feature: move money between wallets without affecting profit.
+- Schema v6: new `transfers` table.
+- Transfer form with balance validation.
+- Transfer history screen.
+- Wallet balances now include transfer sums.
+
+---
+
+### v1.3.3 (Build 1.3.3+7)
+**Date:** 2026-06-20  
+**Commit:** `93e8fa6`
+
+- Fixed crash on Dashboard and Reports screens during migration: corrected raw SQL column names in `AppDatabase.onUpgrade` from camelCase to snake_case.
+
+---
 
 ### v1.3.3 (Build 1.3.3+6)
 **Date:** 2026-06-19  
@@ -45,8 +65,9 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 | 3 | + Wallets, AllocationRules | v1.1.0 | Wallet system + ownership |
 | 4 | + BudgetBuckets | v1.1.0 | Budget tracking |
 | 5 | + AddOnTypes, SaleAddOns | v1.2.1 | Add-on system |
+| 6 | + Transfers | v1.4.0 | Wallet transfer system |
 
-**Current:** Schema v5 · 9 tables · `tracker.db`
+**Current:** Schema v6 · 10 tables · `tracker.db`
 
 ---
 
@@ -59,3 +80,6 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 | +3 | 1.0.1+3 | Jun 13–Jun 17 | Schema v5, settings hub, dashboard redesign |
 | +4 | 1.3.1+4 | Jun 17–Jun 17 2026 | v1.3.x: bug fixes, version history documentation |
 | +5 | 1.3.2+5 | Jun 17 2026 | v1.3.2: UI fixes, wallet picker in quick sell/discount, doc updates |
+| +6 | 1.3.3+6 | Jun 19 2026 | v1.3.3: Finance & Budget refactor |
+| +7 | 1.3.3+7 | Jun 20 2026 | v1.3.3: Fix migration crash (snake_case columns) |
+| +8 | 1.4.0+8 | Jun 20 2026 | v1.4.0: Wallet Transfers (schema v6) |

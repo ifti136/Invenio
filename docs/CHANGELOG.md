@@ -1,6 +1,15 @@
 # Changelog
 
-## v1.3.3 (Build 1.3.3+6)
+## v1.4.0 (Build 1.4.0+8) — Wallet Transfers
+- New **Wallet Transfer** feature: move money between wallets without affecting profit reports.
+- Schema v6: new `transfers` table (`fromWalletId`, `toWalletId`, `amount`, `note`, `createdAt`).
+- Transfer form sheet with balance validation (prevents negative balances).
+- Transfer history screen accessible from Wallet settings.
+- Wallet balance calculation now includes transfer sums.
+- Updated version history and documentation.
+
+## v1.3.3 (Build 1.3.3+7)
+- Fixed crash on Dashboard and Reports screens during migration: corrected raw SQL column names in `AppDatabase.onUpgrade` from camelCase to snake_case.
 - Refactored Finance section: removed Allocation Settings screen, moved rule creation/editing to Finance screen.
 - Replaced popup menus with visible Edit/Delete icons on allocation rules, expense list items, and budget buckets.
 - Fixed Theme screen blank state (transparent background + GlassPanel).

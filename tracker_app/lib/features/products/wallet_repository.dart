@@ -63,20 +63,49 @@ class WalletRepository {
       }
     }
 
+    final transfersOutQuery = await _db
+        .customSelect(
+          'SELECT from_wallet_id, SUM(amount) as total FROM transfers GROUP BY from_wallet_id',
+        )
+        .get();
+    final transfersOutMap = <int, double>{};
+    for (var row in transfersOutQuery) {
+      final id = row.read<int?>('from_wallet_id');
+      if (id != null) {
+        transfersOutMap[id] = row.read<double?>('total') ?? 0.0;
+      }
+    }
+
+    final transfersInQuery = await _db
+        .customSelect(
+          'SELECT to_wallet_id, SUM(amount) as total FROM transfers GROUP BY to_wallet_id',
+        )
+        .get();
+    final transfersInMap = <int, double>{};
+    for (var row in transfersInQuery) {
+      final id = row.read<int?>('to_wallet_id');
+      if (id != null) {
+        transfersInMap[id] = row.read<double?>('total') ?? 0.0;
+      }
+    }
+
     return wallets.map((w) {
       final balance = w.openingBalance +
           (salesMap[w.id] ?? 0.0) -
-          (expensesMap[w.id] ?? 0.0);
+          (expensesMap[w.id] ?? 0.0) -
+          (transfersOutMap[w.id] ?? 0.0) +
+          (transfersInMap[w.id] ?? 0.0);
       return WalletWithBalance(walletId: w.id, name: w.name, balance: balance);
     }).toList();
   }
 
   Stream<List<WalletWithBalance>> watchWalletsWithBalances() {
-    return combineLatest3(
+    return combineLatest4(
       _db.select(_db.wallets).watch(),
       _db.select(_db.sales).watch(),
       _db.select(_db.expenses).watch(),
-      (wallets, sales, expenses) {
+      _db.select(_db.transfers).watch(),
+      (wallets, sales, expenses, transfers) {
         final salesMap = <int, double>{};
         for (final s in sales) {
           if (s.walletId != null) {
@@ -90,10 +119,20 @@ class WalletRepository {
                 (expensesMap[e.walletId!] ?? 0.0) + e.amount;
           }
         }
+        final transfersOutMap = <int, double>{};
+        final transfersInMap = <int, double>{};
+        for (final t in transfers) {
+          transfersOutMap[t.fromWalletId] =
+              (transfersOutMap[t.fromWalletId] ?? 0.0) + t.amount;
+          transfersInMap[t.toWalletId] =
+              (transfersInMap[t.toWalletId] ?? 0.0) + t.amount;
+        }
         return wallets.map((w) {
           final balance = w.openingBalance +
               (salesMap[w.id] ?? 0.0) -
-              (expensesMap[w.id] ?? 0.0);
+              (expensesMap[w.id] ?? 0.0) -
+              (transfersOutMap[w.id] ?? 0.0) +
+              (transfersInMap[w.id] ?? 0.0);
           return WalletWithBalance(
               walletId: w.id, name: w.name, balance: balance);
         }).toList();

@@ -14,6 +14,7 @@ import 'tables/stock_movements_table.dart';
 import 'tables/wallets_table.dart';
 import 'tables/allocation_rules_table.dart';
 import 'tables/budget_buckets_table.dart';
+import 'tables/transfers_table.dart';
 
 part 'app_database.g.dart';
 
@@ -26,7 +27,8 @@ part 'app_database.g.dart';
   AllocationRules,
   BudgetBuckets,
   AddOnTypes,
-  SaleAddOns
+  SaleAddOns,
+  Transfers
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
@@ -34,7 +36,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -73,6 +75,9 @@ class AppDatabase extends _$AppDatabase {
           if (from < 5) {
             await m.createTable(addOnTypes);
             await m.createTable(saleAddOns);
+          }
+          if (from < 6) {
+            await m.createTable(transfers);
           }
         },
       );
