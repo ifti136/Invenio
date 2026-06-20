@@ -81,7 +81,7 @@ class TransferRepository {
             createdAt: DateTime.now().millisecondsSinceEpoch,
           ),
         );
-    return await (_db.select(_db.transfers)
-      ..where((t) => t.id.equals(id))).getSingle();
+    return await (_db.select(_db.transfers)..where((t) => t.id.equals(id)))
+        .getSingle();
   }
 }

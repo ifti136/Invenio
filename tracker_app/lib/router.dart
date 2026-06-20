@@ -156,28 +156,28 @@ GoRouter router(Ref ref) {
             path: 'add-ons',
             builder: (_, __) => const AddOnTypesScreen(),
           ),
-           GoRoute(
-             path: 'finance',
-             builder: (_, __) => const FinanceScreen(),
-             routes: [
-               GoRoute(
-                 path: 'history/:ruleId',
-                 builder: (_, s) => AllocationHistoryScreen(
-                   ruleId: int.parse(s.pathParameters['ruleId']!),
-                 ),
-               ),
-                GoRoute(
-                  path: 'rule',
-                  builder: (_, __) => const AllocationRuleFormScreen(),
+          GoRoute(
+            path: 'finance',
+            builder: (_, __) => const FinanceScreen(),
+            routes: [
+              GoRoute(
+                path: 'history/:ruleId',
+                builder: (_, s) => AllocationHistoryScreen(
+                  ruleId: int.parse(s.pathParameters['ruleId']!),
                 ),
-                GoRoute(
-                  path: 'rule/:ruleId',
-                  builder: (_, s) => AllocationRuleFormScreen(
-                    ruleId: int.parse(s.pathParameters['ruleId']!),
-                  ),
+              ),
+              GoRoute(
+                path: 'rule',
+                builder: (_, __) => const AllocationRuleFormScreen(),
+              ),
+              GoRoute(
+                path: 'rule/:ruleId',
+                builder: (_, s) => AllocationRuleFormScreen(
+                  ruleId: int.parse(s.pathParameters['ruleId']!),
                 ),
-             ],
-           ),
+              ),
+            ],
+          ),
           GoRoute(
             path: 'theme',
             builder: (_, __) => const ThemeScreen(),

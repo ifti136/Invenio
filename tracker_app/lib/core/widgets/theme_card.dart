@@ -26,7 +26,7 @@ class ThemeCard extends ConsumerWidget {
       profile: HapticProfile.medium,
       onTap: () => ref.read(themeProviderProvider.notifier).setTheme(id),
       child: GlassPanel(
-        solid: isSelected,
+        opaque: isSelected,
         radius: 20,
         padding: const EdgeInsets.all(12),
         child: Column(

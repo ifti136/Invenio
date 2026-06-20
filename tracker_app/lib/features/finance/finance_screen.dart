@@ -57,10 +57,10 @@ class FinanceScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-                                 onPressed: () {
-                                   HapticService.trigger(HapticProfile.light);
-                                   context.push('/settings/finance/rule');
-                                 },
+            onPressed: () {
+              HapticService.trigger(HapticProfile.light);
+              context.push('/settings/finance/rule');
+            },
           ),
         ],
       ),
@@ -93,10 +93,10 @@ class FinanceScreen extends ConsumerWidget {
                   noBlur: true,
                   padding: const EdgeInsets.all(16),
                   child: InkWell(
-                     onTap: () {
-                       HapticService.trigger(HapticProfile.light);
-                       context.push('/settings/finance/history/${rule.id}');
-                     },
+                    onTap: () {
+                      HapticService.trigger(HapticProfile.light);
+                      context.push('/settings/finance/history/${rule.id}');
+                    },
                     borderRadius: BorderRadius.circular(16),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -120,11 +120,11 @@ class FinanceScreen extends ConsumerWidget {
                               IconButton(
                                 icon: const Icon(Icons.edit,
                                     color: Colors.white70, size: 20),
-                                 onPressed: () {
-                                   HapticService.trigger(HapticProfile.light);
-                                   context.push(
-                                       '/settings/finance/rule/${rule.id}');
-                                 },
+                                onPressed: () {
+                                  HapticService.trigger(HapticProfile.light);
+                                  context.push(
+                                      '/settings/finance/rule/${rule.id}');
+                                },
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete,
@@ -137,52 +137,52 @@ class FinanceScreen extends ConsumerWidget {
                                   ref.invalidate(financeDataProvider);
                                 },
                               ),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 8, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white24,
-                                    borderRadius: BorderRadius.circular(12),
-                                  ),
-                                  child: Text(
-                                    '${rule.percentage}%',
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .labelSmall
-                                        ?.copyWith(
-                                          color: Colors.white,
-                                        ),
-                                  ),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: Colors.white24,
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
-                                const SizedBox(width: 8),
-                                const Icon(Icons.chevron_right,
-                                    color: Colors.white54),
-                              ],
-                            ),
-                            const Divider(color: Colors.white12, height: 24),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                _buildFinanceStat(context, 'Accumulated',
-                                    fin.accumulatedProfit),
-                                _buildFinanceStat(
-                                    context, 'Spent', fin.totalSpent),
-                                _buildFinanceStat(
-                                  context,
-                                  'Available',
-                                  fin.availableBalance,
-                                  color: fin.availableBalance >= 0
-                                      ? AppColors.teal
-                                      : Colors.redAccent,
+                                child: Text(
+                                  '${rule.percentage}%',
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .labelSmall
+                                      ?.copyWith(
+                                        color: Colors.white,
+                                      ),
                                 ),
-                              ],
-                            ),
-                          ],
-                        ),
+                              ),
+                              const SizedBox(width: 8),
+                              const Icon(Icons.chevron_right,
+                                  color: Colors.white54),
+                            ],
+                          ),
+                          const Divider(color: Colors.white12, height: 24),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              _buildFinanceStat(context, 'Accumulated',
+                                  fin.accumulatedProfit),
+                              _buildFinanceStat(
+                                  context, 'Spent', fin.totalSpent),
+                              _buildFinanceStat(
+                                context,
+                                'Available',
+                                fin.availableBalance,
+                                color: fin.availableBalance >= 0
+                                    ? AppColors.teal
+                                    : Colors.redAccent,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                );
+                ),
+              );
             },
           );
         },

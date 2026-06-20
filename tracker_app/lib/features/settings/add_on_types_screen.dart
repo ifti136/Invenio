@@ -126,7 +126,7 @@ class AddOnTypesScreen extends ConsumerWidget {
         builder: (context, setState) => Dialog(
           backgroundColor: Colors.transparent,
           child: GlassPanel(
-            solid: true,
+            opaque: true,
             radius: 24,
             padding: const EdgeInsets.all(20),
             child: Column(

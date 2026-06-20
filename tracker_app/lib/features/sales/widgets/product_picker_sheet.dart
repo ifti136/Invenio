@@ -58,7 +58,7 @@ class _ProductPickerSheet extends StatelessWidget {
         margin: const EdgeInsets.all(12),
         padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
         noBlur: true,
-        solid: true,
+        opaque: true,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

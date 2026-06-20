@@ -60,7 +60,7 @@ class _ProductFilterSheetState extends ConsumerState<ProductFilterSheet> {
         ? all
         : all.where((p) => p.name.toLowerCase().contains(q)).toList();
     return GlassPanel(
-      solid: true,
+      opaque: true,
       radius: 28,
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 20),
       margin: const EdgeInsets.all(12),

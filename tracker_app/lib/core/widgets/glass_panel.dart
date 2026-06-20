@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:glass_kit/glass_kit.dart';
+import 'package:flutter/foundation.dart';
+import 'dart:ui';
 import '../theme/app_colors.dart';
 
 class GlassPanel extends StatelessWidget {
@@ -15,7 +16,7 @@ class GlassPanel extends StatelessWidget {
   final bool isFrostedGlass;
   final bool expand;
   final bool noBlur;
-  final bool solid;
+  final bool opaque;
 
   const GlassPanel({
     super.key,
@@ -29,7 +30,7 @@ class GlassPanel extends StatelessWidget {
     this.isFrostedGlass = false,
     this.expand = false,
     this.noBlur = false,
-    this.solid = false,
+    this.opaque = false,
   });
 
   const GlassPanel.flush({
@@ -41,7 +42,7 @@ class GlassPanel extends StatelessWidget {
     this.isFrostedGlass = false,
     this.expand = true,
     this.noBlur = false,
-    this.solid = false,
+    this.opaque = false,
   })  : width = null,
         height = null,
         radius = 0;
@@ -69,7 +70,7 @@ class GlassPanel extends StatelessWidget {
     final accent = isDark ? 0.18 : 0.10;
     final scheme = Theme.of(context).colorScheme;
 
-    if (noBlur || solid) {
+    if (noBlur || opaque) {
       return Container(
         height: expand ? double.infinity : height,
         width: expand ? double.infinity : width,
@@ -77,9 +78,9 @@ class GlassPanel extends StatelessWidget {
         padding: padding,
         decoration: BoxDecoration(
           color:
-              solid ? scheme.surface.withOpacity(isDark ? 0.92 : 0.95) : null,
+              opaque ? scheme.surface.withOpacity(isDark ? 0.92 : 0.95) : null,
           borderRadius: radius > 0 ? BorderRadius.circular(radius) : null,
-          gradient: solid
+          gradient: opaque
               ? null
               : LinearGradient(
                   colors: [
@@ -91,7 +92,7 @@ class GlassPanel extends StatelessWidget {
                 ),
           border: radius > 0
               ? Border.all(
-                  color: solid
+                  color: opaque
                       ? scheme.outline.withOpacity(0.20)
                       : Colors.white.withOpacity(borderTop),
                   width: 1.0,
@@ -102,47 +103,106 @@ class GlassPanel extends StatelessWidget {
       );
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        return ClipRRect(
-          borderRadius:
-              radius > 0 ? BorderRadius.circular(radius) : BorderRadius.zero,
-          child: GlassContainer(
-            height: expand ? constraints.maxHeight : height,
-            width: expand ? constraints.maxWidth : width,
-            margin: margin,
-            padding: padding,
-            borderRadius:
-                radius > 0 ? BorderRadius.circular(radius) : BorderRadius.zero,
-            isFrostedGlass: isFrostedGlass,
-            blur: blur,
-            borderWidth: 1.0,
-            elevation: 0,
-            shadowColor: Colors.black.withOpacity(0.0),
-            frostedOpacity: isDark ? 0.10 : 0.08,
-            gradient: LinearGradient(
-              colors: [
-                Colors.white.withOpacity(fillTop),
-                Colors.white.withOpacity(fillBottom),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+    return Container(
+      margin: margin,
+      width: expand ? double.infinity : width,
+      height: expand ? double.infinity : height,
+      child: ClipRRect(
+        borderRadius:
+            radius > 0 ? BorderRadius.circular(radius) : BorderRadius.zero,
+        child: Stack(
+          children: [
+            Positioned.fill(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
+                child: const SizedBox.expand(),
+              ),
             ),
-            borderGradient: LinearGradient(
-              colors: [
-                Colors.white.withOpacity(borderTop),
-                Colors.white.withOpacity(borderBottom),
-                AppColors.accent.withOpacity(0.0),
-                AppColors.accent.withOpacity(accent),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              stops: const [0.0, 0.49, 0.50, 1.0],
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white.withOpacity(fillTop),
+                      Colors.white.withOpacity(fillBottom),
+                    ],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
+              ),
             ),
-            child: child,
-          ),
-        );
-      },
+            if (isFrostedGlass)
+              Positioned.fill(
+                child: Container(
+                  color: Colors.white.withOpacity(isDark ? 0.10 : 0.08),
+                ),
+              ),
+            if (radius > 0)
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: GlassBorderPainter(
+                    radius: radius,
+                    gradient: LinearGradient(
+                      colors: [
+                        Colors.white.withOpacity(borderTop),
+                        Colors.white.withOpacity(borderBottom),
+                        AppColors.accent.withOpacity(0.0),
+                        AppColors.accent.withOpacity(accent),
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      stops: const [0.0, 0.49, 0.50, 1.0],
+                    ),
+                  ),
+                ),
+              ),
+            Padding(
+              padding: padding ?? EdgeInsets.zero,
+              child: child,
+            ),
+          ],
+        ),
+      ),
     );
+  }
+}
+
+class GlassBorderPainter extends CustomPainter {
+  final double radius;
+  final Gradient gradient;
+
+  GlassBorderPainter({required this.radius, required this.gradient});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..shader =
+          gradient.createShader(Rect.fromLTWH(0, 0, size.width, size.height))
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.0;
+
+    final rrect = RRect.fromRectAndRadius(
+      Rect.fromLTWH(0, 0, size.width, size.height),
+      Radius.circular(radius),
+    );
+
+    canvas.drawRRect(rrect, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant GlassBorderPainter oldDelegate) {
+    if (oldDelegate.radius != radius) {
+      return true;
+    }
+    if (oldDelegate.gradient is! LinearGradient || gradient is! LinearGradient) {
+      return true;
+    }
+    final oldG = oldDelegate.gradient as LinearGradient;
+    final newG = gradient as LinearGradient;
+    return !listEquals(oldG.colors, newG.colors) ||
+        !listEquals(oldG.stops, newG.stops) ||
+        oldG.begin != newG.begin ||
+        oldG.end != newG.end;
   }
 }

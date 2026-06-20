@@ -58,8 +58,29 @@ class ThemeScreen extends ConsumerWidget {
                   SizedBox(
                     width: (MediaQuery.of(context).size.width - 80) / 2,
                     child: const ThemeCard(
-                      id: AppThemeId.solidSlate,
-                      label: "Solid Slate",
+                      id: AppThemeId.lightSolid,
+                      label: "Light Solid",
+                    ),
+                  ),
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width - 80) / 2,
+                    child: const ThemeCard(
+                      id: AppThemeId.darkSolid,
+                      label: "Dark Solid",
+                    ),
+                  ),
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width - 80) / 2,
+                    child: const ThemeCard(
+                      id: AppThemeId.paper,
+                      label: "Paper",
+                    ),
+                  ),
+                  SizedBox(
+                    width: (MediaQuery.of(context).size.width - 80) / 2,
+                    child: const ThemeCard(
+                      id: AppThemeId.ocean,
+                      label: "Deep Ocean",
                     ),
                   ),
                 ],

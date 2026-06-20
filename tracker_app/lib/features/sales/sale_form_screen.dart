@@ -353,7 +353,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
           children: [
             GlassPanel(
               noBlur: true,
-              solid: true,
+              opaque: true,
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -374,7 +374,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
             const SizedBox(height: 12),
             GlassPanel(
               noBlur: true,
-              solid: true,
+              opaque: true,
               padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -586,7 +586,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
                   if (_total != null)
                     GlassPanel(
                       noBlur: true,
-                      solid: true,
+                      opaque: true,
                       padding: const EdgeInsets.all(14),
                       child: Row(
                         children: [

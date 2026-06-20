@@ -214,7 +214,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
       noBlur: true,
-      solid: true,
+      opaque: true,
       child: Form(
         key: _form,
         child: Column(
@@ -508,7 +508,7 @@ class _DiscountSheetState extends ConsumerState<DiscountSheet> {
         margin: EdgeInsets.zero,
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
         noBlur: true,
-        solid: true,
+        opaque: true,
         child: Row(
           children: [
             Expanded(

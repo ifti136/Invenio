@@ -189,7 +189,8 @@ class SystemSettingsScreen extends ConsumerWidget {
     if (context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Import not available yet. Export a backup from another device first.'),
+          content: Text(
+              'Import not available yet. Export a backup from another device first.'),
         ),
       );
     }
@@ -213,25 +214,25 @@ class SystemSettingsScreen extends ConsumerWidget {
           isDestructive: true,
           isPrimary: true,
           onPressed: () async {
-              final db = ref.read(appDatabaseProvider);
-              await db.delete(db.saleAddOns).go();
-              await db.delete(db.addOnTypes).go();
-              await db.delete(db.transfers).go();
-              await db.delete(db.expenses).go();
-              await db.delete(db.stockMovements).go();
-              await db.delete(db.sales).go();
-              await db.delete(db.budgetBuckets).go();
-              await db.delete(db.allocationRules).go();
-              await db.delete(db.wallets).go();
-              await db.delete(db.products).go();
-              ref.invalidate(appDatabaseProvider);
-              Navigator.of(ctx).pop();
-              if (context.mounted) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('All data cleared.')),
-                );
-              }
-            },
+            final db = ref.read(appDatabaseProvider);
+            await db.delete(db.saleAddOns).go();
+            await db.delete(db.addOnTypes).go();
+            await db.delete(db.transfers).go();
+            await db.delete(db.expenses).go();
+            await db.delete(db.stockMovements).go();
+            await db.delete(db.sales).go();
+            await db.delete(db.budgetBuckets).go();
+            await db.delete(db.allocationRules).go();
+            await db.delete(db.wallets).go();
+            await db.delete(db.products).go();
+            ref.invalidate(appDatabaseProvider);
+            Navigator.of(ctx).pop();
+            if (context.mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('All data cleared.')),
+              );
+            }
+          },
         ),
       ],
     );

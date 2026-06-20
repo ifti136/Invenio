@@ -664,20 +664,20 @@ were added to fix on-device complaints about translucent pop-ups and
 sheets that were either covered by the custom bottom nav or sized to
 the whole screen instead of to their content.
 
-### `GlassPanel.solid: true` for pop-ups
+### `GlassPanel.opaque: true` for pop-ups
 
 When a `GlassPanel` is used as a pop-up surface (dialog, bottom sheet,
-modal product picker), pass `solid: true` instead of the default
-`noBlur: true` or `isFrostedGlass: true`. The `solid` flag swaps the
+modal product picker), pass `opaque: true` instead of the default
+`noBlur: true` or `isFrostedGlass: true`. The `opaque` flag swaps the
 gradient for a near-opaque fill:
 
 | Mode | dark | light | border |
 |---|---|---|---|
 | default `isFrostedGlass: true` | `Colors.white.withOpacity(0.14)` | `Colors.white.withOpacity(0.22)` | white → teal 30%/18% |
 | `noBlur: true` | `Colors.white.withOpacity(0.04)` | `Colors.white.withOpacity(0.06)` | white → teal 30%/18% |
-| `solid: true` | `scheme.surface.withOpacity(0.92)` | `scheme.surface.withOpacity(0.95)` | `scheme.outline.withOpacity(0.20)` 1px |
+| `opaque: true` | `scheme.surface.withOpacity(0.92)` | `scheme.surface.withOpacity(0.95)` | `scheme.outline.withOpacity(0.20)` 1px |
 
-`solid: true` implies `noBlur: true` behaviour. The visual effect is
+`opaque: true` implies `noBlur: true` behaviour. The visual effect is
 a flat, readable panel that no longer bleeds the aurora through it.
 
 **Where to use:**

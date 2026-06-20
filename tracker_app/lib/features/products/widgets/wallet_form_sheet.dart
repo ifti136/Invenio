@@ -91,7 +91,7 @@ class _WalletFormSheetState extends ConsumerState<WalletFormSheet> {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
       noBlur: true,
-      solid: true,
+      opaque: true,
       child: Form(
         key: _form,
         child: Column(

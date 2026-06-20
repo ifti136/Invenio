@@ -101,7 +101,8 @@ Stream<T> combineLatest4<S1, S2, S3, S4, T>(
 
   void checkAndEmit() {
     if (last1 != null && last2 != null && last3 != null && last4 != null) {
-      controller.add(combiner(last1 as S1, last2 as S2, last3 as S3, last4 as S4));
+      controller
+          .add(combiner(last1 as S1, last2 as S2, last3 as S3, last4 as S4));
     }
   }
 

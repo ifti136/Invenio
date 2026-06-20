@@ -28,7 +28,7 @@ Future<T?> showGlassDialog<T>({
           radius: 24,
           isFrostedGlass: true,
           noBlur: true,
-          solid: true,
+          opaque: true,
           padding: const EdgeInsets.fromLTRB(20, 22, 20, 16),
           child: Column(
             mainAxisSize: MainAxisSize.min,

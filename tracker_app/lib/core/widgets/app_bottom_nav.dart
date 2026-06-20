@@ -57,7 +57,7 @@ class AppScaffold extends ConsumerWidget {
                 ? MediaQuery.of(ctx).viewInsets.bottom
                 : kBottomNavHeight + 8)),
         child: GlassPanel(
-          solid: true,
+          opaque: true,
           radius: 28,
           child: Column(
             mainAxisSize: MainAxisSize.min,

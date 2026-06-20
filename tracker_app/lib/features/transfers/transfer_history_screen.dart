@@ -10,7 +10,8 @@ class TransferHistoryScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final transfersAsync = ref.watch(transferRepositoryProvider).getTransfersWithDetails();
+    final transfersAsync =
+        ref.watch(transferRepositoryProvider).getTransfersWithDetails();
 
     return Scaffold(
       backgroundColor: Colors.transparent,

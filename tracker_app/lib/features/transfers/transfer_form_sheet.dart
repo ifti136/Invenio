@@ -62,13 +62,13 @@ class _TransferFormSheetState extends ConsumerState<_TransferFormSheet> {
     HapticService.trigger(HapticProfile.medium);
     try {
       await ref.read(transferRepositoryProvider).createTransfer(
-        _fromWalletId!,
-        _toWalletId!,
-        amount,
-        note: _noteController.text.trim().isEmpty
-            ? null
-            : _noteController.text.trim(),
-      );
+            _fromWalletId!,
+            _toWalletId!,
+            amount,
+            note: _noteController.text.trim().isEmpty
+                ? null
+                : _noteController.text.trim(),
+          );
       if (mounted) Navigator.of(context).pop();
     } catch (e) {
       setState(() => _error = e.toString());
@@ -84,7 +84,7 @@ class _TransferFormSheetState extends ConsumerState<_TransferFormSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom + 80,
       ),
       child: GlassPanel(
-        solid: true,
+        opaque: true,
         child: Padding(
           padding: const EdgeInsets.all(24),
           child: FutureBuilder<List<Wallet>>(
@@ -178,7 +178,8 @@ class _TransferFormSheetState extends ConsumerState<_TransferFormSheet> {
                     controller: _amountController,
                     label: 'Amount',
                     hint: '0.00',
-                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    keyboardType:
+                        const TextInputType.numberWithOptions(decimal: true),
                     onChanged: (_) => setState(() => _error = null),
                   ),
                   const SizedBox(height: 12),
@@ -192,7 +193,8 @@ class _TransferFormSheetState extends ConsumerState<_TransferFormSheet> {
                     const SizedBox(height: 12),
                     Text(
                       _error!,
-                      style: const TextStyle(color: Colors.redAccent, fontSize: 13),
+                      style: const TextStyle(
+                          color: Colors.redAccent, fontSize: 13),
                     ),
                   ],
                   const SizedBox(height: 24),
@@ -204,7 +206,8 @@ class _TransferFormSheetState extends ConsumerState<_TransferFormSheet> {
                     ),
                     child: const Text(
                       'Transfer',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      style:
+                          TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   ),
                 ],

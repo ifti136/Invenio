@@ -119,7 +119,7 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
       margin: const EdgeInsets.all(12),
       padding: const EdgeInsets.fromLTRB(20, 18, 20, 24),
       noBlur: true,
-      solid: true,
+      opaque: true,
       child: SingleChildScrollView(
         child: Form(
           child: Column(
@@ -166,7 +166,7 @@ class _AddOnPickerSheetState extends ConsumerState<AddOnPickerSheet> {
                       onTap: null,
                       child: GlassPanel(
                         noBlur: true,
-                        solid: true,
+                        opaque: true,
                         padding: const EdgeInsets.symmetric(
                             horizontal: 12, vertical: 12),
                         child: Row(

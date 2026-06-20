@@ -132,7 +132,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => GlassPanel(
-        solid: true,
+        opaque: true,
         radius: 24.0,
         padding: const EdgeInsets.all(20),
         child: Column(
@@ -203,7 +203,7 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
       context: context,
       backgroundColor: Colors.transparent,
       builder: (ctx) => GlassPanel(
-        solid: true,
+        opaque: true,
         radius: 24.0,
         padding: const EdgeInsets.all(20),
         child: Column(
