@@ -217,12 +217,12 @@ class SystemSettingsScreen extends ConsumerWidget {
               await db.delete(db.saleAddOns).go();
               await db.delete(db.addOnTypes).go();
               await db.delete(db.transfers).go();
-              await db.delete(db.budgetBuckets).go();
-              await db.delete(db.allocationRules).go();
-              await db.delete(db.wallets).go();
               await db.delete(db.expenses).go();
               await db.delete(db.stockMovements).go();
               await db.delete(db.sales).go();
+              await db.delete(db.budgetBuckets).go();
+              await db.delete(db.allocationRules).go();
+              await db.delete(db.wallets).go();
               await db.delete(db.products).go();
               ref.invalidate(appDatabaseProvider);
               Navigator.of(ctx).pop();
