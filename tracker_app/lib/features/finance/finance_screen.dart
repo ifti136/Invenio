@@ -59,7 +59,7 @@ class FinanceScreen extends ConsumerWidget {
             icon: const Icon(Icons.add),
                                  onPressed: () {
                                    HapticService.trigger(HapticProfile.light);
-                                   context.push('/finance/rule');
+                                   context.push('/settings/finance/rule');
                                  },
           ),
         ],
@@ -95,7 +95,7 @@ class FinanceScreen extends ConsumerWidget {
                   child: InkWell(
                      onTap: () {
                        HapticService.trigger(HapticProfile.light);
-                       context.push('/finance/history/${rule.id}');
+                       context.push('/settings/finance/history/${rule.id}');
                      },
                     borderRadius: BorderRadius.circular(16),
                     child: Padding(
@@ -123,7 +123,7 @@ class FinanceScreen extends ConsumerWidget {
                                  onPressed: () {
                                    HapticService.trigger(HapticProfile.light);
                                    context.push(
-                                       '/finance/rule/${rule.id}');
+                                       '/settings/finance/rule/${rule.id}');
                                  },
                               ),
                               IconButton(

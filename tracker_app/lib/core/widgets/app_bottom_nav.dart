@@ -40,11 +40,6 @@ class AppScaffold extends ConsumerWidget {
       selectedIcon: Icons.bar_chart,
       label: 'Reports',
     ),
-    (
-      icon: Icons.account_balance_outlined,
-      selectedIcon: Icons.account_balance,
-      label: 'Finance',
-    ),
   ];
 
   void _showQuickActionSheet(BuildContext context) {
@@ -165,11 +160,6 @@ class AppScaffold extends ConsumerWidget {
         icon: Icon(_tabs[4].icon),
         selectedIcon: Icon(_tabs[4].selectedIcon),
         label: _tabs[4].label,
-      ),
-      NavigationDestination(
-        icon: Icon(_tabs[5].icon),
-        selectedIcon: Icon(_tabs[5].selectedIcon),
-        label: _tabs[5].label,
       ),
     ];
 

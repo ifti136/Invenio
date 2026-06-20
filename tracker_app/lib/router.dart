@@ -124,31 +124,8 @@ GoRouter router(Ref ref) {
               ),
             ],
           ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/finance',
-                builder: (_, __) => const FinanceScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'history/:ruleId',
-                    builder: (_, s) => AllocationHistoryScreen(
-                      ruleId: int.parse(s.pathParameters['ruleId']!),
-                    ),
-                  ),
-                  GoRoute(
-                    path: 'rule/:ruleId?',
-                    builder: (_, s) {
-                      final id = s.pathParameters['ruleId'];
-                      return AllocationRuleFormScreen(
-                        ruleId: id != null ? int.parse(id) : null,
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
+        ],
+      ),
         ],
       ),
       GoRoute(
@@ -183,7 +160,24 @@ GoRouter router(Ref ref) {
           ),
            GoRoute(
              path: 'finance',
-             redirect: (_, __) => '/finance',
+             builder: (_, __) => const FinanceScreen(),
+             routes: [
+               GoRoute(
+                 path: 'history/:ruleId',
+                 builder: (_, s) => AllocationHistoryScreen(
+                   ruleId: int.parse(s.pathParameters['ruleId']!),
+                 ),
+               ),
+               GoRoute(
+                 path: 'rule/:ruleId?',
+                 builder: (_, s) {
+                   final id = s.pathParameters['ruleId'];
+                   return AllocationRuleFormScreen(
+                     ruleId: id != null ? int.parse(id) : null,
+                   );
+                 },
+               ),
+             ],
            ),
           GoRoute(
             path: 'theme',

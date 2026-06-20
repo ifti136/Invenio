@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.5.0 (Build 1.5.0+12) — Bottom Nav Cleanup
+- Removed Finance tab from bottom navigation bar to reduce clutter.
+- Restored Finance section as a sub-route of Settings (`/settings/finance`).
+- Updated `FinanceScreen` navigation paths to use the settings-based routes.
+
 ## v1.5.0 (Build 1.5.0+11) — Routing Fix
 - Fixed "Page Not Found" error when navigating to allocation rules from the Finance tab.
 - Unified finance routing: moved `rule` and `history` sub-routes to the top-level `/finance` route and redirected `/settings/finance` to `/finance`.
@@ -12,6 +17,7 @@
 - **Router import fix**: Added missing `WalletListScreen` import to router.
 - **Clear All Data fix**: Replaced type-inference-breaking loop with individual `await db.delete(...).go()` calls; fixed orphaned `ref.invalidate()` / `Navigator.pop()` that were outside the `onPressed` callback.
 - **Schema stays v6** (no new tables or columns).
+
 
 ## v1.4.0 (Build 1.4.0+8) — Wallet Transfers
 - New **Wallet Transfer** feature: move money between wallets without affecting profit reports.
