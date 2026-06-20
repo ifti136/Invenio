@@ -3,11 +3,21 @@
 A complete log of every version of Invenio, from initial scaffold to the current
 build. Each entry maps to one or more git commits. Dates are commit-author dates.
 
-**Current version:** `1.4.0+9` · Schema v6 · 10 tables · 100/100 tests passing
+**Current version:** `1.5.1+13` · Schema v6 · 10 tables · 100/100 tests passing
 
 ---
 
 ## Release
+
+### v1.5.1 (Build 1.5.1+13) — Routing Fix
+**Date:** 2026-06-20  
+**Commit:** preparing commit
+
+- Fixed routing error when accessing the finance rule page (`/settings/finance/rule`).
+- Split optional parameter route into two explicit routes to ensure correct resolution.
+- Version bump to v1.5.1+13.
+
+---
 
 ### v1.4.0 (Build 1.4.0+9) — Currency Fix
 **Date:** 2026-06-20  
@@ -93,3 +103,4 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 | +7 | 1.3.3+7 | Jun 20 2026 | v1.3.3: Fix migration crash (snake_case columns) |
 | +8 | 1.4.0+8 | Jun 20 2026 | v1.4.0: Wallet Transfers (schema v6) |
 | +9 | 1.4.0+9 | Jun 20 2026 | v1.4.0: Currency format fix |
+| +13 | 1.5.1+13 | Jun 20 2026 | v1.5.1: Routing fix |

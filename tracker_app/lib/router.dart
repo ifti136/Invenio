@@ -126,8 +126,6 @@ GoRouter router(Ref ref) {
           ),
         ],
       ),
-        ],
-      ),
       GoRoute(
         path: '/settings',
         builder: (_, __) => const SettingsScreen(),
@@ -168,15 +166,16 @@ GoRouter router(Ref ref) {
                    ruleId: int.parse(s.pathParameters['ruleId']!),
                  ),
                ),
-               GoRoute(
-                 path: 'rule/:ruleId?',
-                 builder: (_, s) {
-                   final id = s.pathParameters['ruleId'];
-                   return AllocationRuleFormScreen(
-                     ruleId: id != null ? int.parse(id) : null,
-                   );
-                 },
-               ),
+                GoRoute(
+                  path: 'rule',
+                  builder: (_, __) => const AllocationRuleFormScreen(),
+                ),
+                GoRoute(
+                  path: 'rule/:ruleId',
+                  builder: (_, s) => AllocationRuleFormScreen(
+                    ruleId: int.parse(s.pathParameters['ruleId']!),
+                  ),
+                ),
              ],
            ),
           GoRoute(
