@@ -56,3 +56,32 @@ This file logs important decisions made during development. Each entry has a dat
 
 6. **Screen titles centralized**  
    All main list screen titles now use `centerTitle: true` for consistent appearance. The theme default (`centerTitle: false`) is overridden per screen.
+
+---
+
+## 2026-06-20 — Glassmorphism Restoration & 4-Theme System
+
+**Context:** The app's glassmorphism (blur) effect was disabled because content became invisible. The theme system also needed to be overhauled to support 4 distinct themes with different design vibes.
+
+**Decisions:**
+
+1. **Custom `Stack`+`BackdropFilter` replaces `glass_kit`'s `GlassContainer`**  
+   The `GlassContainer` from `glass_kit` wrapped the blur layer around the child in a way that could visually "erase" content on some GPU compositions. By manually building the glass panel as a `Stack` with layers (BackdropFilter → gradient fill → frosted overlay → border → child), the content is always guaranteed to render on top of the blur. The `glass_kit` dependency remains in `pubspec.yaml` but is no longer used for blur.
+
+2. **`GlassPanel.solid` renamed to `opaque`**  
+   The old `solid` parameter caused confusion — it controlled whether the panel was opaque (no blur), but it sounded like it controlled the "solid" (no-aurora) theme type. Renamed to `opaque` to match its actual behavior. The "no aurora" concept is now exclusively controlled by `AuroraConfig.enabled`.
+
+3. **4 new themes replace the original 4-theme set**  
+   The original `darkAurora`, `lightAurora`, `midnightBlue`, and `solidSlate` are replaced by:
+   - `lightSolid` (Forest Green / Navy Blue)
+   - `darkSolid` (Dark inversion)
+   - `minimalistPaper` (Monochrome, clean)
+   - `deepOcean` (Navy + cyan accents)
+   
+   `darkAurora`, `lightAurora`, and `midnightBlue` are preserved as active themes. `solidSlate` is `@Deprecated` and maps to `darkSolid` in the migration path in `ThemeProvider`.
+
+4. **Static gradient backgrounds for solid themes**  
+   `AuroraBackdrop` was enhanced to render a `LinearGradient` (instead of a flat color) when `enabled == false` and `backgrounds.length > 1`. This gives solid themes visual depth without animation.
+
+5. **`isFrostedGlass` functionality restored**  
+   The frosted opacity layer (extra 8–10% white overlay for nav bar and dialogs) was missing in the initial custom Stack implementation. It was restored as a conditional layer between the gradient fill and the border.
