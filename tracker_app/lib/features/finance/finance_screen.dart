@@ -57,10 +57,10 @@ class FinanceScreen extends ConsumerWidget {
         actions: [
           IconButton(
             icon: const Icon(Icons.add),
-            onPressed: () {
-              HapticService.trigger(HapticProfile.light);
-              context.push('/settings/finance/rule');
-            },
+                                 onPressed: () {
+                                   HapticService.trigger(HapticProfile.light);
+                                   context.push('/finance/rule');
+                                 },
           ),
         ],
       ),
@@ -93,10 +93,10 @@ class FinanceScreen extends ConsumerWidget {
                   noBlur: true,
                   padding: const EdgeInsets.all(16),
                   child: InkWell(
-                    onTap: () {
-                      HapticService.trigger(HapticProfile.light);
-                      context.push('/settings/finance/history/${rule.id}');
-                    },
+                     onTap: () {
+                       HapticService.trigger(HapticProfile.light);
+                       context.push('/finance/history/${rule.id}');
+                     },
                     borderRadius: BorderRadius.circular(16),
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -120,11 +120,11 @@ class FinanceScreen extends ConsumerWidget {
                               IconButton(
                                 icon: const Icon(Icons.edit,
                                     color: Colors.white70, size: 20),
-                                onPressed: () {
-                                  HapticService.trigger(HapticProfile.light);
-                                  context.push(
-                                      '/settings/finance/rule/${rule.id}');
-                                },
+                                 onPressed: () {
+                                   HapticService.trigger(HapticProfile.light);
+                                   context.push(
+                                       '/finance/rule/${rule.id}');
+                                 },
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete,

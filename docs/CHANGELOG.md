@@ -1,5 +1,10 @@
 # Changelog
 
+## v1.5.0 (Build 1.5.0+11) — Routing Fix
+- Fixed "Page Not Found" error when navigating to allocation rules from the Finance tab.
+- Unified finance routing: moved `rule` and `history` sub-routes to the top-level `/finance` route and redirected `/settings/finance` to `/finance`.
+- Updated `FinanceScreen` to use the new `/finance/...` absolute paths.
+
 ## v1.5.0 (Build 1.5.0+10) — Finance Tab & UI Cleanup
 - **Finance tab** added as 6th bottom nav tab: Finance moves from Settings to a dedicated tab in the `StatefulShellRoute.indexedStack`.
 - **Merged Bucket screens**: `BucketDetailScreen` and `BucketHistoryScreen` merged into a single `BucketDetailScreen` (kept the more feature-complete version with color dot, edit button, SectionHeader); `BucketHistoryScreen` removed.
