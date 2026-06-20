@@ -4,8 +4,6 @@ import 'package:tracker/core/theme/app_colors.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/widgets/section_header.dart';
-import 'package:tracker/core/widgets/haptic_wrapper.dart';
-import 'package:tracker/core/services/haptic_service.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/products/bucket_repository.dart';
 import 'bucket_form_sheet.dart';
@@ -92,16 +90,12 @@ class BucketDetailScreen extends ConsumerWidget {
                                 ),
                           ),
                         ),
-                        HapticWrapper(
-                          profile: HapticProfile.light,
-                          onTap: null,
-                          child: IconButton(
-                            icon: const Icon(Icons.edit,
-                                color: Colors.white70, size: 20),
-                            onPressed: () {
-                              showBucketFormSheet(context, bucket: bucket);
-                            },
-                          ),
+                        IconButton(
+                          icon: const Icon(Icons.edit,
+                              color: Colors.white70, size: 20),
+                          onPressed: () {
+                            showBucketFormSheet(context, bucket: bucket);
+                          },
                         ),
                       ],
                     ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
-import '../../core/widgets/glass_panel.dart';
+import '../../core/utils/formatters.dart';
 import 'finance_repository.dart';
 
 part 'allocation_history_screen.g.dart';
@@ -41,107 +41,66 @@ class AllocationHistoryScreen extends ConsumerWidget {
             );
           }
 
-          return Column(
-            children: [
-              _buildMonthSelector(context, history),
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.vertical,
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: DataTable(
-                      columnSpacing: 20,
-                      columns: const [
-                        DataColumn(
-                            label: Text('Month',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold))),
-                        DataColumn(
-                            label: Text('Profit',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold))),
-                        DataColumn(
-                            label: Text('Allocated',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold))),
-                        DataColumn(
-                            label: Text('Charged',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold))),
-                        DataColumn(
-                            label: Text('Balance',
-                                style: TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold))),
-                      ],
-                      rows: history.map((detail) {
-                        return DataRow(
-                          cells: [
-                            DataCell(Text(detail.month,
-                                style: const TextStyle(color: Colors.white70))),
-                            DataCell(Text(
-                                '\$${detail.monthlyProfit.toStringAsFixed(2)}',
-                                style: const TextStyle(color: Colors.white70))),
-                            DataCell(Text(
-                                '\$${detail.amountAllocated.toStringAsFixed(2)}',
-                                style: const TextStyle(color: Colors.white70))),
-                            DataCell(Text(
-                                '\$${detail.expensesCharged.toStringAsFixed(2)}',
-                                style: const TextStyle(color: Colors.white70))),
-                            DataCell(Text(
-                              '\$${detail.runningBalance.toStringAsFixed(2)}',
-                              style: TextStyle(
-                                color: detail.runningBalance >= 0
-                                    ? Colors.teal
-                                    : Colors.redAccent,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            )),
-                          ],
-                        );
-                      }).toList(),
-                    ),
-                  ),
-                ),
+          return SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
+              child: DataTable(
+                columnSpacing: 20,
+                columns: const [
+                  DataColumn(
+                      label: Text('Month',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold))),
+                  DataColumn(
+                      label: Text('Profit',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold))),
+                  DataColumn(
+                      label: Text('Allocated',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold))),
+                  DataColumn(
+                      label: Text('Charged',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold))),
+                  DataColumn(
+                      label: Text('Balance',
+                          style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold))),
+                ],
+                rows: history.map((detail) {
+                  return DataRow(
+                    cells: [
+                      DataCell(Text(detail.month,
+                          style: const TextStyle(color: Colors.white70))),
+                      DataCell(Text(formatMoney(detail.monthlyProfit),
+                          style: const TextStyle(color: Colors.white70))),
+                      DataCell(Text(formatMoney(detail.amountAllocated),
+                          style: const TextStyle(color: Colors.white70))),
+                      DataCell(Text(formatMoney(detail.expensesCharged),
+                          style: const TextStyle(color: Colors.white70))),
+                      DataCell(Text(
+                        formatMoney(detail.runningBalance),
+                        style: TextStyle(
+                          color: detail.runningBalance >= 0
+                              ? Colors.teal
+                              : Colors.redAccent,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      )),
+                    ],
+                  );
+                }).toList(),
               ),
-            ],
+            ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildMonthSelector(
-      BuildContext context, List<RuleMonthlyDetail> history) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: GlassPanel(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.chevron_left, color: Colors.white),
-              onPressed: () {}, // Implementation for navigating years/months
-            ),
-            Text(
-              history.isNotEmpty
-                  ? history.last.month.substring(0, 4)
-                  : DateTime.now().year.toString(),
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
-            ),
-            IconButton(
-              icon: const Icon(Icons.chevron_right, color: Colors.white),
-              onPressed: () {}, // Implementation for navigating years/months
-            ),
-          ],
-        ),
       ),
     );
   }

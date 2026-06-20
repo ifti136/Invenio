@@ -6,7 +6,6 @@ import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
 import 'package:tracker/core/services/haptic_service.dart';
-import 'package:tracker/core/widgets/haptic_wrapper.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/products/product_provider.dart';
 import 'package:tracker/features/products/widgets/stock_badge.dart';
@@ -14,8 +13,6 @@ import 'package:tracker/features/sales/sale_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/features/sales/widgets/discount_sheet.dart';
 import 'package:tracker/features/sales/widgets/quick_sell_sheet.dart';
-import 'package:tracker/features/products/widgets/sale_list_item.dart';
-import 'package:tracker/core/widgets/empty_state.dart';
 
 class SaleListScreen extends ConsumerWidget {
   const SaleListScreen({super.key});
@@ -40,14 +37,13 @@ class SaleListScreen extends ConsumerWidget {
               style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
             ),
             actions: [
-              HapticWrapper(
-                profile: HapticProfile.light,
-                onTap: () => context.push('/sales/add'),
-                child: IconButton(
-                  tooltip: 'Log sale',
-                  onPressed: null,
-                  icon: const Icon(Icons.add_rounded, color: AppColors.accent),
-                ),
+              IconButton(
+                tooltip: 'Log sale',
+                onPressed: () {
+                  HapticService.trigger(HapticProfile.light);
+                  context.push('/sales/add');
+                },
+                icon: const Icon(Icons.add_rounded, color: AppColors.accent),
               ),
               const SizedBox(width: 4),
             ],
@@ -139,54 +135,6 @@ class SaleListScreen extends ConsumerWidget {
                           .take(5)
                           .map((s) => _DiscountedSaleRow(sale: s)),
                     ],
-                  ],
-                ),
-              ),
-            ),
-          ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-              child: GlassPanel(
-                padding: const EdgeInsets.all(12),
-                noBlur: true,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.history_rounded,
-                            size: 18,
-                            color: Theme.of(context).colorScheme.primary),
-                        const SizedBox(width: 6),
-                        Text(
-                          'Recent Sales',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: Theme.of(context).colorScheme.primary,
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    if (allSales.isEmpty)
-                      Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: const EmptyState(
-                          icon: Icons.receipt_long_outlined,
-                          title: 'No sales yet',
-                          message: 'Tap a product to log your first sale.',
-                        ),
-                      )
-                    else
-                      ...allSales.take(5).map((s) => SaleListItem(
-                            sale: s,
-                            productName: products
-                                .where((p) => p.id == s.productId)
-                                .firstOrNull
-                                ?.name,
-                          )),
                   ],
                 ),
               ),

@@ -1,5 +1,13 @@
 # Changelog
 
+## v1.5.0 (Build 1.5.0+10) — Finance Tab & UI Cleanup
+- **Finance tab** added as 6th bottom nav tab: Finance moves from Settings to a dedicated tab in the `StatefulShellRoute.indexedStack`.
+- **Merged Bucket screens**: `BucketDetailScreen` and `BucketHistoryScreen` merged into a single `BucketDetailScreen` (kept the more feature-complete version with color dot, edit button, SectionHeader); `BucketHistoryScreen` removed.
+- **Dead code removal**: Removed `HapticWrapper(onTap: null)` wrappers from `FinanceScreen` and `BucketDetailScreen`.
+- **Router import fix**: Added missing `WalletListScreen` import to router.
+- **Clear All Data fix**: Replaced type-inference-breaking loop with individual `await db.delete(...).go()` calls; fixed orphaned `ref.invalidate()` / `Navigator.pop()` that were outside the `onPressed` callback.
+- **Schema stays v6** (no new tables or columns).
+
 ## v1.4.0 (Build 1.4.0+8) — Wallet Transfers
 - New **Wallet Transfer** feature: move money between wallets without affecting profit reports.
 - Schema v6: new `transfers` table (`fromWalletId`, `toWalletId`, `amount`, `note`, `createdAt`).

@@ -19,10 +19,9 @@ import 'features/settings/add_on_types_screen.dart';
 import 'features/settings/currency_screen.dart';
 import 'features/settings/system_settings_screen.dart';
 import 'features/settings/theme_screen.dart';
-import 'features/products/widgets/bucket_history_screen.dart';
-import 'features/products/widgets/wallet_list_screen.dart';
-import 'features/products/widgets/bucket_list_screen.dart';
 import 'features/products/widgets/bucket_detail_screen.dart';
+import 'features/products/widgets/bucket_list_screen.dart';
+import 'features/products/widgets/wallet_list_screen.dart';
 import 'features/transfers/transfer_history_screen.dart';
 import 'core/utils/formatters.dart';
 import 'core/services/currency_service.dart';
@@ -125,6 +124,14 @@ GoRouter router(Ref ref) {
               ),
             ],
           ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/finance',
+                builder: (_, __) => const FinanceScreen(),
+              ),
+            ],
+          ),
         ],
       ),
       GoRoute(
@@ -148,12 +155,6 @@ GoRouter router(Ref ref) {
               GoRoute(
                 path: 'detail/:id',
                 builder: (_, s) => BucketDetailScreen(
-                  bucketId: int.parse(s.pathParameters['id']!),
-                ),
-              ),
-              GoRoute(
-                path: 'history/:id',
-                builder: (_, s) => BucketHistoryScreen(
                   bucketId: int.parse(s.pathParameters['id']!),
                 ),
               ),

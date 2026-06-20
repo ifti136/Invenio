@@ -4,7 +4,6 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:go_router/go_router.dart';
 import '../../core/widgets/glass_panel.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/widgets/haptic_wrapper.dart';
 import '../../core/services/haptic_service.dart';
 import '../../core/utils/formatters.dart';
 import 'finance_repository.dart';
@@ -56,13 +55,12 @@ class FinanceScreen extends ConsumerWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         actions: [
-          HapticWrapper(
-            profile: HapticProfile.light,
-            onTap: null,
-            child: IconButton(
-              icon: const Icon(Icons.add),
-              onPressed: () => context.push('/settings/finance/rule'),
-            ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              HapticService.trigger(HapticProfile.light);
+              context.push('/settings/finance/rule');
+            },
           ),
         ],
       ),
@@ -94,57 +92,51 @@ class FinanceScreen extends ConsumerWidget {
                 child: GlassPanel(
                   noBlur: true,
                   padding: const EdgeInsets.all(16),
-                  child: HapticWrapper(
-                    profile: HapticProfile.light,
-                    onTap: null,
-                    child: InkWell(
-                      onTap: () =>
-                          context.push('/settings/finance/history/${rule.id}'),
-                      borderRadius: BorderRadius.circular(16),
-                      child: Padding(
-                        padding: const EdgeInsets.all(16),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    rule.label,
-                                    style: Theme.of(context)
-                                        .textTheme
-                                        .titleMedium
-                                        ?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                        ),
-                                  ),
+                  child: InkWell(
+                    onTap: () {
+                      HapticService.trigger(HapticProfile.light);
+                      context.push('/settings/finance/history/${rule.id}');
+                    },
+                    borderRadius: BorderRadius.circular(16),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  rule.label,
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleMedium
+                                      ?.copyWith(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
                                 ),
-                                HapticWrapper(
-                                  profile: HapticProfile.light,
-                                  onTap: null,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.edit,
-                                        color: Colors.white70, size: 20),
-                                    onPressed: () => context.push(
-                                        '/settings/finance/rule/${rule.id}'),
-                                  ),
-                                ),
-                                HapticWrapper(
-                                  profile: HapticProfile.light,
-                                  onTap: null,
-                                  child: IconButton(
-                                    icon: const Icon(Icons.delete,
-                                        color: Colors.redAccent, size: 20),
-                                    onPressed: () async {
-                                      await ref
-                                          .read(
-                                              allocationRulesRepositoryProvider)
-                                          .softDeleteRule(rule.id);
-                                      ref.invalidate(financeDataProvider);
-                                    },
-                                  ),
-                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.edit,
+                                    color: Colors.white70, size: 20),
+                                onPressed: () {
+                                  HapticService.trigger(HapticProfile.light);
+                                  context.push(
+                                      '/settings/finance/rule/${rule.id}');
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete,
+                                    color: Colors.redAccent, size: 20),
+                                onPressed: () async {
+                                  HapticService.trigger(HapticProfile.light);
+                                  await ref
+                                      .read(allocationRulesRepositoryProvider)
+                                      .softDeleteRule(rule.id);
+                                  ref.invalidate(financeDataProvider);
+                                },
+                              ),
                                 Container(
                                   padding: const EdgeInsets.symmetric(
                                       horizontal: 8, vertical: 4),
@@ -190,8 +182,7 @@ class FinanceScreen extends ConsumerWidget {
                       ),
                     ),
                   ),
-                ),
-              );
+                );
             },
           );
         },
