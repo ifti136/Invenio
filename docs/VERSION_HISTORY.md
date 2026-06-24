@@ -3,11 +3,24 @@
 A complete log of every version of Invenio, from initial scaffold to the current
 build. Each entry maps to one or more git commits. Dates are commit-author dates.
 
-**Current version:** `1.6.0+14` · Schema v6 · 10 tables · 100/100 tests passing
+**Current version:** `1.6.1+15` · Schema v6 · 10 tables · 100/100 tests passing
 
 ---
 
 ## Release
+
+### v1.6.1 (Build 1.6.1+15) — Theme Refinement & Bug Fixes
+**Date:** 2026-06-24  
+**Commit:** (current)
+
+- Fixed layout crash in "Add Expense" form by wrapping `_ToggleGroup` in `Expanded`.
+- Updated "Paper" theme with warm cream tones and brown accents.
+- Removed "Light Solid" and "Dark Solid" themes; added migration logic in `ThemeProvider`.
+- Refactored theme selection screen to a responsive 2-column `GridView` layout.
+- Fixed text color contrast in settings suite using theme-aware `onSurface` colors.
+- Version bump to v1.6.1+15.
+
+---
 
 ### v1.6.0 (Build 1.6.0+14) — Glassmorphism Restoration & New Theme System
 **Date:** 2026-06-20  
@@ -118,3 +131,4 @@ build. Each entry maps to one or more git commits. Dates are commit-author dates
 | +9 | 1.4.0+9 | Jun 20 2026 | v1.4.0: Currency format fix |
 | +13 | 1.5.1+13 | Jun 20 2026 | v1.5.1: Routing fix |
 | +14 | 1.6.0+14 | Jun 20 2026 | v1.6.0: Glassmorphism restoration & 4 new themes |
+| +15 | 1.6.1+15 | Jun 24 2026 | v1.6.1: Theme refinement, expense form fix, contrast fixes |

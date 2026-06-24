@@ -1,5 +1,12 @@
 # Changelog
 
+## v1.6.1 (Build 1.6.1+15) — Theme Refinement & Bug Fixes
+- **Expense Form Fix**: Resolved layout crash in "Add Expense" form by wrapping `_ToggleGroup` in `Expanded`.
+- **Paper Theme Enhanced**: Updated to warm cream tones and brown accents for a more premium feel.
+- **Theme Cleanup**: Removed "Light Solid" and "Dark Solid" themes; added migration logic in `ThemeProvider` to map them to Aurora equivalents.
+- **Theme UI Update**: Refactored theme selection screen to a responsive 2-column `GridView` layout.
+- **Contrast Fix**: Replaced hardcoded white text in settings suite (`SettingsScreen`, `SystemSettingsScreen`, `AddOnTypesScreen`, `CurrencyScreen`) with theme-aware `onSurface` colors.
+
 ## v1.5.0 (Build 1.5.0+12) — Bottom Nav Cleanup
 - Removed Finance tab from bottom navigation bar to reduce clutter.
 - Restored Finance section as a sub-route of Settings (`/settings/finance`).
