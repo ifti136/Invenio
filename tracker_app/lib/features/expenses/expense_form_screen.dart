@@ -524,12 +524,14 @@ class _ExpenseFormScreenState extends ConsumerState<ExpenseFormScreen> {
                   const SizedBox(height: 8),
                   Row(
                     children: [
-                      _ToggleGroup<String>(
-                        value: _ownership,
-                        values: const ['business', 'personal'],
-                        labelOf: (v) =>
-                            v == 'business' ? 'Business' : 'Personal',
-                        onChanged: (v) => setState(() => _ownership = v),
+                      Expanded(
+                        child: _ToggleGroup<String>(
+                          value: _ownership,
+                          values: const ['business', 'personal'],
+                          labelOf: (v) =>
+                              v == 'business' ? 'Business' : 'Personal',
+                          onChanged: (v) => setState(() => _ownership = v),
+                        ),
                       ),
                       const SizedBox(width: 12),
                       Expanded(

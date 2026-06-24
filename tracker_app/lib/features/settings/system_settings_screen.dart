@@ -61,7 +61,13 @@ class SystemSettingsScreen extends ConsumerWidget {
                   subtitle: 'Save a copy of your data',
                   onTap: () => _exportDatabase(context, ref),
                 ),
-                const Divider(color: Colors.white12, height: 24),
+                Divider(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurfaceVariant
+                      .withOpacity(0.12),
+                  height: 24,
+                ),
                 _actionTile(
                   context,
                   icon: Icons.restore_outlined,
@@ -69,7 +75,13 @@ class SystemSettingsScreen extends ConsumerWidget {
                   subtitle: 'Restore from a backup',
                   onTap: () => _importDatabase(context, ref),
                 ),
-                const Divider(color: Colors.white12, height: 24),
+                Divider(
+                  color: Theme.of(context)
+                      .colorScheme
+                      .onSurfaceVariant
+                      .withOpacity(0.12),
+                  height: 24,
+                ),
                 _actionTile(
                   context,
                   icon: Icons.delete_outline,
@@ -86,7 +98,10 @@ class SystemSettingsScreen extends ConsumerWidget {
             child: Text(
               'Invenio — Inventory Management',
               style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: Colors.white38,
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.38),
                   ),
             ),
           ),
@@ -102,10 +117,13 @@ class SystemSettingsScreen extends ConsumerWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(label,
-              style: const TextStyle(color: Colors.white70, fontSize: 14)),
+              style: TextStyle(
+                  color:
+                      Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  fontSize: 14)),
           Text(value,
-              style: const TextStyle(
-                  color: Colors.white,
+              style: TextStyle(
+                  color: Theme.of(context).colorScheme.onSurface,
                   fontWeight: FontWeight.w600,
                   fontSize: 14)),
         ],
@@ -135,17 +153,24 @@ class SystemSettingsScreen extends ConsumerWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(label,
-                      style: const TextStyle(
-                          color: Colors.white,
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
                           fontWeight: FontWeight.w600,
                           fontSize: 15)),
                   Text(subtitle,
-                      style:
-                          const TextStyle(color: Colors.white54, fontSize: 12)),
+                      style: TextStyle(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onSurface
+                              .withOpacity(0.54),
+                          fontSize: 12)),
                 ],
               ),
             ),
-            const Icon(Icons.chevron_right, color: Colors.white24, size: 20),
+            Icon(Icons.chevron_right,
+                color:
+                    Theme.of(context).colorScheme.onSurface.withOpacity(0.24),
+                size: 20),
           ],
         ),
       ),

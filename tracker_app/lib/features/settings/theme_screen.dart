@@ -30,58 +30,33 @@ class ThemeScreen extends ConsumerWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
               ),
               const SizedBox(height: 16),
-              Wrap(
-                spacing: 16,
-                runSpacing: 16,
-                children: [
-                  SizedBox(
-                    width: (MediaQuery.of(context).size.width - 80) / 2,
-                    child: const ThemeCard(
-                      id: AppThemeId.darkAurora,
-                      label: "Dark Aurora",
-                    ),
+              GridView.count(
+                shrinkWrap: true,
+                physics: const NeverScrollableScrollPhysics(),
+                crossAxisCount: 2,
+                mainAxisSpacing: 16,
+                crossAxisSpacing: 16,
+                childAspectRatio: 1.2,
+                children: const [
+                  ThemeCard(
+                    id: AppThemeId.darkAurora,
+                    label: "Dark Aurora",
                   ),
-                  SizedBox(
-                    width: (MediaQuery.of(context).size.width - 80) / 2,
-                    child: const ThemeCard(
-                      id: AppThemeId.lightAurora,
-                      label: "Light Aurora",
-                    ),
+                  ThemeCard(
+                    id: AppThemeId.lightAurora,
+                    label: "Light Aurora",
                   ),
-                  SizedBox(
-                    width: (MediaQuery.of(context).size.width - 80) / 2,
-                    child: const ThemeCard(
-                      id: AppThemeId.midnightBlue,
-                      label: "Midnight Blue",
-                    ),
+                  ThemeCard(
+                    id: AppThemeId.midnightBlue,
+                    label: "Midnight Blue",
                   ),
-                  SizedBox(
-                    width: (MediaQuery.of(context).size.width - 80) / 2,
-                    child: const ThemeCard(
-                      id: AppThemeId.lightSolid,
-                      label: "Light Solid",
-                    ),
+                  ThemeCard(
+                    id: AppThemeId.paper,
+                    label: "Paper",
                   ),
-                  SizedBox(
-                    width: (MediaQuery.of(context).size.width - 80) / 2,
-                    child: const ThemeCard(
-                      id: AppThemeId.darkSolid,
-                      label: "Dark Solid",
-                    ),
-                  ),
-                  SizedBox(
-                    width: (MediaQuery.of(context).size.width - 80) / 2,
-                    child: const ThemeCard(
-                      id: AppThemeId.paper,
-                      label: "Paper",
-                    ),
-                  ),
-                  SizedBox(
-                    width: (MediaQuery.of(context).size.width - 80) / 2,
-                    child: const ThemeCard(
-                      id: AppThemeId.ocean,
-                      label: "Deep Ocean",
-                    ),
+                  ThemeCard(
+                    id: AppThemeId.ocean,
+                    label: "Deep Ocean",
                   ),
                 ],
               ),

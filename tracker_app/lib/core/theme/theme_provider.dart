@@ -13,17 +13,15 @@ class ThemeProvider extends _$ThemeProvider {
     final prefs = await SharedPreferences.getInstance();
     final idString = prefs.getString(_storageKey);
     if (idString != null) {
-      var id = AppThemeId.values.firstWhere(
-        (id) => id.name == idString,
+      var effectiveIdString = idString;
+      if (effectiveIdString == 'lightSolid') effectiveIdString = 'lightAurora';
+      if (effectiveIdString == 'darkSolid') effectiveIdString = 'darkAurora';
+      if (effectiveIdString == 'solidSlate') effectiveIdString = 'darkAurora';
+
+      return AppThemeId.values.firstWhere(
+        (id) => id.name == effectiveIdString,
         orElse: () => AppThemeId.darkAurora,
       );
-
-      // Map deprecated IDs to new ones
-      if (id == AppThemeId.solidSlate) {
-        id = AppThemeId.darkSolid;
-      }
-
-      return id;
     }
     return AppThemeId.darkAurora;
   }

@@ -67,7 +67,10 @@ class SettingsScreen extends ConsumerWidget {
           leading: Icon(icon, color: AppColors.accent),
           title: Text(
             title,
-            style: const TextStyle(color: Colors.white, fontSize: 15),
+            style: TextStyle(
+              color: Theme.of(context).colorScheme.onSurface,
+              fontSize: 15,
+            ),
           ),
           trailing: Icon(Icons.chevron_right,
               color: Theme.of(context).colorScheme.onSurfaceVariant),

@@ -32,10 +32,14 @@ class AddOnTypesScreen extends ConsumerWidget {
         error: (err, stack) => Center(child: Text('Error: $err')),
         data: (types) {
           if (types.isEmpty) {
-            return const Center(
+            return Center(
               child: Text(
                 'No add-on types defined',
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.7)),
               ),
             );
           }
@@ -51,8 +55,9 @@ class AddOnTypesScreen extends ConsumerWidget {
                   child: ListTile(
                     title: Text(
                       type.name,
-                      style: const TextStyle(
-                          color: Colors.white, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface,
+                          fontWeight: FontWeight.bold),
                     ),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
@@ -135,10 +140,10 @@ class AddOnTypesScreen extends ConsumerWidget {
               children: [
                 Text(
                   type == null ? 'Add Type' : 'Edit Type',
-                  style: const TextStyle(
+                  style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white),
+                      color: Theme.of(context).colorScheme.onSurface),
                 ),
                 const SizedBox(height: 16),
                 GlassTextField(
@@ -148,8 +153,9 @@ class AddOnTypesScreen extends ConsumerWidget {
                 ),
                 const SizedBox(height: 12),
                 SwitchListTile(
-                  title: const Text('Active',
-                      style: TextStyle(color: Colors.white)),
+                  title: Text('Active',
+                      style: TextStyle(
+                          color: Theme.of(context).colorScheme.onSurface)),
                   value: isActive,
                   onChanged: (v) {
                     HapticService.trigger(HapticProfile.light);
@@ -162,8 +168,12 @@ class AddOnTypesScreen extends ConsumerWidget {
                     Expanded(
                       child: TextButton(
                         onPressed: () => Navigator.of(ctx).pop(),
-                        child: const Text('Cancel',
-                            style: TextStyle(color: Colors.white70)),
+                        child: Text('Cancel',
+                            style: TextStyle(
+                                color: Theme.of(context)
+                                    .colorScheme
+                                    .onSurface
+                                    .withOpacity(0.7))),
                       ),
                     ),
                     Expanded(

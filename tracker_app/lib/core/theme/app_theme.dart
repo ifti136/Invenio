@@ -5,10 +5,8 @@ enum AppThemeId {
   darkAurora,
   lightAurora,
   midnightBlue,
-  @Deprecated('Use darkSolid instead')
+  @Deprecated('Use darkAurora instead')
   solidSlate,
-  lightSolid,
-  darkSolid,
   paper,
   ocean,
 }
@@ -91,53 +89,6 @@ class AppTheme {
                 AppColors.midnightWave3
               ],
             ],
-          ),
-        );
-      case AppThemeId.solidSlate:
-        return ThemeSettings(
-          data: _build(Brightness.dark, seed: AppColors.accent, solid: true),
-          aurora: const AuroraConfig(
-            backgrounds: [AppColors.solidSlateBg],
-            waves: [],
-            enabled: false,
-          ),
-        );
-      case AppThemeId.lightSolid:
-        return ThemeSettings(
-          data: _build(
-            Brightness.light,
-            solid: true,
-            primary: AppColors.lightSolidPrimary,
-            secondary: AppColors.lightSolidSecondary,
-            surface: AppColors.lightSolidSurface,
-            text: AppColors.lightSolidText,
-          ),
-          aurora: const AuroraConfig(
-            backgrounds: [
-              AppColors.lightSolidBgStart,
-              AppColors.lightSolidBgEnd,
-            ],
-            waves: [],
-            enabled: false,
-          ),
-        );
-      case AppThemeId.darkSolid:
-        return ThemeSettings(
-          data: _build(
-            Brightness.dark,
-            solid: true,
-            primary: AppColors.darkSolidPrimary,
-            secondary: AppColors.darkSolidSecondary,
-            surface: AppColors.darkSolidSurface,
-            text: AppColors.darkSolidText,
-          ),
-          aurora: const AuroraConfig(
-            backgrounds: [
-              AppColors.darkSolidBgStart,
-              AppColors.darkSolidBgEnd,
-            ],
-            waves: [],
-            enabled: false,
           ),
         );
       case AppThemeId.paper:

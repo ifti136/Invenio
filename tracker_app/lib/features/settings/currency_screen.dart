@@ -77,18 +77,22 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
               const Icon(Icons.currency_exchange,
                   size: 48, color: AppColors.accent),
               const SizedBox(height: 16),
-              const Text(
+              Text(
                 'Currency Configuration',
                 style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white),
+                    color: Theme.of(context).colorScheme.onSurface),
               ),
               const SizedBox(height: 8),
-              const Text(
+              Text(
                 'Set your preferred currency symbol and formatting.',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.white70),
+                style: TextStyle(
+                    color: Theme.of(context)
+                        .colorScheme
+                        .onSurface
+                        .withOpacity(0.7)),
               ),
               const SizedBox(height: 24),
               GlassTextField(
@@ -107,7 +111,10 @@ class _CurrencyScreenState extends ConsumerState<CurrencyScreen> {
                         _reset();
                       },
                       style: OutlinedButton.styleFrom(
-                        foregroundColor: Colors.white70,
+                        foregroundColor: Theme.of(context)
+                            .colorScheme
+                            .onSurface
+                            .withOpacity(0.7),
                         padding: const EdgeInsets.symmetric(vertical: 14),
                       ),
                       child: const Text('Reset'),

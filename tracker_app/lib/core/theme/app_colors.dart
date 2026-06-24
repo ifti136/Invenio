@@ -41,29 +41,13 @@ class AppColors {
   static const solidSlateBg = Color(0xFF1E293B);
   static const solidSlateSurface = Color(0xFF334155);
 
-  // Light Solid
-  static const lightSolidBgStart = Color(0xFFFAFAFA);
-  static const lightSolidBgEnd = Color(0xFFF5F5F5);
-  static const lightSolidSurface = Color(0xFFFFFFFF);
-  static const lightSolidPrimary = Color(0xFF2E7D32);
-  static const lightSolidSecondary = Color(0xFF1565C0);
-  static const lightSolidText = Color(0xFF212121);
-
-  // Dark Solid
-  static const darkSolidBgStart = Color(0xFF121212);
-  static const darkSolidBgEnd = Color(0xFF1E1E1E);
-  static const darkSolidSurface = Color(0xFF2C2C2C);
-  static const darkSolidPrimary = Color(0xFF81C784);
-  static const darkSolidSecondary = Color(0xFF64B5F6);
-  static const darkSolidText = Color(0xFFF5F5F5);
-
   // Minimalist/Paper
-  static const paperBgStart = Color(0xFFFFFFFF);
-  static const paperBgEnd = Color(0xFFFDFDFD);
-  static const paperSurface = Color(0xFFF5F5F5);
-  static const paperPrimary = Color(0xFF000000);
-  static const paperSecondary = Color(0xFF757575);
-  static const paperText = Color(0xFF000000);
+  static const paperBgStart = Color(0xFFFFFDF5);
+  static const paperBgEnd = Color(0xFFFBF7E8);
+  static const paperSurface = Color(0xFFF5F0D7);
+  static const paperPrimary = Color(0xFF4E342E);
+  static const paperSecondary = Color(0xFF795548);
+  static const paperText = Color(0xFF2D1B15);
 
   // Deep Ocean/Midnight
   static const oceanBgStart = Color(0xFF0A1628);
