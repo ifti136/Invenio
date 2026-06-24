@@ -33,7 +33,7 @@ class SystemSettingsScreen extends ConsumerWidget {
                       ),
                 ),
                 const SizedBox(height: 12),
-                _infoRow(context, 'Version', '1.6.0+14'),
+                 _infoRow(context, 'Version', '1.6.1+15'),
                 _infoRow(context, 'Schema', 'v6'),
                 _infoRow(context, 'Min SDK', 'Android 24'),
                 _infoRow(context, 'Framework', 'Flutter 3.24.4'),
