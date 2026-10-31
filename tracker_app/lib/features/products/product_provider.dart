@@ -11,7 +11,7 @@ Stream<List<Product>> productList(Ref ref) {
   return ref.watch(productRepositoryProvider).watchAll();
 }
 
-@riverpod
+@Riverpod(keepAlive: true)
 class ProductFilter extends _$ProductFilter {
   @override
   ProductFilterState build() => const ProductFilterState();

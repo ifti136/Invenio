@@ -93,7 +93,7 @@ class ExpenseRepository {
       ExpensesCompanion(
         amount: drift.Value(amount),
         category: drift.Value(category),
-        note: note != null ? drift.Value(note) : drift.Value.absent(),
+        note: drift.Value(note),
         date: drift.Value(effectiveDate.millisecondsSinceEpoch),
         walletId: drift.Value(walletId),
         ownership: drift.Value(ownership ?? 'business'),
