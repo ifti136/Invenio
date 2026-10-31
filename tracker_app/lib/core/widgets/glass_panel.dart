@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:ui';
 import '../theme/app_colors.dart';
+import '../theme/app_tokens.dart';
 
 class GlassPanel extends StatelessWidget {
   static bool testOverride = false;
@@ -17,13 +18,14 @@ class GlassPanel extends StatelessWidget {
   final bool expand;
   final bool noBlur;
   final bool opaque;
+  final Color? tint;
 
   const GlassPanel({
     super.key,
     this.child,
     this.width,
     this.height,
-    this.radius = 20,
+    this.radius = AppRadii.card,
     this.margin,
     this.padding,
     this.blur = 18,
@@ -31,6 +33,7 @@ class GlassPanel extends StatelessWidget {
     this.expand = false,
     this.noBlur = false,
     this.opaque = false,
+    this.tint,
   });
 
   const GlassPanel.flush({
@@ -43,6 +46,7 @@ class GlassPanel extends StatelessWidget {
     this.expand = true,
     this.noBlur = false,
     this.opaque = false,
+    this.tint,
   })  : width = null,
         height = null,
         radius = 0;
@@ -69,6 +73,11 @@ class GlassPanel extends StatelessWidget {
     final borderBottom = isDark ? 0.10 : 0.18;
     final accent = isDark ? 0.18 : 0.10;
     final scheme = Theme.of(context).colorScheme;
+    final cardFillTop = isDark ? 0.14 : 0.34;
+    final cardFillBottom = isDark ? 0.04 : 0.12;
+    final cardBorder = isDark
+        ? Colors.white.withOpacity(0.28)
+        : scheme.outline.withOpacity(0.22);
 
     if (noBlur || opaque) {
       return Container(
@@ -83,18 +92,23 @@ class GlassPanel extends StatelessWidget {
           gradient: opaque
               ? null
               : LinearGradient(
-                  colors: [
-                    Colors.white.withOpacity(fillTop),
-                    Colors.white.withOpacity(fillBottom),
-                  ],
+                  colors: tint != null
+                      ? [
+                          tint!.withOpacity(0.16),
+                          Colors.white.withOpacity(cardFillTop),
+                          Colors.white.withOpacity(cardFillBottom),
+                        ]
+                      : [
+                          Colors.white.withOpacity(cardFillTop),
+                          Colors.white.withOpacity(cardFillBottom),
+                        ],
+                  stops: tint != null ? const [0.0, 0.55, 1.0] : null,
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
           border: radius > 0
               ? Border.all(
-                  color: opaque
-                      ? scheme.outline.withOpacity(0.20)
-                      : Colors.white.withOpacity(borderTop),
+                  color: opaque ? scheme.outline.withOpacity(0.20) : cardBorder,
                   width: 1.0,
                 )
               : null,
@@ -132,6 +146,21 @@ class GlassPanel extends StatelessWidget {
                 ),
               ),
             ),
+            if (tint != null)
+              Positioned.fill(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        tint!.withOpacity(0.16),
+                        Colors.transparent,
+                      ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                ),
+              ),
             if (isFrostedGlass)
               Positioned.fill(
                 child: Container(
@@ -195,7 +224,8 @@ class GlassBorderPainter extends CustomPainter {
     if (oldDelegate.radius != radius) {
       return true;
     }
-    if (oldDelegate.gradient is! LinearGradient || gradient is! LinearGradient) {
+    if (oldDelegate.gradient is! LinearGradient ||
+        gradient is! LinearGradient) {
       return true;
     }
     final oldG = oldDelegate.gradient as LinearGradient;

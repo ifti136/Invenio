@@ -3,13 +3,28 @@ import 'package:flutter/material.dart';
 class AppColors {
   static const accent = Color(0xFF1D9E75);
   static const accentLight = Color(0xFFE1F5EE);
+  static const onAccent = Color(0xFF06251B);
+
+  static const accentInkLight = Color(0xFF0B6B4F);
+  static const accentInkDark = Color(0xFF5FD3AE);
 
   static const warning = Color(0xFFEF9F27);
   static const warningLight = Color(0xFFFAEEDA);
+  static const warningInkLight = Color(0xFF9A6200);
 
   static const danger = Color(0xFFE24B4A);
   static const dangerLight = Color(0xFFFCEBEB);
+  static const dangerInkLight = Color(0xFFB3261E);
   static const error = danger;
+
+  static Color accentInkFor(Brightness brightness) =>
+      brightness == Brightness.dark ? accentInkDark : accentInkLight;
+
+  static Color warningInkFor(Brightness brightness) =>
+      brightness == Brightness.dark ? warning : warningInkLight;
+
+  static Color dangerInkFor(Brightness brightness) =>
+      brightness == Brightness.dark ? danger : dangerInkLight;
 
   static const stockGood = Color(0xFF1D9E75);
   static const stockWarn = Color(0xFFEF9F27);
