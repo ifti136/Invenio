@@ -54,6 +54,10 @@ docs/BUG_REPORT.md
 docs/error.md
 docs/STATUS_AUDIT.md
 docs/REDESIGN.md
+docs/FUTURE_PLAN.md
+
+# Invenio app kit — local planning docs, not part of the app
+invenio-kit/
 
 # Temp / logs
 *.log
