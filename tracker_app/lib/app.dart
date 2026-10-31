@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'router.dart';
+import 'features/walkthrough/walkthrough_screen.dart';
+import 'features/walkthrough/walkthrough_provider.dart';
 import 'core/background/aurora_backdrop.dart';
 import 'core/theme/app_theme.dart';
 import 'core/theme/theme_provider.dart';
@@ -13,6 +15,11 @@ class TrackerApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
     final themeAsync = ref.watch(themeProviderProvider);
+    final walkthrough = ref.watch(walkthroughProvider);
+
+    if (!walkthrough.completed) {
+      return const WalkthroughScreen();
+    }
 
     return themeAsync.when(
       loading: () => const MaterialApp(
