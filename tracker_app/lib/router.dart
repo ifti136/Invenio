@@ -11,6 +11,7 @@ import 'features/sales/sale_form_screen.dart';
 import 'features/expenses/expense_list_screen.dart';
 import 'features/expenses/expense_form_screen.dart';
 import 'features/reports/reports_screen.dart';
+import 'features/more/more_screen.dart';
 import 'features/finance/finance_screen.dart';
 import 'features/finance/allocation_history_screen.dart';
 import 'features/finance/allocation_rule_form_screen.dart';
@@ -18,6 +19,7 @@ import 'features/settings/settings_screen.dart';
 import 'features/settings/add_on_types_screen.dart';
 import 'features/settings/currency_screen.dart';
 import 'features/settings/system_settings_screen.dart';
+import 'features/settings/about_screen.dart';
 import 'features/settings/theme_screen.dart';
 import 'features/products/widgets/bucket_detail_screen.dart';
 import 'features/products/widgets/bucket_list_screen.dart';
@@ -79,50 +81,50 @@ GoRouter router(Ref ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/sales',
-                builder: (_, __) => const SaleListScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'add',
-                    builder: (_, __) => const SaleFormScreen(),
-                  ),
-                  GoRoute(
-                    path: ':id/edit',
-                    builder: (_, s) => SaleFormScreen(
-                      saleId: int.parse(s.pathParameters['id']!),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/expenses',
-                builder: (_, __) => const ExpenseListScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'add',
-                    builder: (_, __) => const ExpenseFormScreen(),
-                  ),
-                  GoRoute(
-                    path: ':id/edit',
-                    builder: (_, s) => ExpenseFormScreen(
-                      expenseId: int.parse(s.pathParameters['id']!),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
                 path: '/reports',
                 builder: (_, __) => const ReportsScreen(),
               ),
             ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/more',
+                builder: (_, __) => const MoreScreen(),
+              ),
+            ],
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/sales',
+        builder: (_, __) => const SaleListScreen(),
+        routes: [
+          GoRoute(
+            path: 'add',
+            builder: (_, __) => const SaleFormScreen(),
+          ),
+          GoRoute(
+            path: ':id/edit',
+            builder: (_, s) => SaleFormScreen(
+              saleId: int.parse(s.pathParameters['id']!),
+            ),
+          ),
+        ],
+      ),
+      GoRoute(
+        path: '/expenses',
+        builder: (_, __) => const ExpenseListScreen(),
+        routes: [
+          GoRoute(
+            path: 'add',
+            builder: (_, __) => const ExpenseFormScreen(),
+          ),
+          GoRoute(
+            path: ':id/edit',
+            builder: (_, s) => ExpenseFormScreen(
+              expenseId: int.parse(s.pathParameters['id']!),
+            ),
           ),
         ],
       ),
@@ -189,6 +191,10 @@ GoRouter router(Ref ref) {
           GoRoute(
             path: 'system',
             builder: (_, __) => const SystemSettingsScreen(),
+          ),
+          GoRoute(
+            path: 'about',
+            builder: (_, __) => const AboutScreen(),
           ),
         ],
       ),
