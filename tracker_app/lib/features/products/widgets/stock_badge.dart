@@ -16,36 +16,42 @@ class StockBadge extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final t = threshold ?? 5;
-    final Color bg;
-    final Color fg;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final Color color;
     final String label;
     if (stock <= 0) {
-      bg = AppColors.danger.withOpacity(0.18);
-      fg = AppColors.danger;
+      color = AppColors.danger;
       label = 'Out';
     } else if (stock <= t) {
-      bg = AppColors.warning.withOpacity(0.18);
-      fg = AppColors.warning;
+      color = AppColors.warning;
       label = 'Low';
     } else {
-      bg = AppColors.success.withOpacity(0.18);
-      fg = AppColors.success;
+      color = AppColors.success;
       label = 'In stock';
     }
+
+    final ink = isDark
+        ? color
+        : (stock <= 0
+            ? AppColors.dangerInkLight
+            : stock <= t
+                ? AppColors.warningInkLight
+                : AppColors.accentInkLight);
+
     return Container(
       padding: EdgeInsets.symmetric(
         horizontal: compact ? 8 : 10,
         vertical: compact ? 3 : 5,
       ),
       decoration: BoxDecoration(
-        color: bg,
+        color: color.withOpacity(0.18),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: fg.withOpacity(0.35), width: 0.6),
+        border: Border.all(color: ink.withOpacity(0.35), width: 0.6),
       ),
       child: Text(
         label,
         style: TextStyle(
-          color: fg,
+          color: ink,
           fontWeight: FontWeight.w600,
           fontSize: compact ? 11 : 12,
           letterSpacing: 0.2,
