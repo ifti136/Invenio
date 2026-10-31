@@ -13,6 +13,7 @@ import 'package:tracker/features/sales/sale_provider.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/features/sales/widgets/discount_sheet.dart';
 import 'package:tracker/features/sales/widgets/quick_sell_sheet.dart';
+import 'package:tracker/features/sales/widgets/receipt_sheet.dart';
 
 class SaleListScreen extends ConsumerWidget {
   const SaleListScreen({super.key});
@@ -39,9 +40,22 @@ class SaleListScreen extends ConsumerWidget {
             actions: [
               IconButton(
                 tooltip: 'Log sale',
-                onPressed: () {
+                onPressed: () async {
                   HapticService.trigger(HapticProfile.light);
-                  context.push('/sales/add');
+                  final result = await context.push<Object?>('/sales/add');
+                  if (!context.mounted || result is! Sale) return;
+                  var productName = 'Product #${result.productId}';
+                  for (final p in products) {
+                    if (p.id == result.productId) {
+                      productName = p.name;
+                      break;
+                    }
+                  }
+                  await showReceiptSheet(
+                    context,
+                    sale: result,
+                    productName: productName,
+                  );
                 },
                 icon: const Icon(Icons.add_rounded, color: AppColors.accent),
               ),
@@ -229,11 +243,18 @@ class _ProductSellCard extends ConsumerWidget {
     final lastSale =
         await ref.read(saleRepositoryProvider).lastSellingPriceFor(product.id);
     if (!context.mounted) return;
-    showQuickSellSheet(
+    final sale = await showQuickSellSheet(
       context,
       product: product,
       lastSellingPrice: lastSale?.sellingPrice,
     );
+    if (sale != null && context.mounted) {
+      await showReceiptSheet(
+        context,
+        sale: sale,
+        productName: product.name,
+      );
+    }
   }
 }
 

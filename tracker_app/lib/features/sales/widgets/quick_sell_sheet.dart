@@ -186,7 +186,7 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
 
       final infoAlerts = alerts.whereType<MarginDropAlert>().toList();
       if (mounted) {
-        Navigator.of(context).pop(true);
+        Navigator.of(context).pop(result.sale);
         if (infoAlerts.isNotEmpty) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(infoAlerts.first.message)),
@@ -505,12 +505,12 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
   }
 }
 
-void showQuickSellSheet(
+Future<Sale?> showQuickSellSheet(
   BuildContext context, {
   required Product product,
   double? lastSellingPrice,
 }) {
-  showModalBottomSheet(
+  return showModalBottomSheet<Sale>(
     context: context,
     isScrollControlled: true,
     backgroundColor: Colors.transparent,

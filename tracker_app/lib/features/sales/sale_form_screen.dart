@@ -212,6 +212,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
     setState(() => _saving = true);
     try {
       int saleId;
+      Sale? savedSale;
       if (_isEdit) {
         saleId = widget.saleId!;
         await repo.updateSale(
@@ -242,6 +243,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
           isDiscounted: false,
         );
         saleId = result.sale.id;
+        savedSale = result.sale;
       }
 
       // Save add-ons
@@ -262,7 +264,7 @@ class _SaleFormScreenState extends ConsumerState<SaleFormScreen> {
       ref.invalidate(saleListProvider);
       ref.invalidate(productListProvider);
       ref.invalidate(dashboardProvider);
-      Navigator.of(context).pop(true);
+      Navigator.of(context).pop(_isEdit ? true : savedSale);
       final info = alerts.whereType<MarginDropAlert>().toList();
       if (info.isNotEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
