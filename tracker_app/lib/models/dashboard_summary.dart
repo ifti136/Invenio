@@ -6,10 +6,12 @@ class DashboardSummary {
   final double grossProfitToday;
   final double netProfitToday;
   final double totalDue;
+  final double expensesToday;
   final double facebookRevenue;
   final double offlineRevenue;
   final List<Product> lowStockProducts;
   final List<double> salesLast7Days;
+  final List<double> revenueLast7Days;
 
   const DashboardSummary({
     required this.salesToday,
@@ -17,9 +19,11 @@ class DashboardSummary {
     required this.grossProfitToday,
     required this.netProfitToday,
     required this.totalDue,
+    required this.expensesToday,
     required this.facebookRevenue,
     required this.offlineRevenue,
     required this.lowStockProducts,
     required this.salesLast7Days,
+    required this.revenueLast7Days,
   });
 }

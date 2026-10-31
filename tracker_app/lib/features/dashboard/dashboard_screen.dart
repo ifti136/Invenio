@@ -3,98 +3,104 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:tracker/core/theme/app_colors.dart';
+import 'package:tracker/core/theme/app_tokens.dart';
 import 'package:tracker/core/utils/formatters.dart';
 import 'package:tracker/core/widgets/app_bottom_nav.dart';
+import 'package:tracker/core/widgets/empty_state.dart';
 import 'package:tracker/core/widgets/glass_panel.dart';
+import 'package:tracker/core/widgets/quick_action_tile.dart';
 import 'package:tracker/core/widgets/section_header.dart';
-import 'package:tracker/core/widgets/metric_cell.dart';
+import 'package:tracker/core/widgets/stat_card.dart';
 import 'package:tracker/core/services/haptic_service.dart';
+import 'package:tracker/features/walkthrough/walkthrough_provider.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/models/dashboard_summary.dart';
+import 'package:tracker/features/products/product_provider.dart';
+import 'package:tracker/features/products/widgets/stock_badge.dart';
 import 'package:tracker/features/products/wallet_repository.dart';
 import 'package:tracker/features/products/bucket_repository.dart';
+import 'package:tracker/features/sales/pos_flow.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/features/sales/widgets/quick_sell_sheet.dart';
+import 'package:tracker/features/sales/widgets/receipt_sheet.dart';
 import 'package:tracker/features/products/widgets/wallet_form_sheet.dart';
 import 'dashboard_provider.dart';
 
-class DashboardScreen extends ConsumerStatefulWidget {
+class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   @override
-  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
-}
-
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
-  bool _bannerShown = false;
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final summaryAsync = ref.watch(dashboardProvider);
+    final lowStockCount =
+        summaryAsync.valueOrNull?.lowStockProducts.length ?? 0;
 
-    summaryAsync.whenData((s) {
-      if (!_bannerShown && mounted) {
-        _bannerShown = true;
-        final lowStockCount = s.lowStockProducts.length;
-        if (lowStockCount > 0) {
-          WidgetsBinding.instance.addPostFrameCallback((_) {
-            if (!mounted) return;
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(
-                    '$lowStockCount product${lowStockCount == 1 ? '' : 's'} low on stock'),
-                action: SnackBarAction(
-                  label: 'View',
-                  onPressed: () {
-                    HapticService.trigger(HapticProfile.light);
-                    context.go('/products');
-                  },
-                ),
-              ),
-            );
-          });
-        }
-      }
-    });
+    final shopName = ref.watch(shopNameProvider);
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'DASHBOARD',
-          textAlign: TextAlign.center,
-          style: TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
+        title: Text(
+          shopName ?? 'Invenio',
+          style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 22),
         ),
-        centerTitle: true,
         actions: [
           IconButton(
-            icon: const Icon(Icons.settings),
+            tooltip: 'Low stock',
             onPressed: () {
               HapticService.trigger(HapticProfile.light);
-              context.push('/settings');
+              ref
+                  .read(productFilterProvider.notifier)
+                  .setStockFilter(StockFilter.low);
+              context.go('/products');
             },
+            icon: Badge(
+              isLabelVisible: lowStockCount > 0,
+              label: Text('$lowStockCount'),
+              child: const Icon(Icons.notifications_outlined),
+            ),
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: summaryAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
-        error: (e, _) => Center(child: Text('Error: $e')),
+        error: (e, _) => RefreshIndicator(
+          onRefresh: () => ref.refresh(dashboardProvider.future),
+          child: ListView(
+            physics: const AlwaysScrollableScrollPhysics(),
+            children: const [
+              SizedBox(height: 120),
+              EmptyState(
+                icon: Icons.cloud_off_outlined,
+                title: "Couldn't load today's numbers.",
+                message: 'Pull to refresh.',
+              ),
+            ],
+          ),
+        ),
         data: (s) => RefreshIndicator(
           onRefresh: () => ref.refresh(dashboardProvider.future),
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 16, 16, kBottomNavClearance),
             children: [
-              _TodayCard(summary: s),
-              const SizedBox(height: 16),
+              _HeroTurnoverCard(summary: s),
+              const SizedBox(height: AppSpacing.lg),
+              _StatGrid(summary: s),
+              const SizedBox(height: AppSpacing.lg),
+              const _QuickActions(),
+              const SizedBox(height: AppSpacing.lg),
+              _RevenueTrendCard(values: s.revenueLast7Days),
+              const SizedBox(height: AppSpacing.lg),
               _PlatformPerformanceCard(
                 fbRevenue: s.facebookRevenue,
                 offlineRevenue: s.offlineRevenue,
               ),
-              const SizedBox(height: 16),
-              _WalletWithBalancesCard(),
-              const SizedBox(height: 16),
-              _BudgetBucketsCard(),
+              const SizedBox(height: AppSpacing.lg),
+              const _WalletWithBalancesCard(),
+              const SizedBox(height: AppSpacing.lg),
+              const _BudgetBucketsCard(),
               if (s.lowStockProducts.isNotEmpty) ...[
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.lg),
                 _StockAlertsCard(products: s.lowStockProducts),
               ],
             ],
@@ -105,98 +111,378 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   }
 }
 
-class _TodayCard extends StatelessWidget {
+class _HeroTurnoverCard extends StatelessWidget {
   final DashboardSummary summary;
-  const _TodayCard({required this.summary});
+
+  const _HeroTurnoverCard({required this.summary});
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final accentInk = AppColors.accentInkFor(Theme.of(context).brightness);
+
     return GlassPanel(
-      padding: const EdgeInsets.all(16),
+      radius: AppRadii.hero,
       noBlur: true,
+      tint: AppColors.accent,
+      padding: const EdgeInsets.fromLTRB(18, 16, 18, 18),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader('TODAY'),
-          const SizedBox(height: 12),
           Row(
             children: [
               Expanded(
-                child: MetricCell(
-                  icon: Icons.shopping_bag_outlined,
-                  iconColor: AppColors.accent,
-                  value: '${summary.salesToday}',
-                  label: 'Sales',
-                  sparklineData: summary.salesLast7Days,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: MetricCell(
-                  icon: Icons.trending_up,
-                  iconColor: AppColors.accent,
-                  value: formatMoney(summary.revenueToday),
-                  label: 'Revenue',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: MetricCell(
-                  icon: Icons.account_balance_wallet_outlined,
-                  iconColor: AppColors.accent,
-                  value: formatMoney(summary.grossProfitToday),
-                  label: 'Gross Profit',
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: MetricCell(
-                  icon: Icons.savings_outlined,
-                  iconColor: summary.netProfitToday >= 0
-                      ? AppColors.accent
-                      : AppColors.danger,
-                  value: formatMoney(summary.netProfitToday),
-                  label: 'Net Profit',
-                ),
-              ),
-            ],
-          ),
-          const Divider(height: 24, thickness: 1, color: Colors.white10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.calendar_today_outlined,
-                      size: 16, color: AppColors.danger),
-                  const SizedBox(width: 6),
-                  Text(
-                    'CURRENT DUE',
-                    style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                          color: AppColors.danger,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                        ),
+                child: Text(
+                  "TODAY'S TURNOVER",
+                  style: AppTextStyles.label.copyWith(
+                    color: scheme.onSurfaceVariant,
                   ),
-                ],
+                ),
               ),
-              Text(
-                formatMoney(summary.totalDue),
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.danger,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 15,
-                    ),
-              ),
+              if (summary.totalDue > 0) _DuePill(amount: summary.totalDue),
             ],
+          ),
+          const SizedBox(height: AppSpacing.sm + 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              formatMoney(summary.revenueToday),
+              maxLines: 1,
+              style: AppTextStyles.display.copyWith(color: accentInk),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.xs),
+          Text(
+            '${summary.salesToday} sale${summary.salesToday == 1 ? '' : 's'} today',
+            style: AppTextStyles.body.copyWith(color: scheme.onSurfaceVariant),
           ),
         ],
       ),
     );
+  }
+}
+
+class _DuePill extends StatelessWidget {
+  final double amount;
+
+  const _DuePill({required this.amount});
+
+  @override
+  Widget build(BuildContext context) {
+    final dangerInk = AppColors.dangerInkFor(Theme.of(context).brightness);
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: AppColors.danger.withOpacity(0.14),
+        borderRadius: BorderRadius.circular(AppRadii.pill),
+        border: Border.all(
+          color: AppColors.danger.withOpacity(0.32),
+          width: 0.6,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.schedule_rounded, size: 12, color: dangerInk),
+          const SizedBox(width: 4),
+          Text(
+            'Due ${formatMoney(amount)}',
+            style: AppTextStyles.label.copyWith(color: dangerInk),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StatGrid extends StatelessWidget {
+  final DashboardSummary summary;
+
+  const _StatGrid({required this.summary});
+
+  @override
+  Widget build(BuildContext context) {
+    final netTone =
+        summary.netProfitToday >= 0 ? StatTone.accent : StatTone.danger;
+    return Column(
+      children: [
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: StatCard(
+                  label: 'Gross profit',
+                  value: formatMoney(summary.grossProfitToday),
+                  icon: Icons.trending_up_rounded,
+                  tone: StatTone.accent,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: StatCard(
+                  label: 'Net profit',
+                  value: formatMoney(summary.netProfitToday),
+                  icon: Icons.savings_outlined,
+                  tone: netTone,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Expanded(
+                child: StatCard(
+                  label: 'Sales today',
+                  value: '${summary.salesToday}',
+                  icon: Icons.point_of_sale_outlined,
+                  tone: StatTone.neutral,
+                ),
+              ),
+              const SizedBox(width: AppSpacing.sm),
+              Expanded(
+                child: StatCard(
+                  label: 'Expenses today',
+                  value: formatMoney(summary.expensesToday),
+                  icon: Icons.payments_outlined,
+                  tone: StatTone.warning,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickActions extends ConsumerWidget {
+  const _QuickActions();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Column(
+      children: [
+        QuickActionTile(
+          primary: true,
+          label: 'New sale',
+          icon: Icons.point_of_sale_rounded,
+          onTap: () => startPosFlow(context, ref),
+        ),
+        const SizedBox(height: AppSpacing.sm),
+        Row(
+          children: [
+            Expanded(
+              child: QuickActionTile(
+                label: 'Add product',
+                icon: Icons.add_box_outlined,
+                onTap: () {
+                  HapticService.trigger(HapticProfile.light);
+                  context.push('/products/add');
+                },
+              ),
+            ),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(
+              child: QuickActionTile(
+                label: 'Add expense',
+                icon: Icons.receipt_long_outlined,
+                onTap: () {
+                  HapticService.trigger(HapticProfile.light);
+                  context.push('/expenses/add');
+                },
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _RevenueTrendCard extends StatelessWidget {
+  final List<double> values;
+
+  const _RevenueTrendCard({required this.values});
+
+  static const _weekdayLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final accentInk = AppColors.accentInkFor(Theme.of(context).brightness);
+    final hasData = values.any((v) => v > 0);
+    final maxValue = values.fold(0.0, (m, v) => v > m ? v : m);
+    final maxY = maxValue <= 0 ? 1.0 : maxValue * 1.2;
+    final now = DateTime.now();
+
+    return GlassPanel(
+      radius: AppRadii.card,
+      noBlur: true,
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const SectionHeader('7-Day Trend'),
+          const SizedBox(height: AppSpacing.md),
+          if (!hasData)
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.lg),
+              child: Column(
+                children: [
+                  Text(
+                    'No sales yet today',
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'Tap Sell to record your first sale.',
+                    textAlign: TextAlign.center,
+                    style: AppTextStyles.label.copyWith(
+                      color: scheme.onSurfaceVariant,
+                      fontWeight: FontWeight.w500,
+                      letterSpacing: 0,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            SizedBox(
+              height: 160,
+              child: BarChart(
+                BarChartData(
+                  alignment: BarChartAlignment.spaceAround,
+                  maxY: maxY,
+                  barGroups: [
+                    for (var i = 0; i < values.length; i++)
+                      BarChartGroupData(
+                        x: i,
+                        barRods: [
+                          BarChartRodData(
+                            toY: values[i],
+                            color: AppColors.accent,
+                            width: 14,
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(4),
+                            ),
+                          ),
+                        ],
+                      ),
+                  ],
+                  borderData: FlBorderData(show: false),
+                  gridData: FlGridData(
+                    show: true,
+                    drawVerticalLine: false,
+                    horizontalInterval: maxY / 2,
+                    getDrawingHorizontalLine: (value) => FlLine(
+                      color: scheme.onSurfaceVariant.withOpacity(0.12),
+                      strokeWidth: 0.6,
+                    ),
+                  ),
+                  titlesData: FlTitlesData(
+                    bottomTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 24,
+                        getTitlesWidget: (v, meta) {
+                          final i = v.toInt();
+                          if (i < 0 || i >= values.length) {
+                            return const SizedBox.shrink();
+                          }
+                          final date = now
+                              .subtract(Duration(days: values.length - 1 - i));
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 6),
+                            child: Text(
+                              _weekdayLabels[date.weekday - 1],
+                              style: AppTextStyles.label.copyWith(
+                                color: scheme.onSurfaceVariant,
+                                letterSpacing: 0,
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    leftTitles: AxisTitles(
+                      sideTitles: SideTitles(
+                        showTitles: true,
+                        reservedSize: 42,
+                        interval: maxY / 2,
+                        getTitlesWidget: (v, meta) {
+                          if (v == 0 || v >= maxY) {
+                            return const SizedBox.shrink();
+                          }
+                          return Text(
+                            _compactMoney(v),
+                            textAlign: TextAlign.right,
+                            style: AppTextStyles.label.copyWith(
+                              color: scheme.onSurfaceVariant,
+                              letterSpacing: 0,
+                              fontSize: 10,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                    topTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                    rightTitles: const AxisTitles(
+                      sideTitles: SideTitles(showTitles: false),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          if (hasData) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Row(
+              children: [
+                Container(
+                  width: 8,
+                  height: 8,
+                  decoration: BoxDecoration(
+                    color: AppColors.accent,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  'Revenue · last 7 days',
+                  style: AppTextStyles.label.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    letterSpacing: 0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                const Spacer(),
+                Text(
+                  formatMoney(values.fold(0.0, (s, v) => s + v)),
+                  style: AppTextStyles.label.copyWith(color: accentInk),
+                ),
+              ],
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+
+  static String _compactMoney(double value) {
+    if (value >= 1000) {
+      final k = value / 1000;
+      return '৳${k.toStringAsFixed(k >= 10 ? 0 : 1)}k';
+    }
+    return '৳${value.toStringAsFixed(0)}';
   }
 }
 
@@ -210,18 +496,20 @@ class _PlatformPerformanceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final total = fbRevenue + offlineRevenue;
     final fbPct = total > 0 ? (fbRevenue / total) : 0.0;
     final offlinePct = total > 0 ? (offlineRevenue / total) : 0.0;
 
     return GlassPanel(
-      padding: const EdgeInsets.all(16),
+      radius: AppRadii.card,
       noBlur: true,
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const SectionHeader('PLATFORM PERFORMANCE'),
-          const SizedBox(height: 12),
+          const SectionHeader('Platform Performance'),
+          const SizedBox(height: AppSpacing.md),
           Row(
             children: [
               SizedBox(
@@ -248,7 +536,7 @@ class _PlatformPerformanceCard extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.lg),
               Expanded(
                 child: Column(
                   children: [
@@ -258,7 +546,7 @@ class _PlatformPerformanceCard extends StatelessWidget {
                       pct: fbPct,
                       color: const Color(0xFF1877F2),
                     ),
-                    const SizedBox(height: 12),
+                    const SizedBox(height: AppSpacing.md),
                     _PlatformPerformanceRow(
                       label: 'Offline',
                       amount: offlineRevenue,
@@ -270,6 +558,17 @@ class _PlatformPerformanceCard extends StatelessWidget {
               ),
             ],
           ),
+          if (total == 0) ...[
+            const SizedBox(height: AppSpacing.sm),
+            Text(
+              'No sales on either platform today.',
+              style: AppTextStyles.label.copyWith(
+                color: scheme.onSurfaceVariant,
+                letterSpacing: 0,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -290,42 +589,39 @@ class _PlatformPerformanceRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
             Icon(Icons.circle, size: 12, color: color),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.sm),
             Text(
               label,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                    fontSize: 15,
-                  ),
+              style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
             ),
             const Spacer(),
             Text(
               formatMoney(amount),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
+              style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w600),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.sm),
             Text(
               '(${(pct * 100).toStringAsFixed(0)}%)',
-              style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: color,
-                  ),
+              style: AppTextStyles.label.copyWith(
+                color: color,
+                letterSpacing: 0,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 4),
+        const SizedBox(height: AppSpacing.xs),
         ClipRRect(
           borderRadius: BorderRadius.circular(3),
           child: LinearProgressIndicator(
             value: pct,
-            backgroundColor: Colors.white.withOpacity(0.1),
+            backgroundColor: scheme.onSurfaceVariant.withOpacity(0.12),
             color: color,
             minHeight: 6,
           ),
@@ -340,6 +636,7 @@ class _WalletWithBalancesCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
     final walletsAsync = ref.watch(walletRepositoryProvider).getWallets().then(
       (allWallets) async {
         final activeWallets = allWallets.where((w) => w.isActive).toList();
@@ -363,30 +660,39 @@ class _WalletWithBalancesCard extends ConsumerWidget {
         final walletData = snapshot.data!;
         if (walletData.isEmpty) {
           return GlassPanel(
-            padding: const EdgeInsets.all(16),
+            radius: AppRadii.card,
             noBlur: true,
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SectionHeader('WALLET BALANCES'),
-                const SizedBox(height: 12),
+                const SectionHeader('Wallet Balances'),
+                const SizedBox(height: AppSpacing.md),
                 Center(
                   child: Column(
                     children: [
                       Text(
                         'Track your cash and bank balances here',
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.white54,
-                            ),
+                        style: AppTextStyles.label.copyWith(
+                          color: scheme.onSurfaceVariant,
+                          letterSpacing: 0,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       TextButton(
                         onPressed: () {
                           HapticService.trigger(HapticProfile.light);
                           context.push('/settings/wallets');
                         },
-                        child: const Text('+ Add Wallet',
-                            style: TextStyle(color: AppColors.accent)),
+                        child: Text(
+                          '+ Add Wallet',
+                          style: TextStyle(
+                            color: AppColors.accentInkFor(
+                              Theme.of(context).brightness,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -397,16 +703,17 @@ class _WalletWithBalancesCard extends ConsumerWidget {
         }
 
         return GlassPanel(
-          padding: const EdgeInsets.all(16),
+          radius: AppRadii.card,
           noBlur: true,
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader('WALLET BALANCES'),
-              const SizedBox(height: 12),
+              const SectionHeader('Wallet Balances'),
+              const SizedBox(height: AppSpacing.md),
               Wrap(
-                spacing: 8,
-                runSpacing: 8,
+                spacing: AppSpacing.sm,
+                runSpacing: AppSpacing.sm,
                 children: walletData
                     .map((w) => _WalletWithBalanceChip(
                           name: w.name,
@@ -432,6 +739,8 @@ class _WalletWithBalanceChip extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
+    final tone = AppColors.accentInkFor(Theme.of(context).brightness);
     return InkWell(
       onTap: () async {
         HapticService.trigger(HapticProfile.light);
@@ -441,25 +750,34 @@ class _WalletWithBalanceChip extends ConsumerWidget {
           showWalletFormSheet(context, wallet: wallet);
         }
       },
+      borderRadius: BorderRadius.circular(AppRadii.pill),
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
         decoration: BoxDecoration(
-          color: Colors.white.withOpacity(0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: Colors.white24),
+          color: scheme.onSurface.withOpacity(0.06),
+          borderRadius: BorderRadius.circular(AppRadii.pill),
+          border: Border.all(color: scheme.onSurfaceVariant.withOpacity(0.18)),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(name,
-                style: const TextStyle(color: Colors.white70, fontSize: 12)),
+            Text(
+              name,
+              style: AppTextStyles.label.copyWith(
+                color: scheme.onSurfaceVariant,
+                letterSpacing: 0,
+              ),
+            ),
             const SizedBox(width: 6),
             Text(
               formatMoney(balance),
-              style: TextStyle(
-                color: balance >= 0 ? AppColors.success : AppColors.danger,
-                fontWeight: FontWeight.bold,
-                fontSize: 12,
+              style: AppTextStyles.label.copyWith(
+                color: balance >= 0
+                    ? tone
+                    : AppColors.dangerInkFor(
+                        Theme.of(context).brightness,
+                      ),
+                letterSpacing: 0,
               ),
             ),
           ],
@@ -474,6 +792,7 @@ class _BudgetBucketsCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final scheme = Theme.of(context).colorScheme;
     final bucketsAsync =
         ref.watch(bucketRepositoryProvider).getBucketWithAvailables();
 
@@ -487,30 +806,39 @@ class _BudgetBucketsCard extends ConsumerWidget {
         final buckets = snapshot.data!;
         if (buckets.isEmpty) {
           return GlassPanel(
-            padding: const EdgeInsets.all(16),
+            radius: AppRadii.card,
             noBlur: true,
+            padding: const EdgeInsets.all(AppSpacing.lg),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SectionHeader('BUDGET BUCKETS'),
-                const SizedBox(height: 12),
+                const SectionHeader('Budget Buckets'),
+                const SizedBox(height: AppSpacing.md),
                 Center(
                   child: Column(
                     children: [
                       Text(
                         'Organize your funds into custom buckets',
                         textAlign: TextAlign.center,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: Colors.white54,
-                            ),
+                        style: AppTextStyles.label.copyWith(
+                          color: scheme.onSurfaceVariant,
+                          letterSpacing: 0,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                       TextButton(
                         onPressed: () {
                           HapticService.trigger(HapticProfile.light);
                           context.push('/settings/buckets');
                         },
-                        child: const Text('+ Add Bucket',
-                            style: TextStyle(color: AppColors.accent)),
+                        child: Text(
+                          '+ Add Bucket',
+                          style: TextStyle(
+                            color: AppColors.accentInkFor(
+                              Theme.of(context).brightness,
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -521,13 +849,14 @@ class _BudgetBucketsCard extends ConsumerWidget {
         }
 
         return GlassPanel(
-          padding: const EdgeInsets.all(16),
+          radius: AppRadii.card,
           noBlur: true,
+          padding: const EdgeInsets.all(AppSpacing.lg),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SectionHeader('BUDGET BUCKETS'),
-              const SizedBox(height: 12),
+              const SectionHeader('Budget Buckets'),
+              const SizedBox(height: AppSpacing.md),
               ...buckets.map((b) => _BudgetBucketRow(bucket: b)),
             ],
           ),
@@ -543,11 +872,14 @@ class _BudgetBucketRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final color = bucket.color != null
         ? Color(int.parse(bucket.color!.replaceFirst('#', '0xff')))
         : AppColors.accent;
+    final tone = AppColors.accentInkFor(Theme.of(context).brightness);
 
     return InkWell(
+      borderRadius: BorderRadius.circular(AppRadii.input),
       onTap: () {
         HapticService.trigger(HapticProfile.light);
         context.push('/settings/buckets');
@@ -561,24 +893,28 @@ class _BudgetBucketRow extends StatelessWidget {
               height: 12,
               decoration: BoxDecoration(color: color, shape: BoxShape.circle),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.sm),
             Expanded(
               child: Text(
                 bucket.name,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: AppTextStyles.body,
               ),
             ),
             Text(
               formatMoney(bucket.available),
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: bucket.available >= 0
-                        ? AppColors.success
-                        : AppColors.danger,
-                  ),
+              style: AppTextStyles.body.copyWith(
+                fontWeight: FontWeight.w700,
+                color: bucket.available >= 0
+                    ? tone
+                    : AppColors.dangerInkFor(Theme.of(context).brightness),
+              ),
             ),
-            const SizedBox(width: 8),
-            const Icon(Icons.chevron_right, size: 16, color: Colors.white38),
+            const SizedBox(width: AppSpacing.sm),
+            Icon(
+              Icons.chevron_right_rounded,
+              size: 16,
+              color: scheme.onSurfaceVariant,
+            ),
           ],
         ),
       ),
@@ -593,13 +929,14 @@ class _StockAlertsCard extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     return GlassPanel(
-      padding: const EdgeInsets.all(16),
+      radius: AppRadii.card,
       noBlur: true,
+      padding: const EdgeInsets.all(AppSpacing.lg),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          SectionHeader('STOCK ALERTS (${products.length})'),
-          const SizedBox(height: 12),
+          SectionHeader('Stock Alerts (${products.length})'),
+          const SizedBox(height: AppSpacing.md),
           ...products.map((p) => _StockAlertRow(product: p)),
         ],
       ),
@@ -613,15 +950,13 @@ class _StockAlertRow extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final isOut = product.stock <= 0;
-    final badgeColor = isOut ? AppColors.danger : AppColors.warning;
-    final badgeText = isOut ? 'Out' : 'Low';
-
+    final scheme = Theme.of(context).colorScheme;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
         children: [
           InkWell(
+            borderRadius: BorderRadius.circular(12),
             onTap: () {
               HapticService.trigger(HapticProfile.light);
               context.push('/products/${product.id}');
@@ -630,23 +965,24 @@ class _StockAlertRow extends ConsumerWidget {
               width: 46,
               height: 46,
               decoration: BoxDecoration(
-                color: Theme.of(context).colorScheme.primary.withOpacity(0.12),
+                color: scheme.primary.withOpacity(0.12),
                 borderRadius: BorderRadius.circular(12),
               ),
               alignment: Alignment.center,
               child: Text(
                 product.name.isNotEmpty ? product.name[0].toUpperCase() : '?',
                 style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
+                  color: AppColors.accentInkFor(Theme.of(context).brightness),
                   fontWeight: FontWeight.bold,
                   fontSize: 18,
                 ),
               ),
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.md),
           Expanded(
             child: InkWell(
+              borderRadius: BorderRadius.circular(AppRadii.input),
               onTap: () {
                 HapticService.trigger(HapticProfile.light);
                 context.push('/products/${product.id}');
@@ -656,39 +992,28 @@ class _StockAlertRow extends ConsumerWidget {
                 children: [
                   Text(
                     product.name,
-                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          fontWeight: FontWeight.w600,
-                        ),
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   Text(
                     formatMoney(product.costPrice),
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Colors.white54,
-                        ),
+                    style: AppTextStyles.label.copyWith(
+                      color: scheme.onSurfaceVariant,
+                      letterSpacing: 0,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                 ],
               ),
             ),
           ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-            decoration: BoxDecoration(
-              color: badgeColor.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: badgeColor.withOpacity(0.5)),
-            ),
-            child: Text(
-              badgeText,
-              style: TextStyle(
-                color: badgeColor,
-                fontSize: 10,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          StockBadge(
+            stock: product.stock,
+            threshold: product.lowStockThreshold,
+            compact: true,
           ),
-          const SizedBox(width: 8),
-          const Icon(Icons.chevron_right, size: 16, color: Colors.white38),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.sm),
           FilledButton.tonal(
             onPressed: () {
               HapticService.trigger(HapticProfile.medium);
@@ -698,8 +1023,10 @@ class _StockAlertRow extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               visualDensity: VisualDensity.compact,
             ),
-            child: const Text('SELL',
-                style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+            child: const Text(
+              'SELL',
+              style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
+            ),
           ),
         ],
       ),
@@ -710,10 +1037,17 @@ class _StockAlertRow extends ConsumerWidget {
     final repo = ref.read(saleRepositoryProvider);
     final lastSale = await repo.lastSellingPriceFor(product.id);
     if (!context.mounted) return;
-    showQuickSellSheet(
+    final sale = await showQuickSellSheet(
       context,
       product: product,
       lastSellingPrice: lastSale?.sellingPrice,
     );
+    if (sale != null && context.mounted) {
+      await showReceiptSheet(
+        context,
+        sale: sale,
+        productName: product.name,
+      );
+    }
   }
 }

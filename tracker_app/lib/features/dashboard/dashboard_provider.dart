@@ -78,8 +78,9 @@ Future<DashboardSummary> dashboard(Ref ref) async {
       .where((p) => p.alertEnabled && p.stock <= p.lowStockThreshold)
       .toList();
 
-  // Calculate sales for the last 7 days
+  // Calculate sales and revenue for the last 7 days
   final salesLast7Days = <double>[];
+  final revenueLast7Days = <double>[];
   for (int i = 6; i >= 0; i--) {
     final date = DateTime.now().subtract(Duration(days: i));
     final start =
@@ -87,14 +88,14 @@ Future<DashboardSummary> dashboard(Ref ref) async {
     final end = DateTime(date.year, date.month, date.day, 23, 59, 59)
         .millisecondsSinceEpoch;
 
-    final count = await (db.select(db.sales)
+    final rows = await (db.select(db.sales)
           ..where((t) =>
               t.ownership.equals('business') &
               t.date.isBiggerOrEqualValue(start) &
               t.date.isSmallerOrEqualValue(end)))
-        .get()
-        .then((rows) => rows.length.toDouble());
-    salesLast7Days.add(count);
+        .get();
+    salesLast7Days.add(rows.length.toDouble());
+    revenueLast7Days.add(rows.fold(0.0, (sum, s) => sum + s.total));
   }
 
   return DashboardSummary(
@@ -103,10 +104,12 @@ Future<DashboardSummary> dashboard(Ref ref) async {
     grossProfitToday: grossProfit,
     netProfitToday: grossProfit - totalExpenses,
     totalDue: dueAmount,
+    expensesToday: totalExpenses,
     facebookRevenue: fbRevenue,
     offlineRevenue: offlineRevenue,
     lowStockProducts: lowStock,
     salesLast7Days: salesLast7Days,
+    revenueLast7Days: revenueLast7Days,
   );
 }
 
