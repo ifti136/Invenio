@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
+import '../../core/theme/app_tokens.dart';
 import '../../core/utils/formatters.dart';
+import '../../core/widgets/category_chip_row.dart';
 import '../../core/widgets/app_bottom_nav.dart';
 import '../../core/widgets/glass_panel.dart';
 import '../../core/services/haptic_service.dart';
@@ -184,24 +186,22 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   }
 
   Widget _buildTabSelector(BuildContext context) {
-    return GlassPanel(
-      padding: const EdgeInsets.all(4),
-      noBlur: true,
-      child: SegmentedButton<_ReportTab>(
-        segments: const [
-          ButtonSegment(value: _ReportTab.daily, label: Text('Daily')),
-          ButtonSegment(value: _ReportTab.monthly, label: Text('Monthly')),
-          ButtonSegment(value: _ReportTab.products, label: Text('Products')),
-        ],
-        selected: {_tab},
-        onSelectionChanged: (v) {
-          HapticService.trigger(HapticProfile.light);
-          setState(() => _tab = v.first);
-        },
-        style: ButtonStyle(
-          visualDensity: VisualDensity.compact,
-        ),
-      ),
+    return CategoryChipRow(
+      children: [
+        for (final tab in _ReportTab.values)
+          AppFilterChip(
+            label: switch (tab) {
+              _ReportTab.daily => 'Daily',
+              _ReportTab.monthly => 'Monthly',
+              _ReportTab.products => 'Products',
+            },
+            selected: _tab == tab,
+            onTap: () {
+              HapticService.trigger(HapticProfile.light);
+              setState(() => _tab = tab);
+            },
+          ),
+      ],
     );
   }
 
@@ -268,11 +268,11 @@ class _DailyReport extends ConsumerWidget {
         final totalRev = snapshots.fold(0.0, (s, d) => s + d.revenue);
         final totalProfit = snapshots.fold(0.0, (s, d) => s + d.profit);
         final totalExp = snapshots.fold(0.0, (s, d) => s + d.expenses);
-        final hasData = totalRev > 0 || totalProfit > 0;
+        final hasData = totalRev > 0 || totalProfit > 0 || totalExp > 0;
 
         return Column(
           children: [
-            _SummaryStrip(
+            _PlReportCard(
               revenue: totalRev,
               profit: totalProfit,
               expenses: totalExp,
@@ -282,7 +282,9 @@ class _DailyReport extends ConsumerWidget {
               ChartTableToggle(
                 showChart: showChart,
                 onToggle: onToggle,
-                chart: MonthlyBarChart(snapshots: snapshots),
+                chart: _ChartCard(
+                  child: MonthlyBarChart(snapshots: snapshots),
+                ),
                 table: _DailyTable(snapshots: snapshots),
               )
             else
@@ -290,8 +292,8 @@ class _DailyReport extends ConsumerWidget {
                 padding: EdgeInsets.all(32),
                 child: EmptyState(
                   icon: Icons.analytics_outlined,
-                  title: 'No data available',
-                  message: 'No sales or expenses recorded this month.',
+                  title: 'No sales or expenses this month',
+                  message: 'Try another month or record a sale.',
                 ),
               ),
           ],
@@ -323,11 +325,11 @@ class _MonthlyReport extends ConsumerWidget {
         final totalRev = summaries.fold(0.0, (s, m) => s + m.revenue);
         final totalProfit = summaries.fold(0.0, (s, m) => s + m.profit);
         final totalExp = summaries.fold(0.0, (s, m) => s + m.expenses);
-        final hasData = totalRev > 0 || totalProfit > 0;
+        final hasData = totalRev > 0 || totalProfit > 0 || totalExp > 0;
 
         return Column(
           children: [
-            _SummaryStrip(
+            _PlReportCard(
               revenue: totalRev,
               profit: totalProfit,
               expenses: totalExp,
@@ -337,7 +339,9 @@ class _MonthlyReport extends ConsumerWidget {
               ChartTableToggle(
                 showChart: showChart,
                 onToggle: onToggle,
-                chart: YearlyBarChart(summaries: summaries),
+                chart: _ChartCard(
+                  child: YearlyBarChart(summaries: summaries),
+                ),
                 table: _MonthlyTable(summaries: summaries),
               )
             else
@@ -345,8 +349,8 @@ class _MonthlyReport extends ConsumerWidget {
                 padding: const EdgeInsets.all(32),
                 child: EmptyState(
                   icon: Icons.calendar_month_outlined,
-                  title: 'No data for $year',
-                  message: 'No sales or expenses recorded for this year.',
+                  title: 'No sales or expenses for $year',
+                  message: 'Try another year or record a sale.',
                 ),
               ),
           ],
@@ -413,10 +417,9 @@ class _ProductReport extends ConsumerWidget {
       flex: flex,
       child: Text(label,
           textAlign: align,
-          style: Theme.of(context)
-              .textTheme
-              .labelSmall
-              ?.copyWith(fontWeight: FontWeight.w600)),
+          style: AppTextStyles.label.copyWith(
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+          )),
     );
   }
 }
@@ -433,33 +436,35 @@ class _ProductReportRowTile extends StatelessWidget {
         children: [
           Expanded(
             flex: 3,
-            child: Text(row.productName,
-                style: Theme.of(context).textTheme.bodyMedium),
+            child: Text(row.productName, style: AppTextStyles.body),
           ),
           Expanded(
             flex: 1,
             child: Text('${row.quantitySold}',
                 textAlign: TextAlign.center,
-                style: Theme.of(context).textTheme.bodySmall),
+                style: AppTextStyles.number.copyWith(fontSize: 12)),
           ),
           Expanded(
             flex: 2,
             child: Text(formatMoney(row.revenue),
                 textAlign: TextAlign.end,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(fontWeight: FontWeight.w600)),
+                style: AppTextStyles.number.copyWith(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                )),
           ),
           Expanded(
             flex: 2,
             child: Text(
               formatMoney(row.profit),
               textAlign: TextAlign.end,
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w600,
-                  color:
-                      row.profit >= 0 ? AppColors.success : AppColors.danger),
+              style: AppTextStyles.number.copyWith(
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+                color: row.profit >= 0
+                    ? AppColors.accentInkFor(Theme.of(context).brightness)
+                    : AppColors.dangerInkFor(Theme.of(context).brightness),
+              ),
             ),
           ),
         ],
@@ -468,12 +473,12 @@ class _ProductReportRowTile extends StatelessWidget {
   }
 }
 
-class _SummaryStrip extends StatelessWidget {
+class _PlReportCard extends StatelessWidget {
   final double revenue;
   final double profit;
   final double expenses;
 
-  const _SummaryStrip({
+  const _PlReportCard({
     required this.revenue,
     required this.profit,
     required this.expenses,
@@ -481,47 +486,173 @@ class _SummaryStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final net = profit - expenses;
+    final netColor = net >= 0
+        ? (isDark ? AppColors.accentInkDark : AppColors.accentInkLight)
+        : AppColors.dangerInkFor(Theme.of(context).brightness);
+    final margin = revenue > 0 ? (net / revenue) * 100 : null;
+
     return GlassPanel(
-      padding: const EdgeInsets.all(12),
+      radius: AppRadii.card,
       noBlur: true,
-      child: Row(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _SumItem(label: 'Revenue', value: formatMoney(revenue)),
-          _SumItem(
-              label: 'Profit',
-              value: formatMoney(profit),
-              color: profit >= 0 ? null : AppColors.danger),
-          _SumItem(label: 'Expenses', value: formatMoney(expenses)),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  'NET PROFIT',
+                  style: AppTextStyles.label.copyWith(
+                    color: scheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+              if (margin != null)
+                Text(
+                  '${margin.toStringAsFixed(1)}% margin',
+                  style: AppTextStyles.label.copyWith(
+                    color: scheme.onSurfaceVariant,
+                    letterSpacing: 0,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.sm + 2),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              formatMoney(net),
+              maxLines: 1,
+              style: AppTextStyles.display.copyWith(color: netColor),
+            ),
+          ),
+          const SizedBox(height: AppSpacing.md),
+          Row(
+            children: [
+              Expanded(
+                child: _PlMetric(
+                  label: 'Revenue',
+                  value: formatMoney(revenue),
+                ),
+              ),
+              const SizedBox(width: AppSpacing.md),
+              Expanded(
+                child: _PlMetric(
+                  label: 'Expenses',
+                  value: formatMoney(expenses),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _SumItem extends StatelessWidget {
+class _PlMetric extends StatelessWidget {
   final String label;
   final String value;
-  final Color? color;
-  const _SumItem({required this.label, required this.value, this.color});
+
+  const _PlMetric({required this.label, required this.value});
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    final scheme = Theme.of(context).colorScheme;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: AppTextStyles.label.copyWith(
+            color: scheme.onSurfaceVariant,
+            letterSpacing: 0,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        const SizedBox(height: 2),
+        FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerLeft,
+          child: Text(
+            value,
+            maxLines: 1,
+            style: AppTextStyles.body.copyWith(
+              fontWeight: FontWeight.w700,
+              fontFeatures: AppTextStyles.tabular,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _ChartCard extends StatelessWidget {
+  final Widget child;
+
+  const _ChartCard({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    return GlassPanel(
+      radius: AppRadii.card,
+      noBlur: true,
+      padding: const EdgeInsets.all(AppSpacing.md),
       child: Column(
         children: [
-          Text(label,
-              style: Theme.of(context)
-                  .textTheme
-                  .labelSmall
-                  ?.copyWith(fontSize: 10)),
-          const SizedBox(height: 2),
-          Text(value,
-              style: Theme.of(context)
-                  .textTheme
-                  .titleSmall
-                  ?.copyWith(fontWeight: FontWeight.bold, color: color)),
+          const _ChartLegend(),
+          const SizedBox(height: AppSpacing.sm),
+          child,
         ],
       ),
+    );
+  }
+}
+
+class _ChartLegend extends StatelessWidget {
+  const _ChartLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    Widget item(Color color, String label) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Container(
+            width: 8,
+            height: 8,
+            decoration: BoxDecoration(
+              color: color,
+              borderRadius: BorderRadius.circular(2),
+            ),
+          ),
+          const SizedBox(width: 5),
+          Text(
+            label,
+            style: AppTextStyles.label.copyWith(
+              color: scheme.onSurfaceVariant,
+              letterSpacing: 0,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Row(
+      children: [
+        item(scheme.primary.withOpacity(0.4), 'Revenue'),
+        const SizedBox(width: AppSpacing.md),
+        item(scheme.primary, 'Profit'),
+      ],
     );
   }
 }
@@ -560,20 +691,23 @@ class _DailyTable extends StatelessWidget {
                   Expanded(
                       flex: 2,
                       child: Text(formatDay(d.date),
-                          style: const TextStyle(fontSize: 12))),
+                          style: AppTextStyles.number.copyWith(fontSize: 12))),
                   Expanded(
                       child: Text(formatMoney(d.revenue),
-                          style: const TextStyle(fontSize: 12))),
+                          style: AppTextStyles.number.copyWith(fontSize: 12))),
                   Expanded(
                       child: Text(formatMoney(d.profit),
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: d.profit >= 0
-                                  ? AppColors.success
-                                  : AppColors.danger))),
+                          style: AppTextStyles.number.copyWith(
+                            fontSize: 12,
+                            color: d.profit >= 0
+                                ? AppColors.accentInkFor(
+                                    Theme.of(context).brightness)
+                                : AppColors.dangerInkFor(
+                                    Theme.of(context).brightness),
+                          ))),
                   Expanded(
                       child: Text(formatMoney(d.expenses),
-                          style: const TextStyle(fontSize: 12))),
+                          style: AppTextStyles.number.copyWith(fontSize: 12))),
                 ],
               ),
             );
@@ -587,10 +721,10 @@ class _DailyTable extends StatelessWidget {
     return Expanded(
       flex: flex,
       child: Text(label,
-          style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: cs.onSurface.withOpacity(0.7))),
+          style: AppTextStyles.label.copyWith(
+            color: cs.onSurfaceVariant,
+            letterSpacing: 0,
+          )),
     );
   }
 }
@@ -627,27 +761,30 @@ class _MonthlyTable extends StatelessWidget {
               child: Row(
                 children: [
                   Expanded(
-                      child:
-                          Text(m.label, style: const TextStyle(fontSize: 12))),
+                      child: Text(m.label,
+                          style: AppTextStyles.number.copyWith(fontSize: 12))),
                   Expanded(
                       child: Text('${m.salesCount}',
-                          style: const TextStyle(fontSize: 12))),
+                          style: AppTextStyles.number.copyWith(fontSize: 12))),
                   Expanded(
                       flex: 2,
                       child: Text(formatMoney(m.revenue),
-                          style: const TextStyle(fontSize: 12))),
+                          style: AppTextStyles.number.copyWith(fontSize: 12))),
                   Expanded(
                       flex: 2,
                       child: Text(formatMoney(m.profit),
-                          style: TextStyle(
-                              fontSize: 12,
-                              color: m.profit >= 0
-                                  ? AppColors.success
-                                  : AppColors.danger))),
+                          style: AppTextStyles.number.copyWith(
+                            fontSize: 12,
+                            color: m.profit >= 0
+                                ? AppColors.accentInkFor(
+                                    Theme.of(context).brightness)
+                                : AppColors.dangerInkFor(
+                                    Theme.of(context).brightness),
+                          ))),
                   Expanded(
                       flex: 2,
                       child: Text(formatMoney(m.expenses),
-                          style: const TextStyle(fontSize: 12))),
+                          style: AppTextStyles.number.copyWith(fontSize: 12))),
                 ],
               ),
             );
@@ -661,10 +798,10 @@ class _MonthlyTable extends StatelessWidget {
     return Expanded(
       flex: flex,
       child: Text(label,
-          style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: cs.onSurface.withOpacity(0.7))),
+          style: AppTextStyles.label.copyWith(
+            color: cs.onSurfaceVariant,
+            letterSpacing: 0,
+          )),
     );
   }
 }
