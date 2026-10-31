@@ -45,7 +45,9 @@ sales on Facebook Marketplace and in person.
 ### Design
 - Liquid Glass UI — `glass_kit` panels + animated aurora background
 - Material 3 with a custom color system (teal `#1D9E75` accent)
-- 6-tab bottom navigation with glass chrome
+- 5-slot bottom navigation with raised centre POS button and glass chrome
+- Rounded glass cards (hero 24 / card 20 / tile 16 / input 14 / sheet 28 / pill 999)
+- Receipt bottom sheet (pre-filled from saved sale, Share via share_plus)
 - Custom launcher icon and splash screen
 
 ## Tech stack
@@ -54,9 +56,9 @@ sales on Facebook Marketplace and in person.
 |-------|--------|
 | Framework | Flutter 3.24.4, Dart 3.5.4 |
 | Target | Android (min API 24) |
-| Database | drift (SQLite) — fully offline, schema v4 |
+| Database | drift (SQLite) — fully offline, schema v6 |
 | State | Riverpod (codegen) |
-| Routing | go_router 15 — `StatefulShellRoute.indexedStack` (6 tabs) |
+| Routing | go_router 15 — `StatefulShellRoute.indexedStack` (5 slots) |
 | Charts | fl_chart 0.69 |
 | Export | syncfusion_flutter_xlsio 27.1.55 + share_plus |
 | Theme | glass_kit 4.0.2 + aurora_background 1.0.2 |
@@ -155,4 +157,4 @@ flutter test --reporter expanded
 
 ## License
 
-Private. Not for redistribution.
+MIT License. See [`LICENSE`](LICENSE).

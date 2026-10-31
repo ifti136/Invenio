@@ -1,5 +1,16 @@
 # Changelog
 
+## v1.7.0 — POS Refresh (Teal Rounded Cards)
+- **M1 — Tokens & shared widgets**: added `AppRadii`/`AppSpacing`/`AppTextStyles` (tabular money), teal/amber/danger ink tokens for light mode, `CategoryChipRow`, `QuickActionTile`, extended `StatCard`, tuned `GlassPanel(noBlur: true)` light fill/border.
+- **M2 — Nav & More**: custom 5-slot `PosNavBar` (Home, Products, raised POS, Reports, More) with low-stock badge on Products only; `More` screen owns Sales, Expenses, Wallets, Buckets, Finance rules, Add-on types, Settings; router shell reduced to Home/Products/Reports/More with secondary routes pushed.
+- **M3 — Home**: app-bar bell with low-stock badge, teal hero turnover, 2x2 stat grid, wide New sale + secondary quick actions, 7-day revenue trend, restyled platform/stock/wallet cards; `DashboardSummary` gains provider-only `expensesToday`/`revenueLast7Days`.
+- **M4 — Products**: four-cell stat strip, stock chips, glass search field, self-wrapped radius-16 product cards without dividers, distinct empty and filtered-empty states.
+- **M5 — Reports**: scope chips, `PlReportCard` with net profit = gross profit − expenses and margin, chart card with Revenue/Profit legend, tabular tables, clearer empty copy.
+- **M6 — Receipt**: `ReceiptSheet` bottom sheet after quick-sell or add-sale; product, qty × unit price, total, customer, platform, paid/due; no add-ons, cost, profit, or margin; `Share.share(text)` only. PDF deferred.
+- Fixed `ExpenseRepository.update` so an explicit null note clears it.
+- Rewrote the stale v4 migration fixture against the real schema (snake_case tables, v6 migration path).
+- Verification: `flutter analyze` 0 errors/warnings (8 pre-existing infos), `flutter test` 144/144 passing.
+
 ## v1.6.1 (Build 1.6.1+15) — Theme Refinement & Bug Fixes
 - **Expense Form Fix**: Resolved layout crash in "Add Expense" form by wrapping `_ToggleGroup` in `Expanded`.
 - **Paper Theme Enhanced**: Updated to warm cream tones and brown accents for a more premium feel.

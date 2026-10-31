@@ -730,3 +730,99 @@ an inline `_ProductPickerSheet` and a read-only `Container` with a
 `lock_outline` icon, respectively). The tile in the Log Sale form
 is now tap-able in add mode — the product can be re-selected if the
 user picked the wrong one.
+
+---
+
+## POS Refresh Addendum — Teal Rounded Cards (v1.7, M1–M6)
+
+This addendum is the approved direction for the POS-style refresh. It
+**supersedes** conflicting earlier sections, specifically:
+
+- **Bottom Navigation** — the old 6-tab list (Dashboard, Products,
+  Sales, Expenses, Reports, BFMS) is replaced by a 5-slot bar:
+  **Home, Products, [raised POS], Reports, More**. Sales, Expenses,
+  Finance/BFMS, and Settings live under **More**.
+- **Dashboard** — the stat grid is no longer one panel; Home uses a
+  hero turnover card + separate 2x2 stat cards.
+- **Receipt accent** — receipts use teal, never purple.
+
+Orange (`#FF6B00`) is not part of this app. The reference shop's name,
+logo, phone, address, and screenshots are not used.
+
+### Tokens added by this addendum
+
+```yaml
+radius:
+  hero: 24
+  card: 20
+  tile: 16
+  input: 14
+  button: 14
+  sheet: 28
+  pill: 999
+spacing: [4, 8, 12, 16, 24, 32]
+color:
+  accent_fill: "#1D9E75"          # fills, large numbers, selected states
+  accent_ink_light: "#0B6B4F"     # sub-18px teal text on light aurora (>=4.5:1)
+  accent_ink_dark: "#5FD3AE"      # sub-18px teal text on dark aurora
+  warning: "#EF9F27"
+  danger: "#E24B4A"
+  info: "#4F8AF0"
+  facebook: "#1877F2"
+  offline: "#534AB7"
+type:
+  display: "34 / w700 / tabular figures"   # hero turnover, net profit
+  title: "22 / w700"                       # screen titles, stat values
+  body: "14 / w500"                        # rows, buttons, fields
+  label: "11 / w600"                       # captions, badges, section labels
+```
+
+- **Type exception:** the kit requires the platform default font and
+  the project forbids new dependencies, so no paired display face is
+  added. Hierarchy comes from scale, weight, and tabular figures.
+  Do not add Google Fonts or a second arbitrary family.
+- **Depth:** no shadows or elevation. Cards use the existing glass
+  fill + 1px gradient border. The hero adds a restrained teal wash
+  (`#1D9E75` at 16% top-left → transparent), never a purple/blue
+  gradient or gradient text.
+- **Accent reserved for:** primary CTA fill, selected nav/chip/segment,
+  the raised POS button, positive profit, focus/active states.
+  Everything else uses surface/onSurface tokens. Teal should stay
+  around 10% of visual weight.
+
+### Component mapping
+
+| Kit widget | Existing widget | Decision |
+|---|---|---|
+| HeroTurnoverCard | `_TodayCard` + `GlassPanel` | New card, radius 24, 34px turnover, sales count, due pill. Replaces old top card. |
+| StatCard | `core/widgets/stat_card.dart`, `MetricCell` | Extend StatCard, wrap in `GlassPanel(radius: 16–20)`. Home 2x2. MetricCell retired from Home. |
+| QuickActionTile | `_buildActionTile` in `app_bottom_nav.dart` | Promote to reusable tile. One wide primary "New sale" + two secondary actions. |
+| ProductCard | `ProductTile` + `GlassPanel` | ProductTile gains a card wrapper, radius 16, 8px gaps, no dividers. |
+| CategoryChipRow | `_FilterChip` / `_ChipRow` / `_Chip` | Extract one shared chip row; reuse in Products and Reports. |
+| StockBadge | `products/widgets/stock_badge.dart` | Keep as the single badge; no duplicate. |
+| PlReportCard | `_SummaryStrip` in `reports_screen.dart` | New card with net-profit hero + revenue/expenses rows. |
+| ReceiptSheet | new; reuses `GlassPanel(opaque: true)` + `SheetDragHandle` | Sale receipt bottom sheet. Teal accent. |
+| PosNavBar | `AppScaffold` bottom bar | Custom 5-slot bar with raised centre POS action. |
+
+### Motion
+
+- Chips / toggles: 160ms color + border.
+- Chart ↔ table: existing 250ms crossfade.
+- Raised POS press: 120ms scale to 0.96 + medium haptic — this is the
+  **only** scale-on-press in the app. No bounce/scale on every card.
+- Sheets/dialogs: system transitions.
+- Respect reduced motion: drop the POS scale, keep opacity feedback.
+
+### Do's and Don'ts for this refresh
+
+**Do:** use `GlassPanel(radius: 20, noBlur: true)` for cards; keep the
+aurora visible; use tabular figures for money; use text + icon for
+status, never color alone; keep one primary CTA per screen; show
+honest empty/error states.
+
+**Don't:** use purple/blue/pink gradients or gradient text; use orange;
+use 3–6 identical icon-in-circle cards; use emoji as icons; use
+gradient pill buttons; use `min-h-screen`-style centered heroes; expose
+cost/profit on a customer receipt; invent shop name/phone/address;
+fabricate stats or use generic "elevate/unlock/revolutionize" copy;
+add a font or PDF dependency without approval.
