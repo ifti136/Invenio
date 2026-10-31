@@ -6,6 +6,7 @@ import '../../core/theme/app_colors.dart';
 import '../../core/services/haptic_service.dart';
 
 class SettingsScreen extends ConsumerWidget {
+  static const String appVersion = '2.0.0+16';
   const SettingsScreen({super.key});
 
   @override
@@ -37,6 +38,14 @@ class SettingsScreen extends ConsumerWidget {
           _buildSection(context, 'SYSTEM'),
           _buildTile(context, 'App Version & Data',
               Icons.system_update_alt_outlined, '/settings/system'),
+          const SizedBox(height: 24),
+          _buildSection(context, 'ABOUT'),
+          _buildTile(
+            context,
+            'v$appVersion - Invenio',
+            Icons.info_outline,
+            '/settings/about',
+          ),
         ],
       ),
     );
