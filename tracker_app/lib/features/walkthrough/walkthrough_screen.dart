@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/theme/app_colors.dart';
-import '../../core/theme/app_tokens.dart';
-import '../../core/widgets/glass_panel.dart';
+import '../../core/widgets/glass_dialog.dart';
+import '../../core/widgets/glass_text_field.dart';
 import '../walkthrough/walkthrough_provider.dart';
 
 class WalkthroughScreen extends ConsumerStatefulWidget {
@@ -57,79 +57,50 @@ class _WalkthroughScreenState extends ConsumerState<WalkthroughScreen> {
     super.dispose();
   }
 
-  void _nextPage() {
+  Future<void> _nextPage() async {
     if (_currentPage < _pages.length - 1) {
       _pageController.nextPage(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
     } else {
-      _showShopNameDialog();
+      await _showShopNameDialog();
     }
   }
 
-  void _showShopNameDialog() {
-    showDialog(
+  Future<void> _showShopNameDialog() async {
+    final name = await showGlassDialog<String>(
       context: context,
+      title: 'What is your shop name?',
+      message:
+          'This will appear at the top of your app instead of the app name.',
       barrierDismissible: false,
-      builder: (ctx) => GlassPanel(
-        radius: AppRadii.card,
-        margin: const EdgeInsets.all(24),
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'What is your shop name?',
-              style: Theme.of(ctx).textTheme.titleLarge?.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'This will appear at the top of your app instead of the app name.',
-              style: Theme.of(ctx).textTheme.bodyMedium?.copyWith(
-                    color: Theme.of(ctx).colorScheme.onSurfaceVariant,
-                  ),
-              textAlign: TextAlign.center,
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _shopNameController,
-              autofocus: true,
-              decoration: InputDecoration(
-                hintText: 'e.g. My Resale Shop',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(AppRadii.input),
-                ),
-              ),
-              onSubmitted: (_) => _saveShopName(ctx),
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: OutlinedButton(
-                    onPressed: () => _saveShopName(ctx),
-                    child: const Text('Save & Continue'),
-                  ),
-                ),
-              ],
-            ),
-          ],
+      content: Builder(
+        builder: (dialogCtx) => GlassTextField(
+          controller: _shopNameController,
+          hint: 'e.g. My Resale Shop',
+          autofocus: true,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (_) =>
+              Navigator.of(dialogCtx).pop(_shopNameController.text.trim()),
         ),
       ),
+      actionsBuilder: (ctx) => [
+        GlassDialogAction(
+          label: 'Skip',
+          onPressed: () => Navigator.of(ctx).pop(),
+        ),
+        GlassDialogAction(
+          label: 'Save & Continue',
+          isPrimary: true,
+          onPressed: () =>
+              Navigator.of(ctx).pop(_shopNameController.text.trim()),
+        ),
+      ],
     );
-  }
-
-  Future<void> _saveShopName(BuildContext ctx) async {
-    final name = _shopNameController.text.trim();
-    if (name.isEmpty) return;
-    await ref.read(walkthroughProvider.notifier).completeWalkthrough(name);
-    if (mounted) {
-      Navigator.of(ctx).pop();
-      Navigator.of(context).pop();
-    }
+    if (!mounted) return;
+    final shopName = (name == null || name.isEmpty) ? 'Invenio' : name;
+    await ref.read(walkthroughProvider.notifier).completeWalkthrough(shopName);
   }
 
   @override
@@ -139,14 +110,9 @@ class _WalkthroughScreenState extends ConsumerState<WalkthroughScreen> {
         children: [
           PageView.builder(
             controller: _pageController,
-            itemCount: _pages.length + 1,
+            itemCount: _pages.length,
             onPageChanged: (i) => setState(() => _currentPage = i),
-            itemBuilder: (context, index) {
-              if (index == _pages.length) {
-                return _ShopNamePage(controller: _shopNameController);
-              }
-              return _PageContent(page: _pages[index]);
-            },
+            itemBuilder: (context, index) => _PageContent(page: _pages[index]),
           ),
           Positioned(
             top: 40,
@@ -155,7 +121,7 @@ class _WalkthroughScreenState extends ConsumerState<WalkthroughScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(
-                _pages.length + 1,
+                _pages.length,
                 (i) => Container(
                   margin: const EdgeInsets.symmetric(horizontal: 4),
                   width: _currentPage == i ? 24 : 8,
@@ -236,60 +202,6 @@ class _PageContent extends StatelessWidget {
                   color: Theme.of(context).colorScheme.onSurfaceVariant,
                 ),
             textAlign: TextAlign.center,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _ShopNamePage extends StatelessWidget {
-  final TextEditingController controller;
-  const _ShopNamePage({required this.controller});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(
-            width: 100,
-            height: 100,
-            decoration: BoxDecoration(
-              color: AppColors.accent.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: const Icon(Icons.store_outlined, size: 48, color: AppColors.accent),
-          ),
-          const SizedBox(height: 32),
-          Text(
-            'Personalize Your App',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Enter your shop name to see it at the top of your app.',
-            style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
-                ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 24),
-          TextField(
-            controller: controller,
-            autofocus: true,
-            decoration: InputDecoration(
-              hintText: 'e.g. My Resale Shop',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(AppRadii.input),
-              ),
-            ),
-            onSubmitted: (_) {},
           ),
         ],
       ),

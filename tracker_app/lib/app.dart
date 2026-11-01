@@ -16,48 +16,108 @@ class TrackerApp extends ConsumerWidget {
     final router = ref.watch(routerProvider);
     final themeAsync = ref.watch(themeProviderProvider);
     final walkthrough = ref.watch(walkthroughProvider);
+    final fallbackSettings = AppTheme.fromId(AppThemeId.darkAurora);
+
+    if (!walkthrough.initialized) {
+      return _buildApp(
+        key: const ValueKey('bootstrap-loading'),
+        settings: _settingsFor(themeAsync.valueOrNull, fallbackSettings),
+        home: const _BootstrapLoading(),
+      );
+    }
 
     if (!walkthrough.completed) {
-      return const WalkthroughScreen();
+      return _buildApp(
+        key: const ValueKey('walkthrough'),
+        settings: _settingsFor(themeAsync.valueOrNull, fallbackSettings),
+        home: const WalkthroughScreen(),
+      );
     }
 
     return themeAsync.when(
-      loading: () => const MaterialApp(
-          home: Scaffold(body: Center(child: CircularProgressIndicator()))),
-      error: (err, stack) =>
-          MaterialApp(home: Scaffold(body: Center(child: Text('Error: $err')))),
+      loading: () => _buildApp(
+        key: const ValueKey('router-loading'),
+        settings: fallbackSettings,
+        home: const _BootstrapLoading(),
+      ),
+      error: (err, stack) => _buildApp(
+        key: const ValueKey('router-error'),
+        settings: fallbackSettings,
+        home: Scaffold(body: Center(child: Text('Error: $err'))),
+      ),
       data: (themeId) {
         final settings = AppTheme.fromId(themeId);
 
         return MaterialApp.router(
+          key: const ValueKey('router'),
           title: 'Tracker',
           theme: settings.data,
           routerConfig: router,
           debugShowCheckedModeBanner: false,
-          builder: (context, child) {
-            SystemChrome.setSystemUIOverlayStyle(
-              settings.data.brightness == Brightness.dark
-                  ? SystemUiOverlayStyle.light.copyWith(
-                      statusBarColor: Colors.transparent,
-                      systemNavigationBarColor: Colors.transparent,
-                    )
-                  : SystemUiOverlayStyle.dark.copyWith(
-                      statusBarColor: Colors.transparent,
-                      systemNavigationBarColor: Colors.transparent,
-                    ),
-            );
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                Positioned.fill(
-                  child: AuroraBackdrop(config: settings.aurora),
-                ),
-                Positioned.fill(child: child ?? const SizedBox.shrink()),
-              ],
-            );
-          },
+          builder: (context, child) => _appShell(context, child, settings),
         );
       },
+    );
+  }
+
+  static ThemeSettings _settingsFor(
+    AppThemeId? themeId,
+    ThemeSettings fallback,
+  ) {
+    return themeId == null ? fallback : AppTheme.fromId(themeId);
+  }
+
+  static Widget _buildApp({
+    required Key key,
+    required ThemeSettings settings,
+    required Widget home,
+  }) {
+    return MaterialApp(
+      key: key,
+      title: 'Tracker',
+      theme: settings.data,
+      home: home,
+      debugShowCheckedModeBanner: false,
+      builder: (context, child) => _appShell(context, child, settings),
+    );
+  }
+
+  static Widget _appShell(
+    BuildContext context,
+    Widget? child,
+    ThemeSettings settings,
+  ) {
+    SystemChrome.setSystemUIOverlayStyle(
+      settings.data.brightness == Brightness.dark
+          ? SystemUiOverlayStyle.light.copyWith(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor: Colors.transparent,
+            )
+          : SystemUiOverlayStyle.dark.copyWith(
+              statusBarColor: Colors.transparent,
+              systemNavigationBarColor: Colors.transparent,
+            ),
+    );
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Positioned.fill(
+          child: AuroraBackdrop(config: settings.aurora),
+        ),
+        Positioned.fill(child: child ?? const SizedBox.shrink()),
+      ],
+    );
+  }
+}
+
+class _BootstrapLoading extends StatelessWidget {
+  const _BootstrapLoading();
+
+  @override
+  Widget build(BuildContext context) {
+    return const Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Center(child: CircularProgressIndicator()),
     );
   }
 }

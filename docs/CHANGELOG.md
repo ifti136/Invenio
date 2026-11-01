@@ -1,5 +1,18 @@
 # Changelog
 
+## v2.1.2 (Build 2.1.2+19) — Fix blank gray screen on launch
+- Fixed the v2.1.1+18 launch regression where the first frame returned a bare `WalkthroughScreen` `Scaffold` with no `MaterialApp`/`WidgetsApp` ancestor; release builds rendered Flutter's textless light-gray `ErrorWidget`.
+- `TrackerApp` now always returns a `MaterialApp`-family root with an explicit `initialized` gate: a themed bootstrap loader while prefs load, then the walkthrough or the router.
+- Added `initialized` to `WalkthroughState`; it is set on load success, on load failure (fail open to a usable app), on completion, and on reset.
+- Walkthrough completion no longer double-pops; the dialog is dismissed via its own context and the root swap replaces the walkthrough.
+- Added walkthrough regression tests: first-frame safety, walkthrough branch, completed branch, and completion root swap.
+- Migrated the shop-name dialog from a raw `showDialog` + `GlassPanel` to `showGlassDialog`, so it is Material-safe and follows the project dialog convention; its input is now a `GlassTextField`.
+- Shop-name dialog actions are now **Skip** and **Save & Continue**; an empty or skipped name falls back to `Invenio`, so the dialog can no longer leave the walkthrough stuck.
+- Restored the keyboard **Done** action on the shop-name field; it pops the dialog via a dialog-scoped `Builder` context (not the outer page context) with the trimmed name.
+- Removed the dead-end swipeable `_ShopNamePage` (raw `TextField`, inert submit, hidden action button); the walkthrough is now the five feature pages plus the **Enter Shop Name** button that opens the dialog.
+- Added a `mounted` guard before using `ref` after the dialog await.
+- No new dependencies; no schema change.
+
 ## v1.7.0 — POS Refresh (Teal Rounded Cards)
 - **M1 — Tokens & shared widgets**: added `AppRadii`/`AppSpacing`/`AppTextStyles` (tabular money), teal/amber/danger ink tokens for light mode, `CategoryChipRow`, `QuickActionTile`, extended `StatCard`, tuned `GlassPanel(noBlur: true)` light fill/border.
 - **M2 — Nav & More**: custom 5-slot `PosNavBar` (Home, Products, raised POS, Reports, More) with low-stock badge on Products only; `More` screen owns Sales, Expenses, Wallets, Buckets, Finance rules, Add-on types, Settings; router shell reduced to Home/Products/Reports/More with secondary routes pushed.
