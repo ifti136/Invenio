@@ -11,8 +11,8 @@ regression history, visual design, original specs) is in
 
 ## Version
 
-Current version: **2.1.1+18** (POS-style restyle v2.0.0, About section
-v2.1.0, walkthrough v2.1.1).
+Current version: **2.1.2+19** (POS-style restyle v2.0.0, About section
+v2.1.0, walkthrough v2.1.1, blank-screen fix v2.1.2).
 
 ## Features
 

@@ -75,6 +75,7 @@ class AboutScreen extends ConsumerWidget {
                 _changeRow(context, 'v2.0.0', 'POS-style restyle: teal Liquid Glass, rounded cards, 5-slot nav, receipt popup'),
                 _changeRow(context, 'v2.1.0', 'About section and app walkthrough with shop name'),
                 _changeRow(context, 'v2.1.1', 'Minor polish and bug fixes'),
+                _changeRow(context, 'v2.1.2', 'Fix blank gray screen on launch'),
               ],
             ),
           ),
