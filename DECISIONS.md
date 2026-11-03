@@ -85,3 +85,37 @@ This file logs important decisions made during development. Each entry has a dat
 
 5. **`isFrostedGlass` functionality restored**  
    The frosted opacity layer (extra 8–10% white overlay for nav bar and dialogs) was missing in the initial custom Stack implementation. It was restored as a conditional layer between the gradient fill and the border.
+
+---
+
+## 2026-11-03 — Always-MaterialApp Root (v2.1.2 blank-screen fix)
+
+**Context:** v2.1.1+18 shipped a blank gray screen on launch. Root cause: `app.dart`
+returned a bare `WalkthroughScreen` `Scaffold` (no `MaterialApp`/`WidgetsApp`
+ancestor) whenever `walkthrough.completed == false`, which is always true on the
+first frame because prefs load asynchronously. The first build threw (missing
+MediaQuery / Directionality / Navigator / Theme), and release builds rendered
+Flutter's textless light-gray `ErrorWidget`.
+
+**Decisions:**
+
+1. **`TrackerApp` always returns a MaterialApp-family root.**
+   Three branches: `!initialized` → `_BootstrapLoading` scaffold;
+   `initialized && !completed` → `WalkthroughScreen`; `completed` →
+   `MaterialApp.router`. Theme, `debugShowCheckedModeBanner`, SystemChrome and
+   `AuroraBackdrop` are shared via a `_buildApp`/`_appShell` helper so no branch
+   can ever render outside a widget-app root.
+
+2. **`WalkthroughState.initialized` gate, failing open.**
+   The provider sets `initialized: true` on prefs load success *and* failure
+   (failure also sets `completed: true`). Returning users therefore never see
+   the walkthrough, and an unreadable prefs file can no longer trap the user on
+   an un-dismissable screen.
+
+3. **Distinct `ValueKey`s per branch** (`bootstrap-loading` / `walkthrough` /
+   `router`) so Flutter tears down the whole subtree on branch change instead of
+   reusing an incompatible navigator.
+
+**Consequence:** any future pre-router screen (splash, onboarding, migration)
+must live *inside* a MaterialApp-family root, never above one.
+
