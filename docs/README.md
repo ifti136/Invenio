@@ -5,20 +5,20 @@ sales, tracking expenses, and viewing profit analytics — fully offline, no
 auth, no cloud sync. This directory is the canonical documentation for the
 project.
 
-## Project state (v1.3.2+5, Schema v5)
+## Project state (v2.3.0+20, Schema v7)
 
 | Aspect | Detail |
 |--------|--------|
 | Flutter SDK | 3.24.4 · Dart 3.5.4 |
 | Target | Android (min API 24) |
-| Database | drift (SQLite) — schema v5 (9 tables) |
-| State | Riverpod (codegen) |
-| Routing | go_router 15 (`StatefulShellRoute.indexedStack`) |
-| Theme | Liquid Glass — `glass_kit` + `aurora_background` |
+| Database | drift (SQLite) — schema v7 (12 tables) |
+| State | Riverpod |
+| Routing | go_router 15 (`StatefulShellRoute.indexedStack`, 5 tabs) |
+| Theme | Clean Ledger — Material 3, seed `#1D9E75`, light/dark/system |
 | Charts | fl_chart 0.69 |
-| Export | syncfusion_flutter_xlsio 27.1.55 + share_plus |
-| Tests | 100/100 passing · `flutter analyze` 0 errors |
-| Version | `1.3.2+5` (build 5) |
+| Export | CSV + SQLite backup via `share_plus` |
+| Tests | see [`../tracker_app/test/REPORT.md`](../tracker_app/test/REPORT.md) |
+| Version | `2.3.0+20` (build 20) |
 
 ## If you want to …
 
@@ -30,7 +30,6 @@ project.
 | Understand what broke, why, and how it was fixed | [`HISTORY.md`](HISTORY.md) |
 | Look up a color, a spacing token, a screen layout | [`DESIGN.md`](DESIGN.md) |
 | See the test status, workarounds, and known limitations | [`../tracker_app/test/REPORT.md`](../tracker_app/test/REPORT.md) |
-| See the original implementation spec | [`instructions/05_implementation.md`](instructions/05_implementation.md) |
 
 ## Doc conventions
 

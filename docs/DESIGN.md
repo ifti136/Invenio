@@ -1,828 +1,285 @@
-# Invenio — Visual Design Specification
+# Invenio — Clean Ledger Design Specification
+
+> **Supersedes Liquid Glass.** The previous aurora / glass design language is
+> retired and kept only in git history. Invenio now uses a flat Material 3
+> "Clean Ledger" design: calm surfaces, one teal accent, big readable numbers,
+> and no blur, gradients, shadows, or animated backgrounds.
+
+Master source: `docs/invenio overhaul.pdf` (v2.3) §8. This document is the
+implementation reference for the Clean Ledger overhaul.
 
 ---
 
-## Design Language
+## 1. Design language
 
-**Name:** Liquid Glass  
-**Personality:** Dark, luminous, premium. A business tool that feels expensive. Like a glass instrument panel lit from behind.  
-**Mood:** Deep night sky with aurora borealis visible through frosted glass surfaces.
+**Name:** Clean Ledger
+**Personality:** A good notebook for a working seller — calm, legible, and
+fast. It should feel like a trusted paper ledger that happens to be on a
+phone, not a dashboard toy.
 
----
+- Flat tonal surfaces, separated by a 1 px outline. No shadows, blur,
+  gradients, or animated backgrounds.
+- Money is always the loudest element on a screen. Labels are quiet.
+- Every state shows text **and** an icon; colour never carries meaning alone.
+- One primary action per screen, placed at the bottom in the thumb zone.
+- Plain words: "Money in / Money out / Owed to you", not accounting jargon.
 
-## The Background — Aurora Backdrop
+### Principles
 
-The background is the soul of the app. It is **always visible** through every screen, every panel, every sheet.
-
-### Dark Mode (default)
-Three animated aurora waves float continuously and slowly behind all content. The waves never stop moving — they breathe. Very slow undulation, roughly 10–26 second cycles per wave.
-
-**Background gradient base (three layers blended):**
-- Deep navy: `#0B1026`
-- Dark slate blue: `#1B2735`
-- Deep indigo-violet: `#2C1E50`
-
-**Wave colors:**
-- Wave 1 — Teal: `#1D9E75` (same as accent)
-- Wave 2 — Indigo: `#534AB7`
-- Wave 3 — Magenta-violet: `#B987FF`
-
-The waves occupy roughly the lower 40% of the screen height at their base, with crests extending up to ~22% of screen height. The result: the upper portion of the screen is deep dark navy. The lower portion glows with shifting teal, indigo, and violet light.
-
-### Light Mode
-Same three waves, same movement. Background shifts to warm cream tones:
-- Warm ivory: `#F6F2EC`
-- Warm sand: `#EFE6DA`
-- Pale lavender: `#E8D9E8`
-
-The aurora waves use the same teal/indigo/magenta colors but appear softer and more pastel against the light ground.
+1. **One loop:** Sell → stock down → money into a source (or a due) → profit
+   up. Restock or expense → money out of a source.
+2. **Sale in under 10 seconds** for the common case.
+3. **Every number is traceable.** Tap a balance, stock count, due, or profit
+   to see the entries behind it.
+4. **Nothing is hardcoded to one shop.** Currency, accounts, and names are
+   user-editable.
+5. **Calm and fast.** Flat Material 3, no motion beyond system transitions.
+6. **Fewer things.** If a feature does not serve the core seller loop, it is
+   not in v2.
 
 ---
 
-## Glass Surface System
+## 2. Colour
 
-All UI panels, cards, nav bars, dialogs, and sheets are **glass** — not opaque. The aurora always bleeds through.
+`ColorScheme.fromSeed(seedColor: Color(0xFF1D9E75))`, light and dark.
 
-### Standard GlassPanel
-- Frosted/blurred background (backdrop blur ~18px)
-- Fill: white at 14% opacity (dark mode) / 22% opacity (light mode)
-- Border: 1px gradient border  
-  - Top-left corner: white at 30% opacity (dark) / 55% (light)  
-  - Bottom-right corner: teal `#1D9E75` at 18% opacity (dark) / 10% (light)
-- Corner radius: 20px (default)
-- No shadow, no elevation
+| Role | Colour | Use |
+|------|--------|-----|
+| Primary (teal `#1D9E75`) | `scheme.primary` | Primary buttons, selected nav, money-in, positive profit |
+| Tertiary (amber) | `#EF9F27` | Low stock, dues, warnings |
+| Error (red) | `scheme.error` / `#E24B4A` | Out of stock, below cost, negative profit/balance, money-out, destructive actions |
+| Neutral surfaces | `scheme.surface*` | Everything else |
 
-### Frosted GlassPanel (`isFrostedGlass: true`)
-Same as above but with additional frosted opacity layer at 10% (dark) / 8% (light). Used for the nav bar and dialogs — slightly more opaque to ensure legibility.
-
-### GlassTextField
-- Wraps in a glass panel with radius 14px, blur 14px, **not frosted**
-- No visible border by default — the glass fill defines it
-- On focus: prefix icon color shifts to primary teal `#1D9E75`
-- On error: prefix icon and floating label turn danger red `#E24B4A`
-- Text cursor: teal `#1D9E75`
-- Floating label: teal when focused, error red on validation failure
-- Hint text: white at ~60% opacity (dark mode)
+- Money signs: `+` money in, `−` money out. Colour reinforces the sign; it
+  never replaces it.
+- Text must reach **4.5:1** contrast in both themes.
+- Do not use colour as the only status indicator. Pair it with an icon and a
+  label.
 
 ---
 
-## Color Palette
+## 3. Typography
 
-| Role | Hex | Usage |
-|------|-----|-------|
-| Accent / Primary | `#1D9E75` | Buttons, active nav, focus rings, selected states |
-| Warning | `#EF9F27` | Low stock badges, due payment status, amber alerts |
-| Danger | `#E24B4A` | Out-of-stock, below-cost alerts, delete actions, negative profit |
-| Info | `#4F8AF0` | Est. profit in sale form |
-| Facebook | `#1877F2` | Facebook platform indicator |
-| Offline | `#534AB7` | Offline platform indicator |
-| Success | `#1D9E75` | Same as accent — paid status, positive profit, in-stock |
+Platform default font. Use **tabular figures for every money value**.
 
----
+| Style | Size / weight | Use |
+|-------|---------------|-----|
+| Display | 36 / 700 | Home total money, sale total (hero moments only) |
+| Headline | 24 / 700 | Net profit, product name, account balance |
+| Title | 20 / 600 | Screen titles, sheet titles |
+| Body | 14–16 / 400–500 | Rows, fields |
+| Label | 12 / 600 | Chips, badges, captions |
 
-## Typography
-
-Material 3 default type scale. All weights and sizes follow the theme:
-
-| Style | Size | Weight | Usage |
-|-------|------|--------|-------|
-| headlineSmall | ~24px | 700 | Product name on detail screen |
-| titleLarge | ~22px | 700 | Screen titles in custom AppBars (Products, Sales) |
-| titleMedium | ~18px | 600 | Section headers, sheet titles |
-| titleSmall | ~14px | 600 | Panel section labels, stat headers |
-| bodyMedium | ~14px | 400 | List item body, descriptions |
-| bodySmall | ~12px | 400 | Subtitles, dates, secondary info |
-| labelSmall | ~11px | 400–600 | Stat card labels, badge text |
+Expressive type is reserved for hero moments. Do not scale up every number.
 
 ---
 
-## App Shell
+## 4. Shape, spacing, and components
 
-### Status Bar
-Transparent. Icons adapt to brightness — white in dark mode, dark in light mode.
+### Shape
 
-### Bottom Navigation Bar
-The nav bar sits at the **bottom of the screen**, anchored to the bottom safe area. It has a visually "floating" glass style — rounded corners and horizontal margins give it a pill-like appearance — but it is always pinned to the bottom edge, not hovering above content.
+| Element | Radius |
+|---------|--------|
+| Hero card | 24 |
+| Card | 16 |
+| Button / input | 12 |
+| Sheet (top) | 28 |
+| Chip / badge | pill (999) |
 
-**Appearance:**
-- Horizontally: 12px margin left and right from screen edges (does not span full width)
-- Vertically: 8px gap above the bottom safe area edge
-- Height: 76px
-- Corner radius: 22px
-- Background: frosted GlassPanel — the aurora glows through it
-- Subtle gradient border (glass border system)
-- Screen body content extends behind the nav bar (`extendBody: true`) so the aurora is visible through the glass even at the bottom
+### Spacing
 
-**Tab items — 6 tabs:**
-1. Dashboard (grid icon)
-2. Products (box/inventory icon)
-3. Sales (receipt icon)
-4. Expenses (wallet icon)
-5. Reports (bar chart icon)
-6. BFMS (finance/wallet icon)
+`4 / 8 / 12 / 16 / 24 / 32`. Screen padding is **16**. Section gap is **24**.
 
-**Tab states:**
-- Selected: icon + label in teal `#1D9E75`, indicator is teal at 22% opacity (dark) / 18% (light) — a soft pill behind the icon
-- Unselected: icon + label in `onSurfaceVariant` — muted grey-white in dark mode
-- Label: 12px, weight 600 selected / 500 unselected
+### Rhythm
 
-### AppBar (per-screen)
-- Fully transparent, no elevation, no background fill
-- Title: 20px, weight 600, `onSurface` color
-- Left padding: 20px
-- No scroll-under elevation change
-- Action icons: `onSurface` color
+- Navigation bar: **64 dp** high, pill indicator.
+- List rows: **56** (one line), **72** (two lines), **88** (three lines) dp.
+- Touch target: at least **48 dp**.
+- Primary actions sit at the bottom of the screen.
 
----
+### Components
 
-## Screen-by-Screen Visual Spec
+Material 3: `NavigationBar`, `FilledButton`, `FilledButton.tonal`,
+`OutlinedButton`, `SegmentedButton`, `FilterChip`, `SearchBar`, `Card.filled`,
+`ListTile`, bottom sheets with a drag handle, `AlertDialog`, floating
+`SnackBar` with Undo, `ExtendedFloatingActionButton`.
 
----
+Custom (small, shared):
 
-### 1. Dashboard Screen
+- `MoneyText` — formats minor units with the settings currency symbol and
+  tabular figures.
+- `StatCard` — quiet label, loud value, optional icon/tone.
+- `AccountChip` — account name + live balance.
+- `ProductTile` — initial avatar, name, price, stock badge.
+- `StockBadge` — in stock / low / out, icon + label.
+- `StatusChip` — Paid / Part paid / Due.
+- `SaleBar` — sticky total + profit summary bar with the primary action.
+- `EmptyState` — icon + title + one sentence + primary action.
 
-**AppBar:** "Dashboard" title, no actions.
-
-**Body:** Single `ListView` with 16px horizontal padding, 8px top padding, 24px bottom padding. The aurora shows behind everything.
-
-#### Stat Grid Panel
-Glass panel, padding 16px all sides.
-
-Header: "Today" — 14px, weight 600.
-
-Two rows of two stats, each stat is a column:
-- Row 1: **Sales** (shopping bag icon, teal) | **Revenue** (trending up icon, teal)
-- Row 2: **Gross Profit** (account balance icon, warning amber) | **Net Profit** (savings icon, teal if positive / danger red if negative)
-- Row 3 (half-row): **Due** (pending actions icon, danger red) | empty half
-
-Each stat item:
-- Icon: 18px, colored
-- Label: 12px, slightly transparent, colored to match icon
-- Value: 14px, bold, colored to match icon
-
-#### Platform Breakdown Panel
-Glass panel, padding 16px, below stat grid with 16px gap.
-
-Header: "Platform Breakdown" — 14px, weight 600.
-
-Two rows:
-- **Facebook row:** blue dot `#1877F2` + "Facebook" label + profit value (bold) + percentage (blue, small)
-- **Offline row:** teal dot + "Offline" label + profit value (bold) + percentage (teal, small)
-
-Below both rows: horizontal progress bar showing Facebook share vs Offline share. Bar height 8px, rounded ends, indigo-purple for Facebook portion, teal background for Offline.
-
-#### Low Stock Panel (conditional — only if any products below threshold)
-Glass panel, padding 16px, 16px gap below platform section.
-
-Header row: amber warning icon (18px) + "Low Stock (N)" — weight 600.
-
-Each low-stock product shown as a row:
-- **ProductTile** on the left (see Product Tile spec below)
-- **[Sell] button** on the right — FilledButton.tonal, small, point-of-sale icon + "Sell" text
+No new UI dependency. The expressive feel comes from theme tokens, not a
+package.
 
 ---
 
-### 2. Product List Screen
+## 5. Motion and accessibility
 
-**AppBar:** Large custom title "Products" (22px, weight 700) pinned. "+" add icon action (top right).
-
-**Stat Strip** (16px padding panel, glass):
-Four pill stats side by side:
-- **Products** (count) — teal, 18px bold
-- **Low** (count) — amber, 18px bold
-- **Out** (count) — red, 18px bold
-- **Stock value** (formatted money) — teal, 13px bold (smaller because money string is long)
-
-Each pill has its colored value on top, muted label below (11px).
-
-**Filter Chips Row** (16px padding, scrollable horizontal):
-Three `ChoiceChip` options: "All" | "Low stock" | "Out of stock"
-- Selected chip: teal-tinted background, teal border, teal text bold
-- Unselected: near-transparent, muted border, muted text
-
-**Search Field** (16px padding, GlassTextField):
-- Search icon prefix
-- Hint: "Search by name…"
-- Full width, glass panel wrapping
-
-**Product List** (no padding — tiles are full-width):
-Separated by 0.5px dividers, `onSurfaceVariant` at 12% opacity, indented 70px from left.
-
-#### Product Tile
-Each tile: 16px horizontal, 12px vertical padding.
-
-Left: **Avatar circle** — 46×46px, rounded 12px, teal at 12% opacity background, teal first-letter of product name (18px, bold, teal).
-
-Middle column:
-- Product name: 15px, weight 600, max 1 line, ellipsis
-- Below name: cost price (12.5px, muted) + StockBadge (compact, inline)
-
-Right: 
-- If `alertEnabled = false`: muted bell-off icon (18px) before chevron
-- Chevron right icon, muted
-
-#### StockBadge (compact, inline)
-Pill shape, 8px horizontal / 3px vertical padding, 999px radius:
-- **In stock:** green `#1D9E75` tinted background (18% opacity), green text "In stock", green border (35% opacity)
-- **Low:** amber `#EF9F27` tinted background, amber text "Low", amber border
-- **Out:** red `#E24B4A` tinted background, red text "Out", red border
-
-Font: 11px, weight 600.
-
-**Empty state** (if no products): centered icon + title + subtitle. No action button if filter active, "Tap + to add" message if truly empty.
+- Use system transitions only.
+- The one exception is a **150 ms fade** when the chart range changes.
+- Respect the platform "remove animations" setting.
+- Everything must work at **200 % font scale** without clipping. Do not use
+  fixed-height text rows; wrap text in `Flexible`/`Expanded`.
+- Icon-only buttons need semantic labels.
+- Light and dark themes must both pass contrast checks.
 
 ---
 
-### 3. Product Detail Screen
+## 6. Screen specifications
 
-**AppBar:** "Product" title. Edit (pencil) icon action top right.
+All screens are 360 dp-first. `$` below means the user's currency symbol.
 
-**Hero Panel** (glass, 18px padding):
-- Product name: 24px, weight 700 (headlineSmall)
-- Note (if exists): 13px, muted, below name
-- 14px gap
-- Three metric columns: **Cost** | **Stock** | **Alert at**
-  - Each: value on top (17px, bold), label below (11.5px, muted)
-- 14px gap
-- Bottom row: **StockBadge** (large, not compact) on left | **[+ Restock]** filled button (teal, add icon) on right
+### 6.1 Home
 
-**"Recent sales" header** — 16px bold, outside glass panel.
+- App bar: shop name on the left, Settings icon on the right.
+- Hero card (24 dp radius): "Total money" label + Display value.
+- Scrollable row of `AccountChip`s (Cash, Bank, Mobile wallet…).
+- Two stat cards: **Owed to you** (total + customer count) and **Low stock**
+  (count + "See all").
+- **Today** stat row: Sales count, Revenue, Profit.
+- Extended FAB: **New sale**.
+- Every card/chip navigates to the entries behind it.
 
-**Recent Sales Panel** (glass, 6px vertical padding):
-List of `SaleListItem` rows, dividers between them (0.5px, muted, indented 70px).
+### 6.2 Sales
 
-#### SaleListItem
-42×42px status avatar (left):
-- Paid: green background (15% tint), green check-circle icon
-- Due: amber background (15% tint), amber clock icon
+- App bar: "Sales" + search.
+- Filter chips: Date, Channel, Status.
+- List grouped by day with a day total.
+- Row: time, customer/walk-in, short item summary, total, `StatusChip`.
+- Primary action: **New sale** (bottom / extended FAB).
 
-Middle column:
-- "N × ৳price • date" — 12.5px, muted
-- (If showing on product detail, product name is omitted)
+### 6.3 Sale form (single scrolling form)
 
-Right: total money — 15px, bold.
+- Items section with an **Add item** button. Each line: product, qty stepper,
+  editable unit price, line total, remove.
+- Price below list shows a **Discount** tag. Below cost shows red text, an
+  icon, and a short inline warning (never a blocking dialog).
+- Customer picker, Channel segmented control.
+- Payment segmented control: **Paid in full / Part / Later**. Part reveals an
+  amount field; Later hides "Received in". Customer is required unless paid in
+  full.
+- Sticky `SaleBar` at the bottom: total, live profit, primary **Save sale**.
 
-**"Stock movements" header** — 16px bold.
+### 6.4 Inventory
 
-**Movements Panel** (glass, 6px vertical padding):
-List of `StockMovementItem` rows.
+- App bar: "Inventory" + search.
+- Summary line: products, low, out, stock value.
+- Filter chips: All / Low stock / Out / Archived.
+- `ProductTile` rows with name, cost, price, stock, `StockBadge`, and a
+  **Sell** action.
+- Primary action: **Add product**.
 
-#### StockMovementItem
-36×36px colored avatar (left), radius 10px:
-- Positive qty (restock/initial): green tint bg, green down-arrow icon
-- Negative qty (sale): red tint bg, red up-arrow icon
+### 6.5 Product detail
 
-Middle column:
-- Type label: 14px, weight 600 ("Initial stock" / "Restock" / "Sale" / "Adjustment")
-- Date + time: 12px, muted
-- Note (if exists): 12.5px, muted, italic
+- Summary: stock, price, cost, low-stock threshold.
+- Actions: **Restock**, **Sell**.
+- One merged activity timeline: sale, restock, initial, adjustment.
+- Restock sheet: quantity, unit cost (prefilled), **Paid from** account or
+  None, note.
 
-Right: qty with sign — 15px, bold, colored (green if +, red if −).
+### 6.6 Money
 
----
+- Segmented control: **Accounts / Dues / Expenses**.
+- Accounts: total money + one card per account.
+- Actions: **Transfer**, **Add expense**.
+- Account ledger: period selector, `In +$X · Out −$Y` summary, signed rows,
+  running balance, visible adjustments.
+- Dues: total owed, grouped by customer with oldest-due age.
+- Expenses: date presets, category chips, monthly total, list.
 
-### 4. Product Form Screen (Add / Edit)
+### 6.7 Reports
 
-**AppBar:** "Add Product" or "Edit Product". In edit mode: delete (trash outline) icon action top right.
+- Range segmented control: Week / Month / Year / Custom.
+- P&L card: Revenue − Cost of goods = Gross profit − Expenses = Net profit,
+  plus margin %.
+- Revenue-vs-profit bar chart with tap-for-detail and a 150 ms range fade.
+- Breakdown tables: Products and Channels (name, qty, revenue, profit).
+- Primary action: **Export CSV**.
 
-**Main Glass Panel** (16px padding, one card for all fields):
-Fields stacked with 12px gaps:
-1. **Name** — GlassTextField, label "Name", hint "e.g. Wireless mouse"
-2. **Cost price (৳)** — GlassTextField, numeric decimal, label "Cost price (৳)"
-3. **Current/Initial stock** — GlassTextField, numeric, label adapts to mode
-4. **Low-stock alert at** — GlassTextField, numeric, label "Low-stock alert at", hint "5"
-5. **Alert toggle row** — label "Low-stock alerts" (14px) + subtitle text (12px muted: "Banner & popup enabled" or "Visual badge only (no banner)") on left, Material Switch on right (teal when on)
-6. **Note** — GlassTextField, multiline (1–3 lines), label "Note (optional)", hint "SKU, supplier, location…"
+### 6.8 Settings
 
-**Save button** (full width, 16px vertical padding, 16px top margin):
-- Filled teal button
-- Label: "Add product" or "Save changes"
-- Loading state: 20×20px white circular progress indicator
+- Shop name.
+- Payment sources.
+- Names (channels, expense categories: rename only).
+- Customers (name / phone).
+- Currency symbol.
+- Backup (export / restore file + daily auto-backup).
+- Export CSV.
+- Theme: System / Light / Dark.
+- Clear all data (double confirm).
+- About.
 
-**Delete button** (edit mode only, below save, text button, red):
-- Label: "Delete product"
+### 6.9 First run (one step)
 
----
-
-### 5. Sale List Screen (Grid Design)
-
-**AppBar:** "Sales" title (22px, weight 700). "+" icon action (opens full form).
-
-**"Active Products" section label** — 13px, weight 600, muted, 16px padding.
-
-#### Product Sell Card
-Glass panel, 4px vertical margin, 16px horizontal margin, 14px padding, `isFrostedGlass: true` when in-stock.
-
-Left: product info column:
-- Row: product name (15px, weight 600, max 1 line) + StockBadge (compact, inline, 6px left gap)
-- Below: "Cost ৳X | Est. profit +৳Y/unit" — 12px, muted
-
-Right: **[Sell ▶] button** — FilledButton.tonal, point-of-sale icon (18px) + "Sell" text, 14px horizontal padding. **Disabled + entire card at 45% opacity** when out of stock.
-
-**"Out of Stock" section label** — same style as "Active Products", shown only if any out-of-stock products exist.
-
-**Discounted Sales Glass Panel** (12px padding, 16px margin all sides):
-Tappable row at top:
-- Amber offer-tag icon (20px) + "Log discounted sale" text (amber, weight 600) + chevron right (muted)
-
-If discounted sales exist: divider + up to 5 `_DiscountedSaleRow` items.
-
-#### DiscountedSaleRow
-Two columns:
-- Left: "N × ৳price" (bold) above "Normal ৳X → Discount ৳Y" (12px, muted)
-- Right: check-circle (green, 18px) if paid, clock (amber, 18px) if due
-
-**"Full sale form" button** (outlined, add icon, full width, 16px margin, 24px bottom padding):
-Label: "Full sale form"
+- Welcome.
+- Currency symbol.
+- Where do you keep money? Quick-add Cash / Bank / Mobile wallet + custom.
+- Initial source with opening balance.
+- **Start**.
+- At least one payment source is required. If preferences fail to load, fall
+  back to defaults and open the app.
 
 ---
 
-### 6. Sale Form Screen (Add / Edit)
+## 7. Required states
 
-**AppBar:** "Log Sale" or "Edit Sale".
+Every content screen must implement all four states:
 
-**Product Panel** (glass, 16px padding):
-- "Product" label (12px, weight 600, muted) above picker
-- **Add mode:** dropdown showing all products with stock count in parentheses
-- **Edit mode / pre-selected:** locked display row — lock outline icon + product name (15px, bold) + "Stock: N" (12px, muted, right side)
+1. **Loading** — skeleton or progress indicator.
+2. **Empty** — icon + one sentence + one primary action. Never a dead end.
+3. **Filtered-empty** — explain that filters hid the data + **Clear filters**.
+4. **Error** — plain message + **Retry**.
 
-**Details Panel** (glass, 16px padding):
-- Row: **Quantity** field (1/3 width) | **Selling price (৳)** field (2/3 width)
-- "Last sold at ৳X" hint below price (12px, muted) — add mode only when last price exists
-- **Platform toggle** (label "Platform" + animated toggle buttons: "Facebook" | "Offline")
-- **Payment toggle** (label "Payment" + animated toggle buttons: "Paid" | "Due")
-- **Customer** GlassTextField (optional, person outline icon)
-
-**Toggle button style (platform/payment):**
-Each option is an animated container, equal width, 8px vertical padding, center-aligned text:
-- Selected: teal at 18% opacity background, teal border (55% opacity), teal text (weight 700, 13px)
-- Unselected: white at 4% opacity background, muted border, neutral text (weight 500, 13px)
-- Transition: 160ms animation
-
-**Summary Panel** (glass, 14px padding — only shown when total computable):
-Two metrics side by side:
-- **Total:** 18px bold, teal `#1D9E75`
-- **Est. profit:** 18px bold, info blue `#4F8AF0` (positive) or danger red (negative)
-
-**Save button:** full width filled teal, "Record sale" or "Save changes".
+No screen may be blank.
 
 ---
 
-### 7. Quick Sell Sheet (Bottom Sheet)
+## 8. Sale flow rules (cart)
 
-Slides up from bottom. Glass panel with 28px top radius, 12px all-side margin, 20px horizontal / 18px top / 24px bottom padding.
-
-**Drag handle:** 40×4px pill, `onSurfaceVariant` at 30% opacity, centered, 14px bottom margin.
-
-**Header row:** "Sell — [Product Name]" (17px, weight 700) left | close (×) icon button right.
-
-**Subtitle:** "Stock available: N" (13px, muted), 4px below header.
-
-16px gap, then:
-
-**Two-field row:** Quantity (1/3) | Selling price (2/3), GlassTextFields.
-
-**Platform segmented row:** "Platform" label (13px) + SegmentedButton (compact): Facebook | Offline.
-
-**Payment segmented row:** "Payment" label (13px) + SegmentedButton (compact): Paid | Due.
-
-**Customer** GlassTextField (optional).
-
-**Summary + Confirm row** (flush glass panel, 12px padding):
-Left column:
-- "Total: ৳X" — 15px, bold, teal
-- "Profit: +৳X" or "-৳X" — 13px, success green or danger red
-
-Right: **[Confirm]** filled teal button.
+- One scrolling form. **Add item** opens a product picker sheet with Recent /
+  Top-sold chips, search, stock, and multi-select.
+- Adding a product already in the cart raises its quantity; one line per
+  product.
+- Each line has an editable price. Below list = **Discount** tag; below cost =
+  red warning.
+- Selling above stock is allowed with an inline warning.
+- Live profit per line and in the sticky summary.
+- Save requires at least one line. Customer is required only when not paid in
+  full.
+- The cart survives rotation/backgrounding. Leaving with items asks
+  "Discard sale?".
+- Quick Sell: one-line sheet with qty, price, payment source, and **Confirm**.
+  "Add more items" carries the line into the full form.
+- Edit sale reopens the cart. Removing a line restores its stock; changing qty
+  applies the difference.
+- The receipt lists every line, total, paid, and due. It never shows cost or
+  profit.
+- Use `ListView.builder` and stay smooth with 50+ lines.
 
 ---
 
-### 8. Discount Sheet (Bottom Sheet)
-
-Same glass panel container as Quick Sell Sheet.
-
-**Header:** "Discounted Sale" (17px, bold) + close icon.
-
-**Product picker button** (tappable glass panel, 14px radius, 14px padding):
-Shows selected product name or "Select product…" (muted placeholder style) + dropdown arrow icon.
-
-**Two-field row:** Quantity | Normal price (৳)
-
-**Discount price** field (full width GlassTextField).
-
-**Platform segmented row** + **Payment segmented row** (same as Quick Sell).
-
-**Customer** GlassTextField.
-
-**Summary + Confirm row** (flush glass panel):
-Left:
-- "Discount: -৳X" — 15px, bold, amber `#EF9F27`
-- "Margin loss: -৳X" — 13px, danger red (or muted if no loss)
-
-Right: **[Confirm]** filled teal button.
-
----
-
-### 9. Expense List Screen
-
-**AppBar:** Pinned, "Expenses" (22px, 700). "+" icon action top right.
-
-**Date Filter Bar** (glass panel, 16px margin, scrollable horizontal chip row):
-- Label "Period" (12px, weight 600, 56px wide, muted)
-- Chip options: "All time" | "Today" | "This week" | "This month" | "Last 30 days" | "Custom…"
-- Chip style: pill shape, 12px horizontal / 6px vertical padding, 999px radius
-  - Selected: teal 18% background, teal border (50%), teal text bold
-  - Unselected: white 4% background, muted border, neutral text
-
-**Stats Strip** (glass panel, 14px symmetric padding):
-Two columns:
-- **Entries** count — 18px, bold, teal
-- **Total** money — 13px, bold, amber (smaller because money strings are longer)
-
-**List items** — full width, separated by 0.5px dividers indented 70px.
-
-#### Expense Row (via PopupMenuButton)
-Left: 40×40px circular avatar — teal at 12% background, teal category icon (20px):
-- Ads: megaphone/campaign icon
-- Delivery: truck icon
-- Packaging: box/inventory icon
-- Misc: more-horiz icon
-
-Middle:
-- Category name: 15px, weight 600
-- Note (if exists): 12px, muted, max 1 line ellipsis — otherwise shows date in same muted style
-
-Right column:
-- Amount: 15px, bold, amber `#EF9F27`
-- Date (if note shown above): 11px, muted below amount
-
-Tapping row opens popup menu: "Edit" | "Delete" (red text).
-
----
-
-### 10. Expense Form Screen (Add / Edit)
-
-**AppBar:** "Add Expense" or "Edit Expense". Edit mode: delete (trash) icon top right.
-
-**Amount Panel** (glass, 16px padding):
-GlassTextField — label "Amount (৳)", hint "0.00", money icon prefix, decimal input.
-
-**Category Panel** (glass, 16px padding):
-"Category" label (12px, weight 600, muted).
-Four equal-width animated toggle buttons in a row (6px gaps):
-- 📢 Ads | 🚚 Delivery | 📦 Packaging | 🗂 Misc
-- Same animated container style as platform/payment toggles in sale form
-
-**Note Panel** (glass, 16px padding):
-GlassTextField — label "Note (optional)", hint "What was this for?", edit-note icon, 2-line max.
-
-**Date Panel** (glass, 16px padding, tappable):
-InputDecorator showing formatted date, calendar icon (teal). Tapping opens system date picker.
-
-**Action buttons row:**
-- Edit mode: [Delete] outlined button (red, 1/3 width) + [Save changes] filled teal (2/3 width)
-- Add mode: [Record expense] filled teal (full width), 16px vertical padding
-
----
-
-### 11. Reports Screen
-
-**AppBar:** "Reports" title, no actions.
-
-**Month/Year Selector** (glass panel, 12px horizontal / 8px vertical padding):
-- Daily + Products tab: shows month/year ("January 2026")
-  - Chevron left | "Month Year" centered text | Chevron right
-  - Export icon (teal, download icon) appears at far right only on Daily tab
-- Monthly tab: shows year only ("2026")
-  - Same chevron nav pattern
-
-**Tab Selector** (glass panel, 4px padding, wraps SegmentedButton):
-Three segments: "Daily" | "Monthly" | "Products"
-Compact visual density.
-
-**Summary Strip** (glass panel, 12px padding, three equal columns):
-- **Revenue** — formatted money, centered
-- **Profit** — formatted money, colored danger red if negative
-- **Expenses** — formatted money
-
-Labels: 10px above values (labelSmall).  
-Values: 14px bold (titleSmall).
-
-**Chart/Table Toggle** (right-aligned TextButton.icon):
-- Shows chart: "Show Table" + table-chart icon
-- Shows table: "Show Chart" + bar-chart icon
-
-**AnimatedSwitcher** (250ms crossfade):
-
-#### Bar Chart (fl_chart)
-200px height, no border, no grid.
-- Daily chart: one group per day, two bars per group (revenue = teal at 40% / profit = teal solid), width 8px each, rounded top corners 4px
-- Yearly chart: same but 12px wide bars
-- X-axis labels: day numbers or month abbreviations, 10px, muted, 6px top padding
-
-#### Data Table
-Glass panel, 12px padding.
-Header row: column names, 11px weight 600, 70% opacity.
-Divider: 16px height.
-Data rows: 4px vertical padding per row, 12px text.
-Profit column: teal if positive, red if negative.
-
-#### Product Report Table
-Glass panel, 12px padding.
-Columns: Product (flex 3) | Qty (flex 1, center) | Revenue (flex 2, right) | Profit (flex 2, right).
-Header: 11px weight 600.
-Rows: 6px vertical padding, 14px body text. Profit: teal/red.
-
-**Empty state:** centered muted text inside glass panel, 32px padding.
-
----
-
-### 12. Glass Dialog (Modal)
-
-Triggered for: confirms, errors, below-cost warnings, delete confirmations.
-
-**Backdrop:** black at 35% opacity overlay.
-
-**Dialog container:** GlassPanel (frosted), radius 24px, 20px horizontal / 22px top / 16px bottom padding, max ~85% screen width, centered.
-
-**Title:** 20px, weight 600, `onSurface`.
-
-**Message:** 14px, `onSurfaceVariant`, 8px below title.
-
-**Custom content:** 12px below message/title.
-
-**Actions row** (right-aligned, 16px top gap):
-TextButton actions, 14px weight 600, 14px horizontal / 10px vertical padding:
-- Default: `onSurfaceVariant` color
-- Primary: teal `#1D9E75`
-- Destructive: red `#E24B4A`
-
----
-
-### 13. Restock Sheet (Bottom Sheet)
-
-Glass panel, 28px top radius, 12px margin, 20px / 18px / 20px padding.
-
-**Drag handle** (same as Quick Sell Sheet).
-
-**Header:** "Restock — [Product Name]" (20px, weight 700).  
-**Subtitle:** "Current stock: N" (13px, muted).
-
-16px gap, then:
-- **Quantity to add** GlassTextField (autofocused), numeric, hint "e.g. 10"
-- **Note** GlassTextField (optional), hint "Supplier, batch, etc."
-
-**Button row** (18px top gap):
-- [Cancel] outlined button (1/2 width, 14px vertical padding)
-- [Add stock] filled teal button (1/2 width, 14px vertical padding, 10px gap between)
-
----
-
-### 14. Product Filter Sheet (Bottom Sheet)
-
-Glass panel, 28px top radius, 12px margin, 20px / 18px / 20px padding.
-
-**Drag handle.**
-
-**Title:** "Filter by product" (20px, weight 700).
-
-**Search field** (GlassTextField, autofocused, search icon, hint "Search products…").
-
-**Scrollable list** (max 360px height):
-- First item always: clear/X icon + "All products" — selected if no product filter active
-- Each product: inventory icon + product name + "Stock: N" subtitle
-- Selected item uses theme selection color
-
----
-
-## Shared Visual Patterns
-
-### Empty States
-Centered in remaining space, no glass panel:
-- Large muted icon: 64px
-- Title: titleMedium, weight 600
-- Message: bodyMedium, muted
-- Optional: filled teal action button (only on truly empty states, not filtered-empty)
-
-### SnackBars
-Floating, rounded 14px, `inverseSurface` background, `onInverseSurface` text.
-Amber variant for warnings (95% opacity amber background, white text), 5 second duration.
-
-### Loading States
-- Full screen loading: `CircularProgressIndicator` centered
-- Button loading: 20×20px `CircularProgressIndicator` (strokeWidth 2, white) replaces button label
-- Sheet loading: same small indicator inline
-
-### Form Validation Errors
-Red error text below the GlassTextField. The text field's prefix icon and floating label turn red. No red border (border is `InputBorder.none`).
-
----
-
-## Motion & Animation
-
-| Element | Animation |
-|---------|-----------|
-| Aurora waves | Continuous sine-wave undulation, 10/18/26s cycles |
-| Toggle buttons (platform/payment/category) | 160ms container color + border transition |
-| Chart ↔ Table switch | 250ms AnimatedSwitcher crossfade |
-| Bottom sheets | System default slide-up from bottom |
-| Dialog | System default scale-in fade |
-| Stock badge | Static (no animation) |
-| SnackBar | System slide-up from bottom |
-| FAB / buttons | System ripple on tap |
-
----
-
-## Spacing System
-
-| Token | Value | Usage |
-|-------|-------|-------|
-| xs | 4px | Between badge and text, tight rows |
-| sm | 8px | Between icon and label, row internal gaps |
-| md | 12px | Between fields in form, panel internal gaps |
-| lg | 16px | Screen edge padding, between major panels |
-| xl | 24px | Bottom padding for scroll lists |
-| 2xl | 32px | Empty state padding |
-
----
-
-## Platform-Specific Colors (Indicators)
-
-| Platform | Color | Usage |
-|----------|-------|-------|
-| Facebook | `#1877F2` (Facebook blue) | Platform badge, platform breakdown dot |
-| Offline | `#534AB7` (indigo-violet) | Platform badge, platform breakdown dot |
-
-These appear as small colored text labels or dots on sale tiles and dashboard breakdown — never as filled buttons (teal is reserved for actions).
-
----
-
-## Pop-up & Sheet Surface Rules (v0.6.8–v0.6.9)
-
-These rules apply **on top of** the glass surface system above. They
-were added to fix on-device complaints about translucent pop-ups and
-sheets that were either covered by the custom bottom nav or sized to
-the whole screen instead of to their content.
-
-### `GlassPanel.opaque: true` for pop-ups
-
-When a `GlassPanel` is used as a pop-up surface (dialog, bottom sheet,
-modal product picker), pass `opaque: true` instead of the default
-`noBlur: true` or `isFrostedGlass: true`. The `opaque` flag swaps the
-gradient for a near-opaque fill:
-
-| Mode | dark | light | border |
-|---|---|---|---|
-| default `isFrostedGlass: true` | `Colors.white.withOpacity(0.14)` | `Colors.white.withOpacity(0.22)` | white → teal 30%/18% |
-| `noBlur: true` | `Colors.white.withOpacity(0.04)` | `Colors.white.withOpacity(0.06)` | white → teal 30%/18% |
-| `opaque: true` | `scheme.surface.withOpacity(0.92)` | `scheme.surface.withOpacity(0.95)` | `scheme.outline.withOpacity(0.20)` 1px |
-
-`opaque: true` implies `noBlur: true` behaviour. The visual effect is
-a flat, readable panel that no longer bleeds the aurora through it.
-
-**Where to use:**
-
-- `glass_dialog.dart` — dialog panel
-- `quick_sell_sheet.dart` — outer panel
-- `discount_sheet.dart` — outer panel + product picker panel
-- `product_picker_sheet.dart` — outer panel
-- `sale_form_screen.dart` — product panel, details panel, total panel
-
-**Where NOT to use:**
-
-- Body / form / sheet content panels (use plain `GlassPanel` or
-  `GlassPanel(noBlur: true)`)
-- Bottom nav, top app bar, navigation chrome
-
-### Modal barrier opacities
-
-| Modal | Barrier color |
-|---|---|
-| `showGlassDialog` | `Colors.black.withOpacity(0.6)` |
-| `showModalBottomSheet` (all 5 callers) | `Colors.black.withOpacity(0.5)` |
-
-These dim the background enough to focus attention on the pop-up
-without making the screen feel blacked-out.
-
-### Bottom-sheet positioning (replaces `useSafeArea: true`)
-
-`showModalBottomSheet` is called with `useSafeArea: false` (dropped in
-v0.6.8) and the builder is wrapped in
-`Column(mainAxisSize: MainAxisSize.min, children: [Padding(bottom: max(viewInsets.bottom, padding.bottom + kBottomNavHeight + 8), child: Sheet)])`.
-
-- `Column(mainAxisSize: min)` makes the sheet intrinsic-height so the
-  modal positions it at the screen bottom (not stretched).
-- `max(viewInsets.bottom, ...)` clears the custom 76-px
-  `bottomNavigationBar` when the keyboard is closed and the keyboard
-  when it's open (whichever is larger).
-- The 8-px gap above the nav keeps the sheet from kissing the nav.
-
-Applied to all 5 `showModalBottomSheet` callers: `quick_sell_sheet`,
-`discount_sheet`, `product_picker_sheet`, `restock_sheet`,
-`product_filter_sheet`.
-
-### Shared product picker
-
-`ProductPickerSheet` (`lib/features/sales/widgets/product_picker_sheet.dart`)
-is the single source of truth for "pick a product" in a modal. Used
-by both `discount_sheet` and the Log Sale form (which previously had
-an inline `_ProductPickerSheet` and a read-only `Container` with a
-`lock_outline` icon, respectively). The tile in the Log Sale form
-is now tap-able in add mode — the product can be re-selected if the
-user picked the wrong one.
-
----
-
-## POS Refresh Addendum — Teal Rounded Cards (v1.7, M1–M6)
-
-This addendum is the approved direction for the POS-style refresh. It
-**supersedes** conflicting earlier sections, specifically:
-
-- **Bottom Navigation** — the old 6-tab list (Dashboard, Products,
-  Sales, Expenses, Reports, BFMS) is replaced by a 5-slot bar:
-  **Home, Products, [raised POS], Reports, More**. Sales, Expenses,
-  Finance/BFMS, and Settings live under **More**.
-- **Dashboard** — the stat grid is no longer one panel; Home uses a
-  hero turnover card + separate 2x2 stat cards.
-- **Receipt accent** — receipts use teal, never purple.
-
-Orange (`#FF6B00`) is not part of this app. The reference shop's name,
-logo, phone, address, and screenshots are not used.
-
-### Tokens added by this addendum
-
-```yaml
-radius:
-  hero: 24
-  card: 20
-  tile: 16
-  input: 14
-  button: 14
-  sheet: 28
-  pill: 999
-spacing: [4, 8, 12, 16, 24, 32]
-color:
-  accent_fill: "#1D9E75"          # fills, large numbers, selected states
-  accent_ink_light: "#0B6B4F"     # sub-18px teal text on light aurora (>=4.5:1)
-  accent_ink_dark: "#5FD3AE"      # sub-18px teal text on dark aurora
-  warning: "#EF9F27"
-  danger: "#E24B4A"
-  info: "#4F8AF0"
-  facebook: "#1877F2"
-  offline: "#534AB7"
-type:
-  display: "34 / w700 / tabular figures"   # hero turnover, net profit
-  title: "22 / w700"                       # screen titles, stat values
-  body: "14 / w500"                        # rows, buttons, fields
-  label: "11 / w600"                       # captions, badges, section labels
-```
-
-- **Type exception:** the kit requires the platform default font and
-  the project forbids new dependencies, so no paired display face is
-  added. Hierarchy comes from scale, weight, and tabular figures.
-  Do not add Google Fonts or a second arbitrary family.
-- **Depth:** no shadows or elevation. Cards use the existing glass
-  fill + 1px gradient border. The hero adds a restrained teal wash
-  (`#1D9E75` at 16% top-left → transparent), never a purple/blue
-  gradient or gradient text.
-- **Accent reserved for:** primary CTA fill, selected nav/chip/segment,
-  the raised POS button, positive profit, focus/active states.
-  Everything else uses surface/onSurface tokens. Teal should stay
-  around 10% of visual weight.
-
-### Component mapping
-
-| Kit widget | Existing widget | Decision |
-|---|---|---|
-| HeroTurnoverCard | `_TodayCard` + `GlassPanel` | New card, radius 24, 34px turnover, sales count, due pill. Replaces old top card. |
-| StatCard | `core/widgets/stat_card.dart`, `MetricCell` | Extend StatCard, wrap in `GlassPanel(radius: 16–20)`. Home 2x2. MetricCell retired from Home. |
-| QuickActionTile | `_buildActionTile` in `app_bottom_nav.dart` | Promote to reusable tile. One wide primary "New sale" + two secondary actions. |
-| ProductCard | `ProductTile` + `GlassPanel` | ProductTile gains a card wrapper, radius 16, 8px gaps, no dividers. |
-| CategoryChipRow | `_FilterChip` / `_ChipRow` / `_Chip` | Extract one shared chip row; reuse in Products and Reports. |
-| StockBadge | `products/widgets/stock_badge.dart` | Keep as the single badge; no duplicate. |
-| PlReportCard | `_SummaryStrip` in `reports_screen.dart` | New card with net-profit hero + revenue/expenses rows. |
-| ReceiptSheet | new; reuses `GlassPanel(opaque: true)` + `SheetDragHandle` | Sale receipt bottom sheet. Teal accent. |
-| PosNavBar | `AppScaffold` bottom bar | Custom 5-slot bar with raised centre POS action. |
-
-### Motion
-
-- Chips / toggles: 160ms color + border.
-- Chart ↔ table: existing 250ms crossfade.
-- Raised POS press: 120ms scale to 0.96 + medium haptic — this is the
-  **only** scale-on-press in the app. No bounce/scale on every card.
-- Sheets/dialogs: system transitions.
-- Respect reduced motion: drop the POS scale, keep opacity feedback.
-
-### Do's and Don'ts for this refresh
-
-**Do:** use `GlassPanel(radius: 20, noBlur: true)` for cards; keep the
-aurora visible; use tabular figures for money; use text + icon for
-status, never color alone; keep one primary CTA per screen; show
-honest empty/error states.
-
-**Don't:** use purple/blue/pink gradients or gradient text; use orange;
-use 3–6 identical icon-in-circle cards; use emoji as icons; use
-gradient pill buttons; use `min-h-screen`-style centered heroes; expose
-cost/profit on a customer receipt; invent shop name/phone/address;
-fabricate stats or use generic "elevate/unlock/revolutionize" copy;
-add a font or PDF dependency without approval.
+## 9. Do and don't
+
+**Do**
+
+- Lead with big money numbers and quiet labels.
+- Keep one primary action per screen, at the bottom.
+- Use plain-language labels.
+- Warn inline; confirm destructive actions and offer Undo where reversible.
+- Use tabular figures for money.
+
+**Don't**
+
+- Use gradients, blur, shadows, emoji icons, or custom nav bars.
+- Hide core features.
+- Use accounting jargon.
+- Use more than five tabs.
+- Expose cost or profit on a customer receipt.
