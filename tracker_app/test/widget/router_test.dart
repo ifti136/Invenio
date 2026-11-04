@@ -3,38 +3,31 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tracker/app.dart';
-import 'package:tracker/core/widgets/pos_nav_bar.dart';
-
-Widget _buildApp() {
-  return const ProviderScope(
-    child: TrackerApp(),
-  );
-}
+import 'package:tracker/features/inventory/inventory_providers.dart';
 
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
   });
 
-  testWidgets('app renders MaterialApp without crashing', (tester) async {
-    await tester.pumpWidget(_buildApp());
-    await tester.pump(const Duration(milliseconds: 300));
-    expect(find.byType(MaterialApp), findsOneWidget);
-  });
+  testWidgets('renders the 5-tab Clean Ledger shell', (tester) async {
+    await tester.pumpWidget(
+      ProviderScope(
+        overrides: [
+          lowStockCountProvider.overrideWith((ref) => Stream.value(0)),
+        ],
+        child: const TrackerApp(),
+      ),
+    );
+    await tester.pump();
+    await tester.pump(const Duration(milliseconds: 200));
 
-  testWidgets('app navigates to dashboard on launch', (tester) async {
-    SharedPreferences.setMockInitialValues({
-      'walkthrough_completed': true,
-      'shop_name': 'Test Shop',
-    });
-    await tester.pumpWidget(_buildApp());
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.pump(const Duration(milliseconds: 200));
-    await tester.pump(const Duration(milliseconds: 200));
-    expect(find.byType(PosNavBar), findsOneWidget);
+    expect(find.byType(NavigationBar), findsOneWidget);
     expect(find.text('Home'), findsOneWidget);
-    expect(find.text('Products'), findsOneWidget);
+    expect(find.text('Sales'), findsOneWidget);
+    expect(find.text('Inventory'), findsOneWidget);
+    expect(find.text('Money'), findsOneWidget);
     expect(find.text('Reports'), findsOneWidget);
-    expect(find.text('More'), findsOneWidget);
+    expect(find.text('Set up your shop'), findsOneWidget);
   });
 }
