@@ -131,22 +131,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
               if (filtered.isEmpty)
                 SliverFillRemaining(
                   hasScrollBody: false,
-                  child: EmptyState(
-                    icon: Icons.filter_alt_off_outlined,
-                    title: 'No products match',
-                    message: _query.isNotEmpty
-                        ? 'Try a different search or clear the filters.'
-                        : 'No products in this filter right now.',
-                    actionLabel: 'Clear filters',
-                    actionIcon: Icons.filter_alt_off_outlined,
-                    onAction: () {
-                      _search.clear();
-                      setState(() {
-                        _query = '';
-                        _filter = _InventoryFilter.all;
-                      });
-                    },
-                  ),
+                  child: _emptyFilter(items),
                 )
               else
                 SliverPadding(
@@ -181,6 +166,37 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           );
         },
       ),
+    );
+  }
+
+  Widget _emptyFilter(List<Product> items) {
+    final onlyArchived =
+        _query.trim().isEmpty && items.every((product) => product.archived);
+    if (onlyArchived) {
+      return EmptyState(
+        icon: Icons.archive_outlined,
+        title: 'All products are archived',
+        message: 'Switch to Archived to restore them, or add a new product.',
+        actionLabel: 'Show archived',
+        actionIcon: Icons.archive_outlined,
+        onAction: () => setState(() => _filter = _InventoryFilter.archived),
+      );
+    }
+    return EmptyState(
+      icon: Icons.filter_alt_off_outlined,
+      title: 'No products match',
+      message: _query.isNotEmpty
+          ? 'Try a different search or clear the filters.'
+          : 'No products in this filter right now.',
+      actionLabel: 'Clear filters',
+      actionIcon: Icons.filter_alt_off_outlined,
+      onAction: () {
+        _search.clear();
+        setState(() {
+          _query = '';
+          _filter = _InventoryFilter.all;
+        });
+      },
     );
   }
 
