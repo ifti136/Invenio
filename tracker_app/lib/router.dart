@@ -1,80 +1,52 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:riverpod_annotation/riverpod_annotation.dart';
+
 import 'core/widgets/app_bottom_nav.dart';
-import 'features/dashboard/dashboard_screen.dart';
-import 'features/products/product_list_screen.dart';
-import 'features/products/product_detail_screen.dart';
-import 'features/products/product_form_screen.dart';
-import 'features/sales/sale_list_screen.dart';
-import 'features/sales/sale_form_screen.dart';
-import 'features/expenses/expense_list_screen.dart';
-import 'features/expenses/expense_form_screen.dart';
+import 'features/home/home_screen.dart';
+import 'features/inventory/inventory_screen.dart';
+import 'features/money/money_screen.dart';
 import 'features/reports/reports_screen.dart';
-import 'features/more/more_screen.dart';
-import 'features/finance/finance_screen.dart';
-import 'features/finance/allocation_history_screen.dart';
-import 'features/finance/allocation_rule_form_screen.dart';
+import 'features/sales/sales_screen.dart';
 import 'features/settings/settings_screen.dart';
-import 'features/settings/add_on_types_screen.dart';
-import 'features/settings/currency_screen.dart';
-import 'features/settings/system_settings_screen.dart';
-import 'features/settings/about_screen.dart';
-import 'features/settings/theme_screen.dart';
-import 'features/products/widgets/bucket_detail_screen.dart';
-import 'features/products/widgets/bucket_list_screen.dart';
-import 'features/products/widgets/wallet_list_screen.dart';
-import 'features/transfers/transfer_history_screen.dart';
-import 'core/utils/formatters.dart';
-import 'core/services/currency_service.dart';
 
-part 'router.g.dart';
-
-@riverpod
-GoRouter router(Ref ref) {
-  // Initialize currency symbol for formatMoney()
-  final symbol = ref.watch(currencySymbolProvider);
-  setCurrencySymbol(symbol);
+final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
-    initialLocation: '/dashboard',
+    initialLocation: '/home',
     routes: [
       StatefulShellRoute.indexedStack(
-        builder: (context, state, navigationShell) =>
-            AppScaffold(navigationShell: navigationShell),
+        builder: (context, state, navigationShell) {
+          return AppScaffold(navigationShell: navigationShell);
+        },
         branches: [
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/dashboard',
-                builder: (_, __) => const DashboardScreen(),
+                path: '/home',
+                builder: (context, state) => const HomeScreen(),
               ),
             ],
           ),
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/products',
-                builder: (_, __) => const ProductListScreen(),
-                routes: [
-                  GoRoute(
-                    path: 'add',
-                    builder: (_, __) => const ProductFormScreen(),
-                  ),
-                  GoRoute(
-                    path: ':id',
-                    builder: (_, s) => ProductDetailScreen(
-                      id: int.parse(s.pathParameters['id']!),
-                    ),
-                    routes: [
-                      GoRoute(
-                        path: 'edit',
-                        builder: (_, s) => ProductFormScreen(
-                          productId: int.parse(s.pathParameters['id']!),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                path: '/sales',
+                builder: (context, state) => const SalesScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/inventory',
+                builder: (context, state) => const InventoryScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: '/money',
+                builder: (context, state) => const MoneyScreen(),
               ),
             ],
           ),
@@ -82,122 +54,16 @@ GoRouter router(Ref ref) {
             routes: [
               GoRoute(
                 path: '/reports',
-                builder: (_, __) => const ReportsScreen(),
+                builder: (context, state) => const ReportsScreen(),
               ),
             ],
-          ),
-          StatefulShellBranch(
-            routes: [
-              GoRoute(
-                path: '/more',
-                builder: (_, __) => const MoreScreen(),
-              ),
-            ],
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/sales',
-        builder: (_, __) => const SaleListScreen(),
-        routes: [
-          GoRoute(
-            path: 'add',
-            builder: (_, __) => const SaleFormScreen(),
-          ),
-          GoRoute(
-            path: ':id/edit',
-            builder: (_, s) => SaleFormScreen(
-              saleId: int.parse(s.pathParameters['id']!),
-            ),
-          ),
-        ],
-      ),
-      GoRoute(
-        path: '/expenses',
-        builder: (_, __) => const ExpenseListScreen(),
-        routes: [
-          GoRoute(
-            path: 'add',
-            builder: (_, __) => const ExpenseFormScreen(),
-          ),
-          GoRoute(
-            path: ':id/edit',
-            builder: (_, s) => ExpenseFormScreen(
-              expenseId: int.parse(s.pathParameters['id']!),
-            ),
           ),
         ],
       ),
       GoRoute(
         path: '/settings',
-        builder: (_, __) => const SettingsScreen(),
-        routes: [
-          GoRoute(
-            path: 'wallets',
-            builder: (_, __) => const WalletListScreen(),
-            routes: [
-              GoRoute(
-                path: 'transfers',
-                builder: (_, __) => const TransferHistoryScreen(),
-              ),
-            ],
-          ),
-          GoRoute(
-            path: 'buckets',
-            builder: (_, __) => const BucketListScreen(),
-            routes: [
-              GoRoute(
-                path: 'detail/:id',
-                builder: (_, s) => BucketDetailScreen(
-                  bucketId: int.parse(s.pathParameters['id']!),
-                ),
-              ),
-            ],
-          ),
-          GoRoute(
-            path: 'add-ons',
-            builder: (_, __) => const AddOnTypesScreen(),
-          ),
-          GoRoute(
-            path: 'finance',
-            builder: (_, __) => const FinanceScreen(),
-            routes: [
-              GoRoute(
-                path: 'history/:ruleId',
-                builder: (_, s) => AllocationHistoryScreen(
-                  ruleId: int.parse(s.pathParameters['ruleId']!),
-                ),
-              ),
-              GoRoute(
-                path: 'rule',
-                builder: (_, __) => const AllocationRuleFormScreen(),
-              ),
-              GoRoute(
-                path: 'rule/:ruleId',
-                builder: (_, s) => AllocationRuleFormScreen(
-                  ruleId: int.parse(s.pathParameters['ruleId']!),
-                ),
-              ),
-            ],
-          ),
-          GoRoute(
-            path: 'theme',
-            builder: (_, __) => const ThemeScreen(),
-          ),
-          GoRoute(
-            path: 'currency',
-            builder: (_, __) => const CurrencyScreen(),
-          ),
-          GoRoute(
-            path: 'system',
-            builder: (_, __) => const SystemSettingsScreen(),
-          ),
-          GoRoute(
-            path: 'about',
-            builder: (_, __) => const AboutScreen(),
-          ),
-        ],
+        builder: (context, state) => const SettingsScreen(),
       ),
     ],
   );
-}
+});

@@ -1,74 +1,11 @@
 import 'package:flutter/material.dart';
 
 class AppColors {
-  static const accent = Color(0xFF1D9E75);
-  static const accentLight = Color(0xFFE1F5EE);
-  static const onAccent = Color(0xFF06251B);
-
-  static const accentInkLight = Color(0xFF0B6B4F);
-  static const accentInkDark = Color(0xFF5FD3AE);
-
-  static const warning = Color(0xFFEF9F27);
-  static const warningLight = Color(0xFFFAEEDA);
-  static const warningInkLight = Color(0xFF9A6200);
-
-  static const danger = Color(0xFFE24B4A);
-  static const dangerLight = Color(0xFFFCEBEB);
-  static const dangerInkLight = Color(0xFFB3261E);
-  static const error = danger;
-
-  static Color accentInkFor(Brightness brightness) =>
-      brightness == Brightness.dark ? accentInkDark : accentInkLight;
-
-  static Color warningInkFor(Brightness brightness) =>
-      brightness == Brightness.dark ? warning : warningInkLight;
-
-  static Color dangerInkFor(Brightness brightness) =>
-      brightness == Brightness.dark ? danger : dangerInkLight;
-
-  static const stockGood = Color(0xFF1D9E75);
-  static const stockWarn = Color(0xFFEF9F27);
-  static const stockLow = Color(0xFFE24B4A);
-
-  static const success = stockGood;
-  static const info = Color(0xFF4F8AF0);
-  static const teal = accent;
-
-  static const facebook = Color(0xFF1877F2);
-  static const offline = Color(0xFF534AB7);
-
-  static const auroraBg1 = Color(0xFF0B1026);
-  static const auroraBg2 = Color(0xFF1B2735);
-  static const auroraBg3 = Color(0xFF2C1E50);
-  static const auroraTeal = Color(0xFF1D9E75);
-  static const auroraIndigo = Color(0xFF534AB7);
-  static const auroraMagenta = Color(0xFFB987FF);
-
-  // Midnight Blue
-  static const midnightBg1 = Color(0xFF050A18);
-  static const midnightBg2 = Color(0xFF0A1428);
-  static const midnightBg3 = Color(0xFF101C38);
-  static const midnightWave1 = Color(0xFF1E3A8A);
-  static const midnightWave2 = Color(0xFF3B82F6);
-  static const midnightWave3 = Color(0xFF60A5FA);
-
-  // Solid Slate
-  static const solidSlateBg = Color(0xFF1E293B);
-  static const solidSlateSurface = Color(0xFF334155);
-
-  // Minimalist/Paper
-  static const paperBgStart = Color(0xFFFFFDF5);
-  static const paperBgEnd = Color(0xFFFBF7E8);
-  static const paperSurface = Color(0xFFF5F0D7);
-  static const paperPrimary = Color(0xFF4E342E);
-  static const paperSecondary = Color(0xFF795548);
-  static const paperText = Color(0xFF2D1B15);
-
-  // Deep Ocean/Midnight
-  static const oceanBgStart = Color(0xFF0A1628);
-  static const oceanBgEnd = Color(0xFF0D1B2A);
-  static const oceanSurface = Color(0xFF1B2B40);
-  static const oceanPrimary = Color(0xFF00B4D8);
-  static const oceanSecondary = Color(0xFF0077B6);
-  static const oceanText = Color(0xFFE0F7FA);
+  static const Color seed = Color(0xFF1D9E75);
+  static const Color primary = Color(0xFF1D9E75);
+  static const Color warning = Color(0xFFEF9F27);
+  static const Color danger = Color(0xFFE24B4A);
+  static const Color onWarning = Color(0xFF3B2600);
+  static const Color warningContainer = Color(0xFFFFDF9E);
+  static const Color onWarningContainer = Color(0xFF281900);
 }

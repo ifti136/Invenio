@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
-import '../theme/app_colors.dart';
 import '../theme/app_tokens.dart';
-import 'glass_panel.dart';
 
 enum StatTone { neutral, accent, warning, danger }
 
@@ -24,29 +22,32 @@ class StatCard extends StatelessWidget {
     this.trailing,
   });
 
-  Color _toneColor(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+  Color _toneColor(ColorScheme scheme) {
     switch (tone) {
       case StatTone.accent:
-        return isDark ? AppColors.accentInkDark : AppColors.accentInkLight;
+        return scheme.primary;
       case StatTone.warning:
-        return isDark ? AppColors.warning : AppColors.warningInkLight;
+        return scheme.tertiary;
       case StatTone.danger:
-        return isDark ? AppColors.danger : AppColors.dangerInkLight;
+        return scheme.error;
       case StatTone.neutral:
-        return Theme.of(context).colorScheme.onSurface;
+        return scheme.onSurface;
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final color = _toneColor(context);
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    final color = _toneColor(scheme);
 
-    return GlassPanel(
-      radius: AppRadii.tile,
-      noBlur: true,
-      padding: AppSpacing.cardPadding,
+    return Container(
+      padding: const EdgeInsets.all(AppSpacing.lg),
+      decoration: BoxDecoration(
+        color: scheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(AppRadii.card),
+        border: Border.all(color: scheme.outlineVariant),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
@@ -59,7 +60,7 @@ class StatCard extends StatelessWidget {
               ],
               Expanded(
                 child: Text(
-                  label.toUpperCase(),
+                  label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTextStyles.label.copyWith(
@@ -77,19 +78,17 @@ class StatCard extends StatelessWidget {
             child: Text(
               value,
               maxLines: 1,
-              style: AppTextStyles.title.copyWith(color: color),
+              style: AppTextStyles.headline.copyWith(color: color),
             ),
           ),
           if (caption != null) ...[
-            const SizedBox(height: 2),
+            const SizedBox(height: AppSpacing.xs),
             Text(
               caption!,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTextStyles.label.copyWith(
                 color: scheme.onSurfaceVariant,
-                letterSpacing: 0,
-                fontWeight: FontWeight.w500,
               ),
             ),
           ],

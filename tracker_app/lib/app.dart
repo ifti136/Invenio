@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'router.dart';
-import 'features/walkthrough/walkthrough_screen.dart';
-import 'features/walkthrough/walkthrough_provider.dart';
-import 'core/background/aurora_backdrop.dart';
+
 import 'core/theme/app_theme.dart';
-import 'core/theme/theme_provider.dart';
+import 'core/theme/theme_mode_provider.dart';
+import 'router.dart';
 
 class TrackerApp extends ConsumerWidget {
   const TrackerApp({super.key});
@@ -14,110 +11,15 @@ class TrackerApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(routerProvider);
-    final themeAsync = ref.watch(themeProviderProvider);
-    final walkthrough = ref.watch(walkthroughProvider);
-    final fallbackSettings = AppTheme.fromId(AppThemeId.darkAurora);
+    final themeMode = ref.watch(themeModeProvider);
 
-    if (!walkthrough.initialized) {
-      return _buildApp(
-        key: const ValueKey('bootstrap-loading'),
-        settings: _settingsFor(themeAsync.valueOrNull, fallbackSettings),
-        home: const _BootstrapLoading(),
-      );
-    }
-
-    if (!walkthrough.completed) {
-      return _buildApp(
-        key: const ValueKey('walkthrough'),
-        settings: _settingsFor(themeAsync.valueOrNull, fallbackSettings),
-        home: const WalkthroughScreen(),
-      );
-    }
-
-    return themeAsync.when(
-      loading: () => _buildApp(
-        key: const ValueKey('router-loading'),
-        settings: fallbackSettings,
-        home: const _BootstrapLoading(),
-      ),
-      error: (err, stack) => _buildApp(
-        key: const ValueKey('router-error'),
-        settings: fallbackSettings,
-        home: Scaffold(body: Center(child: Text('Error: $err'))),
-      ),
-      data: (themeId) {
-        final settings = AppTheme.fromId(themeId);
-
-        return MaterialApp.router(
-          key: const ValueKey('router'),
-          title: 'Tracker',
-          theme: settings.data,
-          routerConfig: router,
-          debugShowCheckedModeBanner: false,
-          builder: (context, child) => _appShell(context, child, settings),
-        );
-      },
-    );
-  }
-
-  static ThemeSettings _settingsFor(
-    AppThemeId? themeId,
-    ThemeSettings fallback,
-  ) {
-    return themeId == null ? fallback : AppTheme.fromId(themeId);
-  }
-
-  static Widget _buildApp({
-    required Key key,
-    required ThemeSettings settings,
-    required Widget home,
-  }) {
-    return MaterialApp(
-      key: key,
-      title: 'Tracker',
-      theme: settings.data,
-      home: home,
+    return MaterialApp.router(
+      title: 'Invenio',
+      theme: AppTheme.light(),
+      darkTheme: AppTheme.dark(),
+      themeMode: themeMode,
+      routerConfig: router,
       debugShowCheckedModeBanner: false,
-      builder: (context, child) => _appShell(context, child, settings),
-    );
-  }
-
-  static Widget _appShell(
-    BuildContext context,
-    Widget? child,
-    ThemeSettings settings,
-  ) {
-    SystemChrome.setSystemUIOverlayStyle(
-      settings.data.brightness == Brightness.dark
-          ? SystemUiOverlayStyle.light.copyWith(
-              statusBarColor: Colors.transparent,
-              systemNavigationBarColor: Colors.transparent,
-            )
-          : SystemUiOverlayStyle.dark.copyWith(
-              statusBarColor: Colors.transparent,
-              systemNavigationBarColor: Colors.transparent,
-            ),
-    );
-    return Stack(
-      fit: StackFit.expand,
-      children: [
-        Positioned.fill(
-          child: AuroraBackdrop(config: settings.aurora),
-        ),
-        Positioned.fill(child: child ?? const SizedBox.shrink()),
-      ],
-    );
-  }
-}
-
-class _BootstrapLoading extends StatelessWidget {
-  const _BootstrapLoading();
-
-  @override
-  Widget build(BuildContext context) {
-    return const Scaffold(
-      backgroundColor: Colors.transparent,
-      body: Center(child: CircularProgressIndicator()),
     );
   }
 }

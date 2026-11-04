@@ -1,48 +1,73 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
-import 'package:tracker/features/products/product_provider.dart';
-import 'package:tracker/features/sales/pos_flow.dart';
-import 'pos_nav_bar.dart';
 
-export 'nav_metrics.dart';
+import '../../features/inventory/inventory_providers.dart';
+import '../utils/feedback.dart';
 
 class AppScaffold extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
+
   const AppScaffold({super.key, required this.navigationShell});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final idx = navigationShell.currentIndex;
-    final products = ref.watch(productListProvider).valueOrNull ?? [];
-    final lowStockCount = products
-        .where(
-          (p) =>
-              p.stock > 0 && p.stock <= p.lowStockThreshold && p.alertEnabled,
-        )
-        .length;
+    final index = navigationShell.currentIndex;
+    final lowStock = ref.watch(lowStockCountProvider).valueOrNull ?? 0;
 
     return Scaffold(
-      extendBody: true,
       body: navigationShell,
-      bottomNavigationBar: SafeArea(
-        top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(12, 0, 12, 8),
-          child: PosNavBar(
-            currentIndex: idx,
-            lowStockCount: lowStockCount,
-            onSelect: (i) {
-              navigationShell.goBranch(
-                i,
-                initialLocation: i == idx,
-              );
-            },
-            onSell: () {
-              startPosFlow(context, ref);
-            },
+      floatingActionButton: index <= 2
+          ? FloatingActionButton.extended(
+              onPressed: () => showComingSoon(context, 'New sale'),
+              icon: const Icon(Icons.add),
+              label: const Text('New sale'),
+            )
+          : null,
+      bottomNavigationBar: NavigationBar(
+        height: 64,
+        selectedIndex: index,
+        onDestinationSelected: (destination) {
+          navigationShell.goBranch(
+            destination,
+            initialLocation: destination == index,
+          );
+        },
+        destinations: [
+          const NavigationDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: 'Home',
           ),
-        ),
+          const NavigationDestination(
+            icon: Icon(Icons.receipt_long_outlined),
+            selectedIcon: Icon(Icons.receipt_long),
+            label: 'Sales',
+          ),
+          NavigationDestination(
+            icon: Badge.count(
+              count: lowStock,
+              isLabelVisible: lowStock > 0,
+              child: const Icon(Icons.inventory_2_outlined),
+            ),
+            selectedIcon: Badge.count(
+              count: lowStock,
+              isLabelVisible: lowStock > 0,
+              child: const Icon(Icons.inventory_2),
+            ),
+            label: 'Inventory',
+          ),
+          const NavigationDestination(
+            icon: Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: Icon(Icons.account_balance_wallet),
+            label: 'Money',
+          ),
+          const NavigationDestination(
+            icon: Icon(Icons.bar_chart_outlined),
+            selectedIcon: Icon(Icons.bar_chart),
+            label: 'Reports',
+          ),
+        ],
       ),
     );
   }

@@ -1,94 +1,81 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
-import '../../core/widgets/glass_panel.dart';
-import '../../core/theme/app_colors.dart';
-import '../../core/services/haptic_service.dart';
+
+import '../../core/theme/theme_mode_provider.dart';
+import '../../services/backup_service.dart';
 
 class SettingsScreen extends ConsumerWidget {
-  static const String appVersion = '2.0.0+16';
   const SettingsScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final themeMode = ref.watch(themeModeProvider);
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('SETTINGS'),
-        centerTitle: true,
-      ),
+      appBar: AppBar(title: const Text('Settings')),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          _buildSection(context, 'FINANCE'),
-          _buildTile(context, 'Wallet Management',
-              Icons.account_balance_wallet_outlined, '/settings/wallets'),
-          _buildTile(context, 'Budget Buckets', Icons.savings_outlined,
-              '/settings/buckets'),
-          _buildTile(context, 'Finance Overview & Rules',
-              Icons.analytics_outlined, '/settings/finance'),
+          Text('Theme', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
+          SegmentedButton<ThemeMode>(
+            segments: const [
+              ButtonSegment(
+                value: ThemeMode.system,
+                label: Text('System'),
+                icon: Icon(Icons.brightness_auto_outlined),
+              ),
+              ButtonSegment(
+                value: ThemeMode.light,
+                label: Text('Light'),
+                icon: Icon(Icons.light_mode_outlined),
+              ),
+              ButtonSegment(
+                value: ThemeMode.dark,
+                label: Text('Dark'),
+                icon: Icon(Icons.dark_mode_outlined),
+              ),
+            ],
+            selected: {themeMode},
+            onSelectionChanged: (selection) {
+              ref.read(themeModeProvider.notifier).setMode(selection.first);
+            },
+          ),
           const SizedBox(height: 24),
-          _buildSection(context, 'CONFIGURATION'),
-          _buildTile(context, 'Add-On Types', Icons.extension_outlined,
-              '/settings/add-ons'),
-          _buildTile(context, 'Currency Settings', Icons.currency_exchange,
-              '/settings/currency'),
-          _buildTile(
-              context, 'App Theme', Icons.palette_outlined, '/settings/theme'),
+          Text('Data', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.backup_outlined),
+              title: const Text('Back up database'),
+              subtitle: const Text('Share a copy of your data'),
+              onTap: () => _shareBackup(context, ref),
+            ),
+          ),
           const SizedBox(height: 24),
-          _buildSection(context, 'SYSTEM'),
-          _buildTile(context, 'App Version & Data',
-              Icons.system_update_alt_outlined, '/settings/system'),
-          const SizedBox(height: 24),
-          _buildSection(context, 'ABOUT'),
-          _buildTile(
-            context,
-            'v$appVersion - Invenio',
-            Icons.info_outline,
-            '/settings/about',
+          Text('About', style: theme.textTheme.titleMedium),
+          const SizedBox(height: 8),
+          const Card(
+            child: ListTile(
+              leading: Icon(Icons.info_outline),
+              title: Text('Invenio'),
+              subtitle: Text('Version 2.3.0+20'),
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSection(BuildContext context, String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12, top: 8),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontSize: 13,
-          fontWeight: FontWeight.w600,
-          color: Theme.of(context).colorScheme.onSurfaceVariant,
-          letterSpacing: 0.8,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTile(
-      BuildContext context, String title, IconData icon, String route) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: GlassPanel(
-        noBlur: true,
-        child: ListTile(
-          leading: Icon(icon, color: AppColors.accent),
-          title: Text(
-            title,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurface,
-              fontSize: 15,
-            ),
-          ),
-          trailing: Icon(Icons.chevron_right,
-              color: Theme.of(context).colorScheme.onSurfaceVariant),
-          onTap: () {
-            HapticService.trigger(HapticProfile.light);
-            context.push(route);
-          },
-        ),
-      ),
-    );
+  Future<void> _shareBackup(BuildContext context, WidgetRef ref) async {
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      await ref.read(backupServiceProvider).shareDatabase();
+    } catch (error) {
+      messenger.showSnackBar(
+        SnackBar(content: Text('Could not back up: $error')),
+      );
+    }
   }
 }

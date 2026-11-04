@@ -1,11 +1,13 @@
 import 'package:drift/drift.dart';
-import 'wallets_table.dart';
+import 'accounts_table.dart';
 
 class Transfers extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get fromWalletId => integer().references(Wallets, #id)();
-  IntColumn get toWalletId => integer().references(Wallets, #id)();
-  RealColumn get amount => real()();
+  @ReferenceName('transfersFrom')
+  IntColumn get fromAccountId => integer().references(Accounts, #id)();
+  @ReferenceName('transfersTo')
+  IntColumn get toAccountId => integer().references(Accounts, #id)();
+  IntColumn get amountMinor => integer()();
   TextColumn get note => text().nullable()();
   IntColumn get createdAt => integer()();
 }
