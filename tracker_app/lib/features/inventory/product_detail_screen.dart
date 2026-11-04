@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 
 import '../../core/money/money.dart';
 import '../../core/theme/app_tokens.dart';
-import '../../core/utils/feedback.dart';
+import '../sales/quick_sell_sheet.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/money_text.dart';
 import '../../core/widgets/stock_badge.dart';
@@ -156,7 +156,7 @@ class _ProductDetailBody extends ConsumerWidget {
               const SizedBox(width: AppSpacing.md),
               Expanded(
                 child: FilledButton.icon(
-                  onPressed: () => showComingSoon(context, 'Quick sell'),
+                  onPressed: () => startQuickSell(context, ref, product),
                   icon: const Icon(Icons.sell_outlined),
                   label: const Text('Sell'),
                 ),

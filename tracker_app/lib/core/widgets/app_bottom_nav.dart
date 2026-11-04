@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/inventory/inventory_providers.dart';
-import '../utils/feedback.dart';
+import '../../features/sales/product_picker_sheet.dart';
 
 class AppScaffold extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;
@@ -17,9 +17,9 @@ class AppScaffold extends ConsumerWidget {
 
     return Scaffold(
       body: navigationShell,
-      floatingActionButton: index <= 2
+      floatingActionButton: index <= 1
           ? FloatingActionButton.extended(
-              onPressed: () => showComingSoon(context, 'New sale'),
+              onPressed: () => openNewSale(context, ref),
               icon: const Icon(Icons.add),
               label: const Text('New sale'),
             )

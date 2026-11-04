@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../core/money/money.dart';
 import '../../core/theme/app_tokens.dart';
-import '../../core/utils/feedback.dart';
+import '../sales/quick_sell_sheet.dart';
 import '../../core/widgets/empty_state.dart';
 import '../../core/widgets/product_tile.dart';
 import '../../core/widgets/stat_card.dart';
@@ -171,7 +171,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
                           lowStockAt: product.lowStockAt,
                           subtitle: _subtitle(product),
                           onTap: () => context.push('/inventory/${product.id}'),
-                          onSell: () => showComingSoon(context, 'Quick sell'),
+                          onSell: () => startQuickSell(context, ref, product),
                         ),
                       );
                     },
