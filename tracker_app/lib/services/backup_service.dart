@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../db/app_database.dart';
 import '../db/database_path.dart';
@@ -12,6 +13,24 @@ class BackupService {
   final AppDatabase _db;
 
   BackupService(this._db);
+
+  static const String dailyBackupKey = 'daily_backup_enabled';
+
+  Future<bool> isDailyBackupEnabled() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      return prefs.getBool(dailyBackupKey) ?? true;
+    } catch (_) {
+      return true;
+    }
+  }
+
+  Future<void> setDailyBackupEnabled(bool enabled) async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool(dailyBackupKey, enabled);
+    } catch (_) {}
+  }
 
   Future<File?> createDailyBackup({DateTime? now}) async {
     final dir = await appBackupDirectory();
@@ -38,6 +57,7 @@ class BackupService {
 
   Future<void> runDailyBackupIfNeeded() async {
     try {
+      if (!await isDailyBackupEnabled()) return;
       await createDailyBackup();
     } catch (_) {}
   }

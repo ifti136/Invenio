@@ -7,6 +7,8 @@ import 'features/inventory/inventory_screen.dart';
 import 'features/money/money_screen.dart';
 import 'features/reports/reports_screen.dart';
 import 'features/sales/sales_screen.dart';
+import 'features/settings/settings_accounts_screen.dart';
+import 'features/settings/settings_names_screen.dart';
 import 'features/settings/settings_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
@@ -63,6 +65,16 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: '/settings',
         builder: (context, state) => const SettingsScreen(),
+        routes: [
+          GoRoute(
+            path: 'accounts',
+            builder: (context, state) => const SettingsAccountsScreen(),
+          ),
+          GoRoute(
+            path: 'names',
+            builder: (context, state) => const SettingsNamesScreen(),
+          ),
+        ],
       ),
     ],
   );

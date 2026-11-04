@@ -7,7 +7,7 @@ import 'package:tracker/features/inventory/inventory_providers.dart';
 
 void main() {
   setUp(() {
-    SharedPreferences.setMockInitialValues({});
+    SharedPreferences.setMockInitialValues({'first_run_done': true});
   });
 
   testWidgets('renders the 5-tab Clean Ledger shell', (tester) async {

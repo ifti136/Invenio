@@ -51,6 +51,24 @@ class AppDatabase extends _$AppDatabase {
         },
       );
 
+  Future<void> clearAllData() async {
+    await transaction(() async {
+      await delete(payments).go();
+      await delete(saleItems).go();
+      await delete(stockMovements).go();
+      await delete(sales).go();
+      await delete(expenses).go();
+      await delete(transfers).go();
+      await delete(products).go();
+      await delete(customers).go();
+      await delete(accounts).go();
+      await delete(channels).go();
+      await delete(expenseCategories).go();
+      await delete(settings).go();
+      await _seedDefaults();
+    });
+  }
+
   Future<void> _seedDefaults() async {
     await batch((b) {
       b.insertAll(channels, [
