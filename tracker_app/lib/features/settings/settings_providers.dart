@@ -44,7 +44,6 @@ final channelsProvider = StreamProvider<List<Channel>>((ref) {
   return ref.watch(namesRepositoryProvider).watchChannels();
 });
 
-final expenseCategoriesProvider =
-    StreamProvider<List<ExpenseCategory>>((ref) {
+final expenseCategoriesProvider = StreamProvider<List<ExpenseCategory>>((ref) {
   return ref.watch(namesRepositoryProvider).watchExpenseCategories();
 });

@@ -87,8 +87,7 @@ ORDER BY a.id
     required String name,
     required int openingBalanceMinor,
   }) async {
-    final statement = _db.update(_db.accounts)
-      ..where((a) => a.id.equals(id));
+    final statement = _db.update(_db.accounts)..where((a) => a.id.equals(id));
     await statement.write(
       AccountsCompanion(
         name: Value(name),
@@ -98,8 +97,7 @@ ORDER BY a.id
   }
 
   Future<void> setArchived(int id, bool archived) async {
-    final statement = _db.update(_db.accounts)
-      ..where((a) => a.id.equals(id));
+    final statement = _db.update(_db.accounts)..where((a) => a.id.equals(id));
     await statement.write(
       AccountsCompanion(archived: Value(archived)),
     );

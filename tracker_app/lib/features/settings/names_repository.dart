@@ -26,8 +26,7 @@ class NamesRepository {
   }
 
   Future<void> renameChannel(int id, String name) async {
-    final statement = _db.update(_db.channels)
-      ..where((c) => c.id.equals(id));
+    final statement = _db.update(_db.channels)..where((c) => c.id.equals(id));
     await statement.write(ChannelsCompanion(name: Value(name)));
   }
 

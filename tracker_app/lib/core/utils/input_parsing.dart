@@ -1,10 +1,8 @@
 import '../money/money.dart';
 
 Money? parseMoneyInput(String raw, {bool allowNegative = false}) {
-  final cleaned = raw
-      .replaceAll(',', '')
-      .replaceAll(RegExp(r'[^0-9.\-]'), '')
-      .trim();
+  final cleaned =
+      raw.replaceAll(',', '').replaceAll(RegExp(r'[^0-9.\-]'), '').trim();
   if (cleaned.isEmpty || cleaned == '-' || cleaned == '.') return null;
   final value = double.tryParse(cleaned);
   if (value == null) return null;

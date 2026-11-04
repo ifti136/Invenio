@@ -64,7 +64,8 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ListTile(
                   leading: const Icon(Icons.sell_outlined),
                   title: const Text('Channels and categories'),
-                  subtitle: const Text('Rename sale channels and expense categories'),
+                  subtitle:
+                      const Text('Rename sale channels and expense categories'),
                   trailing: const Icon(Icons.chevron_right),
                   onTap: () => context.push('/settings/names'),
                 ),

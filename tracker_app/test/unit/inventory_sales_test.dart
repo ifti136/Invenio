@@ -167,8 +167,7 @@ void main() {
     expect(await db.select(db.saleItems).get(), isEmpty);
     expect(await db.select(db.payments).get(), isEmpty);
     expect(
-      await (db.select(db.stockMovements)
-            ..where((m) => m.type.equals('sale')))
+      await (db.select(db.stockMovements)..where((m) => m.type.equals('sale')))
           .get(),
       isEmpty,
     );
