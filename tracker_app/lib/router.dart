@@ -4,6 +4,8 @@ import 'package:go_router/go_router.dart';
 import 'core/widgets/app_bottom_nav.dart';
 import 'features/home/home_screen.dart';
 import 'features/inventory/inventory_screen.dart';
+import 'features/inventory/product_detail_screen.dart';
+import 'features/inventory/product_form_screen.dart';
 import 'features/money/money_screen.dart';
 import 'features/reports/reports_screen.dart';
 import 'features/sales/sales_screen.dart';
@@ -61,6 +63,22 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/inventory/new',
+        builder: (context, state) => const ProductFormScreen(),
+      ),
+      GoRoute(
+        path: '/inventory/:id/edit',
+        builder: (context, state) => ProductFormScreen(
+          productId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(
+        path: '/inventory/:id',
+        builder: (context, state) => ProductDetailScreen(
+          productId: int.parse(state.pathParameters['id']!),
+        ),
       ),
       GoRoute(
         path: '/settings',
