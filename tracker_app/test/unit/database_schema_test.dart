@@ -13,11 +13,11 @@ void main() {
     await db.close();
   });
 
-  test('schema version is 7', () {
-    expect(db.schemaVersion, 7);
+  test('schema version is 8', () {
+    expect(db.schemaVersion, 8);
   });
 
-  test('all 12 v7 tables are created', () async {
+  test('all 13 tables are created', () async {
     final tables = [
       db.select(db.products),
       db.select(db.stockMovements),
@@ -30,6 +30,7 @@ void main() {
       db.select(db.saleItems),
       db.select(db.payments),
       db.select(db.transfers),
+      db.select(db.adjustments),
       db.select(db.settings),
     ];
     for (final table in tables) {
