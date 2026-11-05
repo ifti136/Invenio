@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/inventory/inventory_providers.dart';
-import '../../features/sales/product_picker_sheet.dart';
+import '../../features/sales/sale_flow.dart';
 
 class AppScaffold extends ConsumerWidget {
   final StatefulNavigationShell navigationShell;

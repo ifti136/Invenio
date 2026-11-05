@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../core/money/money.dart';
 import '../../core/theme/app_tokens.dart';
@@ -9,21 +8,21 @@ import '../../core/widgets/money_text.dart';
 import '../../core/widgets/stock_badge.dart';
 import '../../db/app_database.dart';
 import '../inventory/inventory_providers.dart';
-import 'quick_sell_sheet.dart';
+import 'sale_providers.dart';
 
-Future<void> openNewSale(BuildContext context, WidgetRef ref) async {
-  final product = await showModalBottomSheet<Product>(
+enum _PickerFilter { all, recent, top }
+
+Future<List<Product>> showProductPicker(
+  BuildContext context, {
+  required VoidCallback onAddProduct,
+}) async {
+  final result = await showModalBottomSheet<List<Product>>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
-    builder: (_) => ProductPickerSheet(
-      onAddProduct: () {
-        if (context.mounted) context.push('/inventory/new');
-      },
-    ),
+    builder: (_) => ProductPickerSheet(onAddProduct: onAddProduct),
   );
-  if (product == null || !context.mounted) return;
-  await startQuickSell(context, ref, product);
+  return result ?? const [];
 }
 
 class ProductPickerSheet extends ConsumerStatefulWidget {
@@ -37,7 +36,9 @@ class ProductPickerSheet extends ConsumerStatefulWidget {
 
 class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
   final _search = TextEditingController();
+  final _selected = <int, Product>{};
   String _query = '';
+  _PickerFilter _filter = _PickerFilter.all;
 
   @override
   void dispose() {
@@ -50,7 +51,7 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
     final products = ref.watch(productsProvider);
 
     return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.75,
+      height: MediaQuery.of(context).size.height * 0.88,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
@@ -61,7 +62,7 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
               AppSpacing.lg,
               AppSpacing.md,
             ),
-            child: Text('Choose a product', style: AppTextStyles.title),
+            child: Text('Add items', style: AppTextStyles.title),
           ),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
@@ -72,7 +73,8 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
               onChanged: (value) => setState(() => _query = value),
             ),
           ),
-          const SizedBox(height: AppSpacing.md),
+          const SizedBox(height: AppSpacing.sm),
+          _chips(),
           Expanded(
             child: products.when(
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -98,61 +100,60 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
                     },
                   );
                 }
-                final query = _query.trim().toLowerCase();
-                final filtered = items
-                    .where(
-                      (product) =>
-                          query.isEmpty ||
-                          product.name.toLowerCase().contains(query),
-                    )
-                    .toList();
+                final filtered = _apply(items);
                 if (filtered.isEmpty) {
                   return EmptyState(
                     icon: Icons.search_off,
                     title: 'No products match',
-                    message: 'Try a different search.',
-                    actionLabel: 'Clear search',
+                    message: 'Try a different search or filter.',
+                    actionLabel: 'Clear filters',
                     actionIcon: Icons.close,
                     onAction: () {
                       _search.clear();
-                      setState(() => _query = '');
+                      setState(() {
+                        _query = '';
+                        _filter = _PickerFilter.all;
+                      });
                     },
                   );
                 }
-                return ListView.separated(
+                return ListView.builder(
                   padding: const EdgeInsets.fromLTRB(
                     AppSpacing.lg,
-                    0,
+                    AppSpacing.sm,
                     AppSpacing.lg,
-                    AppSpacing.xl,
+                    AppSpacing.sm,
                   ),
                   itemCount: filtered.length,
-                  separatorBuilder: (_, __) =>
-                      const SizedBox(height: AppSpacing.sm),
                   itemBuilder: (context, index) {
                     final product = filtered[index];
-                    return Card(
-                      child: ListTile(
-                        title: Text(product.name),
-                        subtitle: Row(
-                          children: [
-                            MoneyText(
-                              Money(product.priceMinor),
-                              style: AppTextStyles.body.copyWith(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onSurfaceVariant,
+                    final selected = _selected.containsKey(product.id);
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                      child: Card(
+                        child: CheckboxListTile(
+                          value: selected,
+                          onChanged: (_) => _toggle(product),
+                          controlAffinity: ListTileControlAffinity.leading,
+                          title: Text(product.name),
+                          subtitle: Row(
+                            children: [
+                              MoneyText(
+                                Money(product.priceMinor),
+                                style: AppTextStyles.body.copyWith(
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant,
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: AppSpacing.sm),
-                            StockBadge(
-                              stock: product.stock,
-                              lowStockAt: product.lowStockAt,
-                            ),
-                          ],
+                              const SizedBox(width: AppSpacing.sm),
+                              StockBadge(
+                                stock: product.stock,
+                                lowStockAt: product.lowStockAt,
+                              ),
+                            ],
+                          ),
                         ),
-                        trailing: const Icon(Icons.chevron_right),
-                        onTap: () => Navigator.of(context).pop(product),
                       ),
                     );
                   },
@@ -160,8 +161,96 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
               },
             ),
           ),
+          SafeArea(
+            top: false,
+            child: Padding(
+              padding: const EdgeInsets.all(AppSpacing.lg),
+              child: FilledButton(
+                onPressed: _selected.isEmpty ? null : _addSelected,
+                child: Text(
+                  _selected.isEmpty
+                      ? 'Add'
+                      : 'Add ${_selected.length} item${_selected.length == 1 ? '' : 's'}',
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
+  }
+
+  Widget _chips() {
+    final recent = ref.watch(recentProductsProvider).valueOrNull ?? const [];
+    final top = ref.watch(topSoldProductsProvider).valueOrNull ?? const [];
+    if (recent.isEmpty && top.isEmpty) {
+      return const SizedBox.shrink();
+    }
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.lg),
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsets.only(right: AppSpacing.sm),
+            child: FilterChip(
+              label: const Text('All'),
+              selected: _filter == _PickerFilter.all,
+              onSelected: (_) => setState(() => _filter = _PickerFilter.all),
+            ),
+          ),
+          if (recent.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(right: AppSpacing.sm),
+              child: FilterChip(
+                label: const Text('Recent'),
+                selected: _filter == _PickerFilter.recent,
+                onSelected: (_) =>
+                    setState(() => _filter = _PickerFilter.recent),
+              ),
+            ),
+          if (top.isNotEmpty)
+            FilterChip(
+              label: const Text('Top sold'),
+              selected: _filter == _PickerFilter.top,
+              onSelected: (_) => setState(() => _filter = _PickerFilter.top),
+            ),
+        ],
+      ),
+    );
+  }
+
+  List<Product> _apply(List<Product> items) {
+    final query = _query.trim().toLowerCase();
+    var source = items;
+    if (_filter == _PickerFilter.recent) {
+      final ids = (ref.watch(recentProductsProvider).valueOrNull ?? const [])
+          .map((product) => product.id)
+          .toSet();
+      source = items.where((product) => ids.contains(product.id)).toList();
+    } else if (_filter == _PickerFilter.top) {
+      final ids = (ref.watch(topSoldProductsProvider).valueOrNull ?? const [])
+          .map((product) => product.id)
+          .toSet();
+      source = items.where((product) => ids.contains(product.id)).toList();
+    }
+    if (query.isEmpty) return source;
+    return source
+        .where((product) => product.name.toLowerCase().contains(query))
+        .toList();
+  }
+
+  void _toggle(Product product) {
+    setState(() {
+      if (_selected.containsKey(product.id)) {
+        _selected.remove(product.id);
+      } else {
+        _selected[product.id] = product;
+      }
+    });
+  }
+
+  void _addSelected() {
+    Navigator.of(context).pop(_selected.values.toList());
   }
 }

@@ -1,36 +1,63 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/money/money.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/utils/input_parsing.dart';
 import '../../core/widgets/empty_state.dart';
-import '../../core/widgets/money_text.dart';
 import '../../db/app_database.dart';
 import '../settings/account_editor.dart';
 import '../settings/settings_providers.dart';
+import 'cart_controller.dart';
+import 'receipt_sheet.dart';
+import 'sale_models.dart';
 import 'sale_providers.dart';
-import 'sale_repository.dart';
+
+class QuickSellOutcome {
+  final SaleReceipt? receipt;
+  final int? addMoreQty;
+  final int? addMorePriceMinor;
+
+  const QuickSellOutcome.completed(this.receipt)
+      : addMoreQty = null,
+        addMorePriceMinor = null;
+
+  const QuickSellOutcome.addMore({
+    required this.addMoreQty,
+    required this.addMorePriceMinor,
+  }) : receipt = null;
+
+  bool get isAddMore => receipt == null;
+}
 
 Future<void> startQuickSell(
   BuildContext context,
   WidgetRef ref,
   Product product,
 ) async {
-  final receipt = await showModalBottomSheet<QuickSaleReceipt>(
+  final outcome = await showModalBottomSheet<QuickSellOutcome>(
     context: context,
     isScrollControlled: true,
     showDragHandle: true,
     builder: (_) => QuickSellSheet(product: product),
   );
-  if (receipt == null || !context.mounted) return;
+  if (outcome == null || !context.mounted) return;
 
-  await showModalBottomSheet<void>(
-    context: context,
-    isScrollControlled: true,
-    showDragHandle: true,
-    builder: (_) => ReceiptSheet(receipt: receipt),
-  );
+  if (outcome.isAddMore) {
+    ref.read(cartProvider.notifier)
+      ..reset()
+      ..addProduct(
+        product,
+        qty: outcome.addMoreQty!,
+        unitPriceMinor: outcome.addMorePriceMinor,
+      );
+    context.push('/sales/new');
+    return;
+  }
+
+  final receipt = outcome.receipt!;
+  await showReceiptSheet(context, receipt);
   if (!context.mounted) return;
 
   final messenger = ScaffoldMessenger.of(context);
@@ -92,6 +119,7 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
   @override
   Widget build(BuildContext context) {
     final accounts = ref.watch(accountsProvider);
+    final defaults = ref.watch(salesDefaultsProvider).valueOrNull;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -138,13 +166,17 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
               ),
             );
           }
-          return _form(context, items);
+          return _form(context, items, defaults);
         },
       ),
     );
   }
 
-  Widget _form(BuildContext context, List<Account> accounts) {
+  Widget _form(
+    BuildContext context,
+    List<Account> accounts,
+    SalesDefaults? defaults,
+  ) {
     final scheme = Theme.of(context).colorScheme;
     final qty = int.tryParse(_qty.text) ?? 0;
     final aboveStock = qty > widget.product.stock;
@@ -152,7 +184,9 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
     final belowCost = price != null && price.minor < widget.product.costMinor;
     final selectedAccountId = accounts.any((a) => a.id == _accountId)
         ? _accountId!
-        : accounts.first.id;
+        : (accounts.any((a) => a.id == defaults?.accountId)
+            ? defaults!.accountId!
+            : accounts.first.id);
 
     return Form(
       key: _formKey,
@@ -244,8 +278,14 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
             FilledButton(
               onPressed: _saving || (aboveStock && !_overrideStock)
                   ? null
-                  : () => _save(selectedAccountId),
+                  : () => _save(selectedAccountId, defaults?.channelId),
               child: Text(_saving ? 'Saving…' : 'Confirm'),
+            ),
+            const SizedBox(height: AppSpacing.sm),
+            OutlinedButton.icon(
+              onPressed: _saving ? null : _addMore,
+              icon: const Icon(Icons.add),
+              label: const Text('Add more items'),
             ),
           ],
         ),
@@ -278,20 +318,37 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
     );
   }
 
-  Future<void> _save(int accountId) async {
+  Future<void> _save(int accountId, int? channelId) async {
     if (!(_formKey.currentState?.validate() ?? false)) return;
+    if (channelId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Add a sales channel in Settings.')),
+      );
+      return;
+    }
     final qty = parseWholeNumber(_qty.text, min: 1)!;
     final price = parseMoneyInput(_price.text)!;
 
     setState(() => _saving = true);
     try {
-      final receipt = await ref.read(saleRepositoryProvider).saveQuickSale(
+      final receipt = await ref.read(saleRepositoryProvider).saveSale(
+        lines: [
+          SaleLineInput(
             productId: widget.product.id,
             qty: qty,
             unitPriceMinor: price.minor,
-            accountId: accountId,
-          );
-      if (mounted) Navigator.of(context).pop(receipt);
+            unitCostMinor: widget.product.costMinor,
+            allowAboveStock: _overrideStock,
+          ),
+        ],
+        channelId: channelId,
+        payment: PaymentMode.paid,
+        accountId: accountId,
+      );
+      ref.invalidate(salesDefaultsProvider);
+      if (mounted) {
+        Navigator.of(context).pop(QuickSellOutcome.completed(receipt));
+      }
     } catch (_) {
       if (mounted) {
         setState(() => _saving = false);
@@ -301,79 +358,16 @@ class _QuickSellSheetState extends ConsumerState<QuickSellSheet> {
       }
     }
   }
-}
 
-class ReceiptSheet extends ConsumerWidget {
-  final QuickSaleReceipt receipt;
-
-  const ReceiptSheet({super.key, required this.receipt});
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final scheme = theme.colorScheme;
-    final symbol = ref.watch(currencySymbolProvider);
-
-    return SafeArea(
-      top: false,
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Text('Sale complete', style: AppTextStyles.title),
-            const SizedBox(height: AppSpacing.lg),
-            Card(
-              child: ListTile(
-                title: Text(receipt.productName),
-                subtitle: Text(
-                  '${receipt.qty} × ${Money(receipt.unitPriceMinor).format(currencySymbol: symbol)}',
-                ),
-                trailing: MoneyText(
-                  Money(receipt.totalMinor),
-                  style: AppTextStyles.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: AppSpacing.lg),
-            _row(context, 'Total', receipt.totalMinor, scheme.onSurface),
-            const SizedBox(height: AppSpacing.sm),
-            _row(context, 'Paid', receipt.paidMinor, scheme.primary),
-            const SizedBox(height: AppSpacing.sm),
-            _row(context, 'Due', receipt.dueMinor, scheme.onSurface),
-            const SizedBox(height: AppSpacing.xl),
-            FilledButton(
-              onPressed: () => Navigator.of(context).pop(),
-              child: const Text('Done'),
-            ),
-          ],
-        ),
+  void _addMore() {
+    if (!(_formKey.currentState?.validate() ?? false)) return;
+    final qty = parseWholeNumber(_qty.text, min: 1)!;
+    final price = parseMoneyInput(_price.text)!;
+    Navigator.of(context).pop(
+      QuickSellOutcome.addMore(
+        addMoreQty: qty,
+        addMorePriceMinor: price.minor,
       ),
-    );
-  }
-
-  Widget _row(BuildContext context, String label, int minor, Color color) {
-    return Row(
-      children: [
-        Expanded(
-          child: Text(
-            label,
-            style: AppTextStyles.body.copyWith(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-            ),
-          ),
-        ),
-        MoneyText(
-          Money(minor),
-          style: AppTextStyles.bodyLarge.copyWith(
-            color: color,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ],
     );
   }
 }

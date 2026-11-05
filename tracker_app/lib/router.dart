@@ -8,6 +8,7 @@ import 'features/inventory/product_detail_screen.dart';
 import 'features/inventory/product_form_screen.dart';
 import 'features/money/money_screen.dart';
 import 'features/reports/reports_screen.dart';
+import 'features/sales/new_sale_screen.dart';
 import 'features/sales/sales_screen.dart';
 import 'features/settings/settings_accounts_screen.dart';
 import 'features/settings/settings_names_screen.dart';
@@ -63,6 +64,10 @@ final routerProvider = Provider<GoRouter>((ref) {
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/sales/new',
+        builder: (context, state) => const NewSaleScreen(),
       ),
       GoRoute(
         path: '/inventory/new',

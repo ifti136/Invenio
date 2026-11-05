@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import 'product_picker_sheet.dart';
 import '../../core/widgets/empty_state.dart';
+import 'sale_flow.dart';
 
 class SalesScreen extends ConsumerWidget {
   const SalesScreen({super.key});
