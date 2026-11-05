@@ -6,7 +6,11 @@ import 'features/home/home_screen.dart';
 import 'features/inventory/inventory_screen.dart';
 import 'features/inventory/product_detail_screen.dart';
 import 'features/inventory/product_form_screen.dart';
+import 'features/money/account_ledger_screen.dart';
+import 'features/money/dues_detail_screen.dart';
+import 'features/money/expense_form_screen.dart';
 import 'features/money/money_screen.dart';
+import 'features/money/transfer_screen.dart';
 import 'features/reports/reports_screen.dart';
 import 'features/sales/new_sale_screen.dart';
 import 'features/sales/sale_detail_screen.dart';
@@ -90,6 +94,36 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/inventory/:id',
         builder: (context, state) => ProductDetailScreen(
           productId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(
+        path: '/money/transfer',
+        builder: (context, state) => TransferScreen(
+          fromAccountId: int.tryParse(
+            state.uri.queryParameters['from'] ?? '',
+          ),
+        ),
+      ),
+      GoRoute(
+        path: '/money/accounts/:id',
+        builder: (context, state) => AccountLedgerScreen(
+          accountId: int.parse(state.pathParameters['id']!),
+        ),
+      ),
+      GoRoute(
+        path: '/money/dues/:customerId',
+        builder: (context, state) => CustomerDueScreen(
+          customerId: int.parse(state.pathParameters['customerId']!),
+        ),
+      ),
+      GoRoute(
+        path: '/money/expenses/new',
+        builder: (context, state) => const ExpenseFormScreen(),
+      ),
+      GoRoute(
+        path: '/money/expenses/:id/edit',
+        builder: (context, state) => ExpenseFormScreen(
+          expenseId: int.parse(state.pathParameters['id']!),
         ),
       ),
       GoRoute(

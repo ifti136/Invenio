@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'database_path.dart';
 import 'tables/accounts_table.dart';
+import 'tables/adjustments_table.dart';
 import 'tables/channels_table.dart';
 import 'tables/customers_table.dart';
 import 'tables/expense_categories_table.dart';
@@ -30,6 +31,7 @@ part 'app_database.g.dart';
   Payments,
   Expenses,
   Transfers,
+  Adjustments,
   Settings,
 ])
 class AppDatabase extends _$AppDatabase {
@@ -38,13 +40,18 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase.forTesting(super.executor);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
           await _seedDefaults();
+        },
+        onUpgrade: (m, from, to) async {
+          if (from < 8) {
+            await m.createTable(adjustments);
+          }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');
@@ -59,6 +66,7 @@ class AppDatabase extends _$AppDatabase {
       await delete(sales).go();
       await delete(expenses).go();
       await delete(transfers).go();
+      await delete(adjustments).go();
       await delete(products).go();
       await delete(customers).go();
       await delete(accounts).go();

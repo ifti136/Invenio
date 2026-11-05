@@ -3544,6 +3544,309 @@ class TransfersCompanion extends UpdateCompanion<Transfer> {
   }
 }
 
+class $AdjustmentsTable extends Adjustments
+    with TableInfo<$AdjustmentsTable, Adjustment> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AdjustmentsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _accountIdMeta =
+      const VerificationMeta('accountId');
+  @override
+  late final GeneratedColumn<int> accountId = GeneratedColumn<int>(
+      'account_id', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: true,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('REFERENCES accounts (id)'));
+  static const VerificationMeta _amountMinorMeta =
+      const VerificationMeta('amountMinor');
+  @override
+  late final GeneratedColumn<int> amountMinor = GeneratedColumn<int>(
+      'amount_minor', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+      'note', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, accountId, amountMinor, note, createdAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'adjustments';
+  @override
+  VerificationContext validateIntegrity(Insertable<Adjustment> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('account_id')) {
+      context.handle(_accountIdMeta,
+          accountId.isAcceptableOrUnknown(data['account_id']!, _accountIdMeta));
+    } else if (isInserting) {
+      context.missing(_accountIdMeta);
+    }
+    if (data.containsKey('amount_minor')) {
+      context.handle(
+          _amountMinorMeta,
+          amountMinor.isAcceptableOrUnknown(
+              data['amount_minor']!, _amountMinorMeta));
+    } else if (isInserting) {
+      context.missing(_amountMinorMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+          _noteMeta, note.isAcceptableOrUnknown(data['note']!, _noteMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Adjustment map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Adjustment(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      accountId: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}account_id'])!,
+      amountMinor: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}amount_minor'])!,
+      note: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}note']),
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}created_at'])!,
+    );
+  }
+
+  @override
+  $AdjustmentsTable createAlias(String alias) {
+    return $AdjustmentsTable(attachedDatabase, alias);
+  }
+}
+
+class Adjustment extends DataClass implements Insertable<Adjustment> {
+  final int id;
+  final int accountId;
+  final int amountMinor;
+  final String? note;
+  final int createdAt;
+  const Adjustment(
+      {required this.id,
+      required this.accountId,
+      required this.amountMinor,
+      this.note,
+      required this.createdAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['account_id'] = Variable<int>(accountId);
+    map['amount_minor'] = Variable<int>(amountMinor);
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
+    }
+    map['created_at'] = Variable<int>(createdAt);
+    return map;
+  }
+
+  AdjustmentsCompanion toCompanion(bool nullToAbsent) {
+    return AdjustmentsCompanion(
+      id: Value(id),
+      accountId: Value(accountId),
+      amountMinor: Value(amountMinor),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory Adjustment.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Adjustment(
+      id: serializer.fromJson<int>(json['id']),
+      accountId: serializer.fromJson<int>(json['accountId']),
+      amountMinor: serializer.fromJson<int>(json['amountMinor']),
+      note: serializer.fromJson<String?>(json['note']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'accountId': serializer.toJson<int>(accountId),
+      'amountMinor': serializer.toJson<int>(amountMinor),
+      'note': serializer.toJson<String?>(note),
+      'createdAt': serializer.toJson<int>(createdAt),
+    };
+  }
+
+  Adjustment copyWith(
+          {int? id,
+          int? accountId,
+          int? amountMinor,
+          Value<String?> note = const Value.absent(),
+          int? createdAt}) =>
+      Adjustment(
+        id: id ?? this.id,
+        accountId: accountId ?? this.accountId,
+        amountMinor: amountMinor ?? this.amountMinor,
+        note: note.present ? note.value : this.note,
+        createdAt: createdAt ?? this.createdAt,
+      );
+  Adjustment copyWithCompanion(AdjustmentsCompanion data) {
+    return Adjustment(
+      id: data.id.present ? data.id.value : this.id,
+      accountId: data.accountId.present ? data.accountId.value : this.accountId,
+      amountMinor:
+          data.amountMinor.present ? data.amountMinor.value : this.amountMinor,
+      note: data.note.present ? data.note.value : this.note,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Adjustment(')
+          ..write('id: $id, ')
+          ..write('accountId: $accountId, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, accountId, amountMinor, note, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Adjustment &&
+          other.id == this.id &&
+          other.accountId == this.accountId &&
+          other.amountMinor == this.amountMinor &&
+          other.note == this.note &&
+          other.createdAt == this.createdAt);
+}
+
+class AdjustmentsCompanion extends UpdateCompanion<Adjustment> {
+  final Value<int> id;
+  final Value<int> accountId;
+  final Value<int> amountMinor;
+  final Value<String?> note;
+  final Value<int> createdAt;
+  const AdjustmentsCompanion({
+    this.id = const Value.absent(),
+    this.accountId = const Value.absent(),
+    this.amountMinor = const Value.absent(),
+    this.note = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  AdjustmentsCompanion.insert({
+    this.id = const Value.absent(),
+    required int accountId,
+    required int amountMinor,
+    this.note = const Value.absent(),
+    required int createdAt,
+  })  : accountId = Value(accountId),
+        amountMinor = Value(amountMinor),
+        createdAt = Value(createdAt);
+  static Insertable<Adjustment> custom({
+    Expression<int>? id,
+    Expression<int>? accountId,
+    Expression<int>? amountMinor,
+    Expression<String>? note,
+    Expression<int>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (accountId != null) 'account_id': accountId,
+      if (amountMinor != null) 'amount_minor': amountMinor,
+      if (note != null) 'note': note,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  AdjustmentsCompanion copyWith(
+      {Value<int>? id,
+      Value<int>? accountId,
+      Value<int>? amountMinor,
+      Value<String?>? note,
+      Value<int>? createdAt}) {
+    return AdjustmentsCompanion(
+      id: id ?? this.id,
+      accountId: accountId ?? this.accountId,
+      amountMinor: amountMinor ?? this.amountMinor,
+      note: note ?? this.note,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (accountId.present) {
+      map['account_id'] = Variable<int>(accountId.value);
+    }
+    if (amountMinor.present) {
+      map['amount_minor'] = Variable<int>(amountMinor.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AdjustmentsCompanion(')
+          ..write('id: $id, ')
+          ..write('accountId: $accountId, ')
+          ..write('amountMinor: $amountMinor, ')
+          ..write('note: $note, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $SettingsTable extends Settings with TableInfo<$SettingsTable, Setting> {
   @override
   final GeneratedDatabase attachedDatabase;
@@ -3785,6 +4088,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PaymentsTable payments = $PaymentsTable(this);
   late final $ExpensesTable expenses = $ExpensesTable(this);
   late final $TransfersTable transfers = $TransfersTable(this);
+  late final $AdjustmentsTable adjustments = $AdjustmentsTable(this);
   late final $SettingsTable settings = $SettingsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -3802,6 +4106,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
         payments,
         expenses,
         transfers,
+        adjustments,
         settings
       ];
 }
@@ -4259,6 +4564,21 @@ final class $$AccountsTableReferences
     return ProcessedTableManager(
         manager.$state.copyWith(prefetchedData: cache));
   }
+
+  static MultiTypedResultKey<$AdjustmentsTable, List<Adjustment>>
+      _adjustmentsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+          db.adjustments,
+          aliasName:
+              $_aliasNameGenerator(db.accounts.id, db.adjustments.accountId));
+
+  $$AdjustmentsTableProcessedTableManager get adjustmentsRefs {
+    final manager = $$AdjustmentsTableTableManager($_db, $_db.adjustments)
+        .filter((f) => f.accountId.id($_item.id));
+
+    final cache = $_typedResult.readTableOrNull(_adjustmentsRefsTable($_db));
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: cache));
+  }
 }
 
 class $$AccountsTableFilterComposer
@@ -4380,6 +4700,27 @@ class $$AccountsTableFilterComposer
             $$TransfersTableFilterComposer(
               $db: $db,
               $table: $db.transfers,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
+
+  Expression<bool> adjustmentsRefs(
+      Expression<bool> Function($$AdjustmentsTableFilterComposer f) f) {
+    final $$AdjustmentsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.adjustments,
+        getReferencedColumn: (t) => t.accountId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AdjustmentsTableFilterComposer(
+              $db: $db,
+              $table: $db.adjustments,
               $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
               joinBuilder: joinBuilder,
               $removeJoinBuilderFromRootComposer:
@@ -4537,6 +4878,27 @@ class $$AccountsTableAnnotationComposer
             ));
     return f(composer);
   }
+
+  Expression<T> adjustmentsRefs<T extends Object>(
+      Expression<T> Function($$AdjustmentsTableAnnotationComposer a) f) {
+    final $$AdjustmentsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.id,
+        referencedTable: $db.adjustments,
+        getReferencedColumn: (t) => t.accountId,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AdjustmentsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.adjustments,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return f(composer);
+  }
 }
 
 class $$AccountsTableTableManager extends RootTableManager<
@@ -4555,7 +4917,8 @@ class $$AccountsTableTableManager extends RootTableManager<
         bool paymentsRefs,
         bool expensesRefs,
         bool transfersFrom,
-        bool transfersTo})> {
+        bool transfersTo,
+        bool adjustmentsRefs})> {
   $$AccountsTableTableManager(_$AppDatabase db, $AccountsTable table)
       : super(TableManagerState(
           db: db,
@@ -4599,7 +4962,8 @@ class $$AccountsTableTableManager extends RootTableManager<
               paymentsRefs = false,
               expensesRefs = false,
               transfersFrom = false,
-              transfersTo = false}) {
+              transfersTo = false,
+              adjustmentsRefs = false}) {
             return PrefetchHooks(
               db: db,
               explicitlyWatchedTables: [
@@ -4607,7 +4971,8 @@ class $$AccountsTableTableManager extends RootTableManager<
                 if (paymentsRefs) db.payments,
                 if (expensesRefs) db.expenses,
                 if (transfersFrom) db.transfers,
-                if (transfersTo) db.transfers
+                if (transfersTo) db.transfers,
+                if (adjustmentsRefs) db.adjustments
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -4671,6 +5036,18 @@ class $$AccountsTableTableManager extends RootTableManager<
                         referencedItemsForCurrentItem:
                             (item, referencedItems) => referencedItems
                                 .where((e) => e.toAccountId == item.id),
+                        typedResults: items),
+                  if (adjustmentsRefs)
+                    await $_getPrefetchedData(
+                        currentTable: table,
+                        referencedTable:
+                            $$AccountsTableReferences._adjustmentsRefsTable(db),
+                        managerFromTypedResult: (p0) =>
+                            $$AccountsTableReferences(db, table, p0)
+                                .adjustmentsRefs,
+                        referencedItemsForCurrentItem:
+                            (item, referencedItems) => referencedItems
+                                .where((e) => e.accountId == item.id),
                         typedResults: items)
                 ];
               },
@@ -4695,7 +5072,8 @@ typedef $$AccountsTableProcessedTableManager = ProcessedTableManager<
         bool paymentsRefs,
         bool expensesRefs,
         bool transfersFrom,
-        bool transfersTo})>;
+        bool transfersTo,
+        bool adjustmentsRefs})>;
 typedef $$StockMovementsTableCreateCompanionBuilder = StockMovementsCompanion
     Function({
   Value<int> id,
@@ -7663,6 +8041,273 @@ typedef $$TransfersTableProcessedTableManager = ProcessedTableManager<
     (Transfer, $$TransfersTableReferences),
     Transfer,
     PrefetchHooks Function({bool fromAccountId, bool toAccountId})>;
+typedef $$AdjustmentsTableCreateCompanionBuilder = AdjustmentsCompanion
+    Function({
+  Value<int> id,
+  required int accountId,
+  required int amountMinor,
+  Value<String?> note,
+  required int createdAt,
+});
+typedef $$AdjustmentsTableUpdateCompanionBuilder = AdjustmentsCompanion
+    Function({
+  Value<int> id,
+  Value<int> accountId,
+  Value<int> amountMinor,
+  Value<String?> note,
+  Value<int> createdAt,
+});
+
+final class $$AdjustmentsTableReferences
+    extends BaseReferences<_$AppDatabase, $AdjustmentsTable, Adjustment> {
+  $$AdjustmentsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $AccountsTable _accountIdTable(_$AppDatabase db) =>
+      db.accounts.createAlias(
+          $_aliasNameGenerator(db.adjustments.accountId, db.accounts.id));
+
+  $$AccountsTableProcessedTableManager get accountId {
+    final manager = $$AccountsTableTableManager($_db, $_db.accounts)
+        .filter((f) => f.id($_item.accountId));
+    final item = $_typedResult.readTableOrNull(_accountIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+        manager.$state.copyWith(prefetchedData: [item]));
+  }
+}
+
+class $$AdjustmentsTableFilterComposer
+    extends Composer<_$AppDatabase, $AdjustmentsTable> {
+  $$AdjustmentsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get amountMinor => $composableBuilder(
+      column: $table.amountMinor, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  $$AccountsTableFilterComposer get accountId {
+    final $$AccountsTableFilterComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.accountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableFilterComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AdjustmentsTableOrderingComposer
+    extends Composer<_$AppDatabase, $AdjustmentsTable> {
+  $$AdjustmentsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get amountMinor => $composableBuilder(
+      column: $table.amountMinor, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get note => $composableBuilder(
+      column: $table.note, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  $$AccountsTableOrderingComposer get accountId {
+    final $$AccountsTableOrderingComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.accountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableOrderingComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AdjustmentsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AdjustmentsTable> {
+  $$AdjustmentsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<int> get amountMinor => $composableBuilder(
+      column: $table.amountMinor, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<int> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  $$AccountsTableAnnotationComposer get accountId {
+    final $$AccountsTableAnnotationComposer composer = $composerBuilder(
+        composer: this,
+        getCurrentColumn: (t) => t.accountId,
+        referencedTable: $db.accounts,
+        getReferencedColumn: (t) => t.id,
+        builder: (joinBuilder,
+                {$addJoinBuilderToRootComposer,
+                $removeJoinBuilderFromRootComposer}) =>
+            $$AccountsTableAnnotationComposer(
+              $db: $db,
+              $table: $db.accounts,
+              $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+              joinBuilder: joinBuilder,
+              $removeJoinBuilderFromRootComposer:
+                  $removeJoinBuilderFromRootComposer,
+            ));
+    return composer;
+  }
+}
+
+class $$AdjustmentsTableTableManager extends RootTableManager<
+    _$AppDatabase,
+    $AdjustmentsTable,
+    Adjustment,
+    $$AdjustmentsTableFilterComposer,
+    $$AdjustmentsTableOrderingComposer,
+    $$AdjustmentsTableAnnotationComposer,
+    $$AdjustmentsTableCreateCompanionBuilder,
+    $$AdjustmentsTableUpdateCompanionBuilder,
+    (Adjustment, $$AdjustmentsTableReferences),
+    Adjustment,
+    PrefetchHooks Function({bool accountId})> {
+  $$AdjustmentsTableTableManager(_$AppDatabase db, $AdjustmentsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AdjustmentsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AdjustmentsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AdjustmentsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<int> accountId = const Value.absent(),
+            Value<int> amountMinor = const Value.absent(),
+            Value<String?> note = const Value.absent(),
+            Value<int> createdAt = const Value.absent(),
+          }) =>
+              AdjustmentsCompanion(
+            id: id,
+            accountId: accountId,
+            amountMinor: amountMinor,
+            note: note,
+            createdAt: createdAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required int accountId,
+            required int amountMinor,
+            Value<String?> note = const Value.absent(),
+            required int createdAt,
+          }) =>
+              AdjustmentsCompanion.insert(
+            id: id,
+            accountId: accountId,
+            amountMinor: amountMinor,
+            note: note,
+            createdAt: createdAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable(table),
+                    $$AdjustmentsTableReferences(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: ({accountId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                  T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic>>(state) {
+                if (accountId) {
+                  state = state.withJoin(
+                    currentTable: table,
+                    currentColumn: table.accountId,
+                    referencedTable:
+                        $$AdjustmentsTableReferences._accountIdTable(db),
+                    referencedColumn:
+                        $$AdjustmentsTableReferences._accountIdTable(db).id,
+                  ) as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ));
+}
+
+typedef $$AdjustmentsTableProcessedTableManager = ProcessedTableManager<
+    _$AppDatabase,
+    $AdjustmentsTable,
+    Adjustment,
+    $$AdjustmentsTableFilterComposer,
+    $$AdjustmentsTableOrderingComposer,
+    $$AdjustmentsTableAnnotationComposer,
+    $$AdjustmentsTableCreateCompanionBuilder,
+    $$AdjustmentsTableUpdateCompanionBuilder,
+    (Adjustment, $$AdjustmentsTableReferences),
+    Adjustment,
+    PrefetchHooks Function({bool accountId})>;
 typedef $$SettingsTableCreateCompanionBuilder = SettingsCompanion Function({
   Value<int> id,
   Value<String> currencySymbol,
@@ -7820,6 +8465,8 @@ class $AppDatabaseManager {
       $$ExpensesTableTableManager(_db, _db.expenses);
   $$TransfersTableTableManager get transfers =>
       $$TransfersTableTableManager(_db, _db.transfers);
+  $$AdjustmentsTableTableManager get adjustments =>
+      $$AdjustmentsTableTableManager(_db, _db.adjustments);
   $$SettingsTableTableManager get settings =>
       $$SettingsTableTableManager(_db, _db.settings);
 }
