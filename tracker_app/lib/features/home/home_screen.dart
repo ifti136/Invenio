@@ -167,9 +167,13 @@ class _TotalMoneyCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          MoneyText(
-            Money(totalMinor),
-            style: AppTextStyles.display.copyWith(color: scheme.onSurface),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: MoneyText(
+              Money(totalMinor),
+              style: AppTextStyles.display.copyWith(color: scheme.onSurface),
+            ),
           ),
           const SizedBox(height: AppSpacing.lg),
           SingleChildScrollView(
@@ -209,12 +213,30 @@ class _TodaySection extends ConsumerWidget {
         child: Center(child: CircularProgressIndicator()),
       ),
       error: (_, __) => Card(
-        child: ListTile(
-          leading: const Icon(Icons.error_outline),
-          title: const Text('Could not load today'),
-          subtitle: const Text('Tap to try again.'),
-          trailing: const Icon(Icons.refresh),
-          onTap: () => ref.invalidate(todayStatsProvider),
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Icon(
+                    Icons.error_outline,
+                    color: Theme.of(context).colorScheme.error,
+                  ),
+                  const SizedBox(width: AppSpacing.sm),
+                  const Expanded(
+                    child: Text("Could not load today's numbers."),
+                  ),
+                ],
+              ),
+              const SizedBox(height: AppSpacing.md),
+              OutlinedButton(
+                onPressed: () => ref.invalidate(todayStatsProvider),
+                child: const Text('Retry'),
+              ),
+            ],
+          ),
         ),
       ),
       data: (stats) {
