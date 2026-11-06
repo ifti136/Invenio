@@ -13,11 +13,15 @@ class AppTheme {
       seedColor: AppColors.seed,
       brightness: brightness,
     );
+    final isLight = brightness == Brightness.light;
     final scheme = base.copyWith(
-      tertiary: AppColors.warning,
-      onTertiary: AppColors.onWarning,
-      tertiaryContainer: AppColors.warningContainer,
-      onTertiaryContainer: AppColors.onWarningContainer,
+      tertiary: isLight ? AppColors.warningInkLight : AppColors.warning,
+      onTertiary: isLight ? Colors.white : AppColors.onWarning,
+      tertiaryContainer:
+          isLight ? AppColors.warningContainer : AppColors.warningContainerDark,
+      onTertiaryContainer: isLight
+          ? AppColors.onWarningContainer
+          : AppColors.onWarningContainerDark,
     );
     final textTheme = _textTheme(
       ThemeData(brightness: brightness, useMaterial3: true).textTheme,
@@ -58,7 +62,8 @@ class AppTheme {
         iconTheme: WidgetStateProperty.resolveWith((states) {
           final selected = states.contains(WidgetState.selected);
           return IconThemeData(
-            color: selected ? scheme.onPrimaryContainer : scheme.onSurfaceVariant,
+            color:
+                selected ? scheme.onPrimaryContainer : scheme.onSurfaceVariant,
           );
         }),
       ),

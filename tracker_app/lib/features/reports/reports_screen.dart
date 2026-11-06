@@ -69,8 +69,8 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               AppSpacing.lg,
               AppSpacing.sm,
             ),
-            child: SizedBox(
-              width: double.infinity,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
               child: SegmentedButton<ReportPreset>(
                 showSelectedIcon: false,
                 segments: const [
@@ -329,7 +329,13 @@ class _ProfitLossCard extends StatelessWidget {
       child: Row(
         children: [
           Expanded(child: Text(label, style: style)),
-          MoneyText(money, style: style),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              alignment: Alignment.centerRight,
+              child: MoneyText(money, style: style),
+            ),
+          ),
         ],
       ),
     );
@@ -702,10 +708,14 @@ class _BreakdownTable extends ConsumerWidget {
       ),
       child: Align(
         alignment: Alignment.centerRight,
-        child: MoneyText(
-          Money(minor),
-          style: AppTextStyles.body.copyWith(
-            color: minor < 0 ? scheme.error : scheme.onSurface,
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          alignment: Alignment.centerRight,
+          child: MoneyText(
+            Money(minor),
+            style: AppTextStyles.body.copyWith(
+              color: minor < 0 ? scheme.error : scheme.onSurface,
+            ),
           ),
         ),
       ),

@@ -88,42 +88,40 @@ class _ProductDetailBody extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Row(
+                  Wrap(
+                    spacing: AppSpacing.xl,
+                    runSpacing: AppSpacing.md,
                     children: [
-                      Expanded(
-                        child: _Metric(
-                          label: 'Stock',
-                          child: Row(
-                            children: [
-                              Text(
-                                '${product.stock}',
-                                style: AppTextStyles.headline,
-                              ),
-                              const SizedBox(width: AppSpacing.sm),
-                              StockBadge(
-                                stock: product.stock,
-                                lowStockAt: product.lowStockAt,
-                              ),
-                            ],
-                          ),
+                      _Metric(
+                        label: 'Stock',
+                        child: Wrap(
+                          spacing: AppSpacing.sm,
+                          runSpacing: AppSpacing.xs,
+                          crossAxisAlignment: WrapCrossAlignment.center,
+                          children: [
+                            Text(
+                              '${product.stock}',
+                              style: AppTextStyles.headline,
+                            ),
+                            StockBadge(
+                              stock: product.stock,
+                              lowStockAt: product.lowStockAt,
+                            ),
+                          ],
                         ),
                       ),
-                      Expanded(
-                        child: _Metric(
-                          label: 'Price',
-                          child: MoneyText(
-                            Money(product.priceMinor),
-                            style: AppTextStyles.headline,
-                          ),
+                      _Metric(
+                        label: 'Price',
+                        child: MoneyText(
+                          Money(product.priceMinor),
+                          style: AppTextStyles.headline,
                         ),
                       ),
-                      Expanded(
-                        child: _Metric(
-                          label: 'Cost',
-                          child: MoneyText(
-                            Money(product.costMinor),
-                            style: AppTextStyles.headline,
-                          ),
+                      _Metric(
+                        label: 'Cost',
+                        child: MoneyText(
+                          Money(product.costMinor),
+                          style: AppTextStyles.headline,
                         ),
                       ),
                     ],

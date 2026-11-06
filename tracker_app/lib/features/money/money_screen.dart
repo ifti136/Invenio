@@ -68,8 +68,8 @@ class _MoneyScreenState extends ConsumerState<MoneyScreen> {
               AppSpacing.lg,
               AppSpacing.sm,
             ),
-            child: SizedBox(
-              width: double.infinity,
+            child: SingleChildScrollView(
+              scrollDirection: Axis.horizontal,
               child: SegmentedButton<MoneyTab>(
                 showSelectedIcon: false,
                 segments: const [
@@ -180,12 +180,18 @@ class _AccountsView extends ConsumerWidget {
                             ),
                           ),
                           const SizedBox(width: AppSpacing.sm),
-                          MoneyText(
-                            Money(item.balanceMinor),
-                            style: AppTextStyles.title.copyWith(
-                              color: item.balanceMinor < 0
-                                  ? Theme.of(context).colorScheme.error
-                                  : Theme.of(context).colorScheme.onSurface,
+                          Flexible(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              alignment: Alignment.centerRight,
+                              child: MoneyText(
+                                Money(item.balanceMinor),
+                                style: AppTextStyles.title.copyWith(
+                                  color: item.balanceMinor < 0
+                                      ? Theme.of(context).colorScheme.error
+                                      : Theme.of(context).colorScheme.onSurface,
+                                ),
+                              ),
                             ),
                           ),
                           const SizedBox(width: AppSpacing.sm),
@@ -252,10 +258,14 @@ class _TotalMoneyCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
-          MoneyText(
-            Money(totalMinor),
-            style: AppTextStyles.display.copyWith(
-              color: scheme.onPrimaryContainer,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: MoneyText(
+              Money(totalMinor),
+              style: AppTextStyles.display.copyWith(
+                color: scheme.onPrimaryContainer,
+              ),
             ),
           ),
         ],

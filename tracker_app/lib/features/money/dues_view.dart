@@ -68,10 +68,15 @@ class DuesView extends ConsumerWidget {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  MoneyText(
-                    Money(total),
-                    style: AppTextStyles.display.copyWith(
-                      color: Theme.of(context).colorScheme.onTertiaryContainer,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    alignment: Alignment.centerLeft,
+                    child: MoneyText(
+                      Money(total),
+                      style: AppTextStyles.display.copyWith(
+                        color:
+                            Theme.of(context).colorScheme.onTertiaryContainer,
+                      ),
                     ),
                   ),
                 ],

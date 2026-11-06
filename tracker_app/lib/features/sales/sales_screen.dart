@@ -363,10 +363,16 @@ class _DaySection extends StatelessWidget {
                   ),
                 ),
               ),
-              MoneyText(
-                Money(group.totalMinor),
-                style: AppTextStyles.label.copyWith(
-                  color: scheme.onSurfaceVariant,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: MoneyText(
+                    Money(group.totalMinor),
+                    style: AppTextStyles.label.copyWith(
+                      color: scheme.onSurfaceVariant,
+                    ),
+                  ),
                 ),
               ),
             ],
@@ -477,10 +483,16 @@ class _SaleTile extends ConsumerWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
-              MoneyText(
-                Money(sale.totalMinor),
-                style: AppTextStyles.bodyLarge.copyWith(
-                  fontWeight: FontWeight.w700,
+              Flexible(
+                child: FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerRight,
+                  child: MoneyText(
+                    Money(sale.totalMinor),
+                    style: AppTextStyles.bodyLarge.copyWith(
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
                 ),
               ),
             ],

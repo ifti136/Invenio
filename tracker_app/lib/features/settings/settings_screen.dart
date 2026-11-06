@@ -96,30 +96,33 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.sm),
-                  SegmentedButton<ThemeMode>(
-                    segments: const [
-                      ButtonSegment(
-                        value: ThemeMode.system,
-                        label: Text('System'),
-                        icon: Icon(Icons.brightness_auto_outlined),
-                      ),
-                      ButtonSegment(
-                        value: ThemeMode.light,
-                        label: Text('Light'),
-                        icon: Icon(Icons.light_mode_outlined),
-                      ),
-                      ButtonSegment(
-                        value: ThemeMode.dark,
-                        label: Text('Dark'),
-                        icon: Icon(Icons.dark_mode_outlined),
-                      ),
-                    ],
-                    selected: {themeMode},
-                    onSelectionChanged: (selection) {
-                      ref
-                          .read(themeModeProvider.notifier)
-                          .setMode(selection.first);
-                    },
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: SegmentedButton<ThemeMode>(
+                      segments: const [
+                        ButtonSegment(
+                          value: ThemeMode.system,
+                          label: Text('System'),
+                          icon: Icon(Icons.brightness_auto_outlined),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.light,
+                          label: Text('Light'),
+                          icon: Icon(Icons.light_mode_outlined),
+                        ),
+                        ButtonSegment(
+                          value: ThemeMode.dark,
+                          label: Text('Dark'),
+                          icon: Icon(Icons.dark_mode_outlined),
+                        ),
+                      ],
+                      selected: {themeMode},
+                      onSelectionChanged: (selection) {
+                        ref
+                            .read(themeModeProvider.notifier)
+                            .setMode(selection.first);
+                      },
+                    ),
                   ),
                 ],
               ),

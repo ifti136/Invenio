@@ -136,7 +136,10 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
                           onChanged: (_) => _toggle(product),
                           controlAffinity: ListTileControlAffinity.leading,
                           title: Text(product.name),
-                          subtitle: Row(
+                          subtitle: Wrap(
+                            spacing: AppSpacing.sm,
+                            runSpacing: AppSpacing.xs,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               MoneyText(
                                 Money(product.priceMinor),
@@ -146,7 +149,6 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
                                       .onSurfaceVariant,
                                 ),
                               ),
-                              const SizedBox(width: AppSpacing.sm),
                               StockBadge(
                                 stock: product.stock,
                                 lowStockAt: product.lowStockAt,

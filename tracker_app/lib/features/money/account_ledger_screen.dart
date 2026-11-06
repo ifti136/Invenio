@@ -224,10 +224,15 @@ class _Header extends ConsumerWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.xs),
-          MoneyText(
-            Money(ledger.balanceMinor),
-            style: AppTextStyles.display.copyWith(
-              color: ledger.balanceMinor < 0 ? scheme.error : scheme.onSurface,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: MoneyText(
+              Money(ledger.balanceMinor),
+              style: AppTextStyles.display.copyWith(
+                color:
+                    ledger.balanceMinor < 0 ? scheme.error : scheme.onSurface,
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.md),

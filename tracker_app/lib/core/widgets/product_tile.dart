@@ -28,9 +28,8 @@ class ProductTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final initial = name.trim().isEmpty
-        ? '?'
-        : name.trim().substring(0, 1).toUpperCase();
+    final initial =
+        name.trim().isEmpty ? '?' : name.trim().substring(0, 1).toUpperCase();
 
     return Card(
       child: InkWell(
@@ -70,7 +69,10 @@ class ProductTile extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: AppSpacing.xs),
-                    Row(
+                    Wrap(
+                      spacing: AppSpacing.sm,
+                      runSpacing: AppSpacing.xs,
+                      crossAxisAlignment: WrapCrossAlignment.center,
                       children: [
                         MoneyText(
                           price,
@@ -78,7 +80,6 @@ class ProductTile extends StatelessWidget {
                             color: scheme.onSurfaceVariant,
                           ),
                         ),
-                        const SizedBox(width: AppSpacing.sm),
                         StockBadge(stock: stock, lowStockAt: lowStockAt),
                       ],
                     ),

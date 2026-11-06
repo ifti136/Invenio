@@ -22,16 +22,20 @@ class StatusChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(AppRadii.pill),
         border: Border.all(color: color.withOpacity(0.4)),
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, size: 12, color: color),
-          const SizedBox(width: AppSpacing.xs),
-          Text(
-            label,
-            style: AppTextStyles.label.copyWith(color: color),
-          ),
-        ],
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        alignment: Alignment.centerLeft,
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 12, color: color),
+            const SizedBox(width: AppSpacing.xs),
+            Text(
+              label,
+              style: AppTextStyles.label.copyWith(color: color),
+            ),
+          ],
+        ),
       ),
     );
   }

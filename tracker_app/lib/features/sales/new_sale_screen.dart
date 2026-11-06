@@ -311,24 +311,27 @@ class _NewSaleScreenState extends ConsumerState<NewSaleScreen> {
       children: [
         Text('Payment', style: AppTextStyles.title),
         const SizedBox(height: AppSpacing.sm),
-        SegmentedButton<PaymentMode>(
-          showSelectedIcon: false,
-          segments: const [
-            ButtonSegment(
-              value: PaymentMode.paid,
-              label: Text('Paid in full'),
-            ),
-            ButtonSegment(value: PaymentMode.partial, label: Text('Part')),
-            ButtonSegment(value: PaymentMode.due, label: Text('Later')),
-          ],
-          selected: {_payment},
-          onSelectionChanged: (selection) {
-            setState(() {
-              _payment = selection.first;
-              _customerError = false;
-              _accountError = false;
-            });
-          },
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: SegmentedButton<PaymentMode>(
+            showSelectedIcon: false,
+            segments: const [
+              ButtonSegment(
+                value: PaymentMode.paid,
+                label: Text('Paid in full'),
+              ),
+              ButtonSegment(value: PaymentMode.partial, label: Text('Part')),
+              ButtonSegment(value: PaymentMode.due, label: Text('Later')),
+            ],
+            selected: {_payment},
+            onSelectionChanged: (selection) {
+              setState(() {
+                _payment = selection.first;
+                _customerError = false;
+                _accountError = false;
+              });
+            },
+          ),
         ),
         if (_payment == PaymentMode.partial) ...[
           const SizedBox(height: AppSpacing.md),
@@ -658,6 +661,7 @@ class _CartLineTileState extends ConsumerState<_CartLineTile> {
               children: [
                 _StepperButton(
                   icon: Icons.remove,
+                  tooltip: 'Decrease quantity',
                   onPressed: line.qty > 1
                       ? () => controller.setQty(line.productId, line.qty - 1)
                       : null,
@@ -669,6 +673,7 @@ class _CartLineTileState extends ConsumerState<_CartLineTile> {
                 ),
                 _StepperButton(
                   icon: Icons.add,
+                  tooltip: 'Increase quantity',
                   onPressed: () =>
                       controller.setQty(line.productId, line.qty + 1),
                 ),
@@ -749,13 +754,19 @@ class _CartLineTileState extends ConsumerState<_CartLineTile> {
 
 class _StepperButton extends StatelessWidget {
   final IconData icon;
+  final String tooltip;
   final VoidCallback? onPressed;
 
-  const _StepperButton({required this.icon, this.onPressed});
+  const _StepperButton({
+    required this.icon,
+    required this.tooltip,
+    this.onPressed,
+  });
 
   @override
   Widget build(BuildContext context) {
     return IconButton(
+      tooltip: tooltip,
       visualDensity: VisualDensity.compact,
       constraints: const BoxConstraints.tightFor(width: 36, height: 36),
       onPressed: onPressed,

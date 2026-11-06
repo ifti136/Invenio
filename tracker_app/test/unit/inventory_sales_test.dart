@@ -2,6 +2,7 @@ import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:tracker/db/app_database.dart';
 import 'package:tracker/features/inventory/product_repository.dart';
+import 'package:tracker/features/sales/sale_models.dart';
 import 'package:tracker/features/sales/sale_repository.dart';
 import 'package:tracker/features/settings/account_repository.dart';
 
@@ -112,6 +113,116 @@ void main() {
 
     final balances = await accounts.watchBalances().first;
     expect(balances.single.balanceMinor, 10000 + 2400);
+  });
+
+  test('multi-line sale drops every product stock in one transaction',
+      () async {
+    final accountId = await accounts.addAccount(
+      name: 'Cash',
+      openingBalanceMinor: 0,
+    );
+    final firstId = await products.createProduct(
+      name: 'Mouse',
+      priceMinor: 1200,
+      costMinor: 800,
+      initialStock: 5,
+      lowStockAt: 2,
+      archived: false,
+    );
+    final secondId = await products.createProduct(
+      name: 'Cable',
+      priceMinor: 500,
+      costMinor: 300,
+      initialStock: 4,
+      lowStockAt: 2,
+      archived: false,
+    );
+    final thirdId = await products.createProduct(
+      name: 'Pad',
+      priceMinor: 300,
+      costMinor: 100,
+      initialStock: 2,
+      lowStockAt: 1,
+      archived: false,
+    );
+    final channelId = (await db.select(db.channels).get()).first.id;
+
+    await sales.saveSale(
+      lines: [
+        SaleLineInput(
+          productId: firstId,
+          qty: 2,
+          unitPriceMinor: 1200,
+          unitCostMinor: 800,
+        ),
+        SaleLineInput(
+          productId: secondId,
+          qty: 1,
+          unitPriceMinor: 500,
+          unitCostMinor: 300,
+        ),
+        SaleLineInput(
+          productId: thirdId,
+          qty: 2,
+          unitPriceMinor: 300,
+          unitCostMinor: 100,
+        ),
+      ],
+      channelId: channelId,
+      payment: PaymentMode.paid,
+      accountId: accountId,
+    );
+
+    expect((await products.getProduct(firstId))!.stock, 3);
+    expect((await products.getProduct(secondId))!.stock, 3);
+    expect((await products.getProduct(thirdId))!.stock, 0);
+    expect(await db.select(db.saleItems).get(), hasLength(3));
+  });
+
+  test('editing product cost does not change past sale profit', () async {
+    final accountId = await accounts.addAccount(
+      name: 'Cash',
+      openingBalanceMinor: 0,
+    );
+    final productId = await products.createProduct(
+      name: 'Mouse',
+      priceMinor: 1200,
+      costMinor: 800,
+      initialStock: 5,
+      lowStockAt: 2,
+      archived: false,
+    );
+    final channelId = (await db.select(db.channels).get()).first.id;
+
+    await sales.saveSale(
+      lines: [
+        SaleLineInput(
+          productId: productId,
+          qty: 1,
+          unitPriceMinor: 1200,
+          unitCostMinor: 800,
+        ),
+      ],
+      channelId: channelId,
+      payment: PaymentMode.paid,
+      accountId: accountId,
+    );
+
+    await products.updateProduct(
+      id: productId,
+      name: 'Mouse',
+      priceMinor: 1200,
+      costMinor: 1000,
+      stock: 4,
+      lowStockAt: 2,
+      archived: false,
+    );
+
+    final item = await db.select(db.saleItems).getSingle();
+    expect(item.unitCostMinor, 800);
+    expect((await products.getProduct(productId))!.costMinor, 1000);
+    final summaries = await sales.watchSales().first;
+    expect(summaries.single.profitMinor, 400);
   });
 
   test('quick sell allows selling above stock', () async {

@@ -45,16 +45,24 @@ class SaleBar extends StatelessWidget {
                         color: scheme.onSurfaceVariant,
                       ),
                     ),
-                    MoneyText(
-                      total,
-                      style: AppTextStyles.headline.copyWith(
-                        color: scheme.onSurface,
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: MoneyText(
+                        total,
+                        style: AppTextStyles.headline.copyWith(
+                          color: scheme.onSurface,
+                        ),
                       ),
                     ),
-                    MoneyText(
-                      profit,
-                      showSign: true,
-                      style: AppTextStyles.body.copyWith(color: profitColor),
+                    FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerLeft,
+                      child: MoneyText(
+                        profit,
+                        showSign: true,
+                        style: AppTextStyles.body.copyWith(color: profitColor),
+                      ),
                     ),
                   ],
                 ),

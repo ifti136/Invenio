@@ -138,10 +138,14 @@ class _DueDetailBody extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: AppSpacing.xs),
-                MoneyText(
-                  Money(detail.dueMinor),
-                  style: AppTextStyles.display.copyWith(
-                    color: scheme.onTertiaryContainer,
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  alignment: Alignment.centerLeft,
+                  child: MoneyText(
+                    Money(detail.dueMinor),
+                    style: AppTextStyles.display.copyWith(
+                      color: scheme.onTertiaryContainer,
+                    ),
                   ),
                 ),
                 if (oldest != null) ...[
