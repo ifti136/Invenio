@@ -16,7 +16,9 @@ import 'product_repository.dart';
 enum _InventoryFilter { all, low, out, archived }
 
 class InventoryScreen extends ConsumerStatefulWidget {
-  const InventoryScreen({super.key});
+  final String? initialFilter;
+
+  const InventoryScreen({super.key, this.initialFilter});
 
   @override
   ConsumerState<InventoryScreen> createState() => _InventoryScreenState();
@@ -24,8 +26,32 @@ class InventoryScreen extends ConsumerStatefulWidget {
 
 class _InventoryScreenState extends ConsumerState<InventoryScreen> {
   final _search = TextEditingController();
-  _InventoryFilter _filter = _InventoryFilter.all;
+  late _InventoryFilter _filter;
   String _query = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _filter = switch (widget.initialFilter) {
+      'low' => _InventoryFilter.low,
+      'out' => _InventoryFilter.out,
+      'archived' => _InventoryFilter.archived,
+      _ => _InventoryFilter.all,
+    };
+  }
+
+  @override
+  void didUpdateWidget(covariant InventoryScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialFilter != widget.initialFilter) {
+      _filter = switch (widget.initialFilter) {
+        'low' => _InventoryFilter.low,
+        'out' => _InventoryFilter.out,
+        'archived' => _InventoryFilter.archived,
+        _ => _InventoryFilter.all,
+      };
+    }
+  }
 
   @override
   void dispose() {

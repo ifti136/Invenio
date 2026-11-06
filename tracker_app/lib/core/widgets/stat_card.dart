@@ -11,6 +11,7 @@ class StatCard extends StatelessWidget {
   final StatTone tone;
   final String? caption;
   final Widget? trailing;
+  final VoidCallback? onTap;
 
   const StatCard({
     super.key,
@@ -20,6 +21,7 @@ class StatCard extends StatelessWidget {
     this.tone = StatTone.neutral,
     this.caption,
     this.trailing,
+    this.onTap,
   });
 
   Color _toneColor(ColorScheme scheme) {
@@ -41,7 +43,7 @@ class StatCard extends StatelessWidget {
     final scheme = theme.colorScheme;
     final color = _toneColor(scheme);
 
-    return Container(
+    final content = Container(
       padding: const EdgeInsets.all(AppSpacing.lg),
       decoration: BoxDecoration(
         color: scheme.surfaceContainerLow,
@@ -93,6 +95,17 @@ class StatCard extends StatelessWidget {
             ),
           ],
         ],
+      ),
+    );
+
+    if (onTap == null) return content;
+
+    return Semantics(
+      button: true,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: content,
       ),
     );
   }

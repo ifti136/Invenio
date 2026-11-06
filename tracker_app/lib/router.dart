@@ -48,7 +48,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/inventory',
-                builder: (context, state) => const InventoryScreen(),
+                builder: (context, state) => InventoryScreen(
+                  initialFilter: state.uri.queryParameters['filter'],
+                ),
               ),
             ],
           ),
@@ -56,7 +58,9 @@ final routerProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: '/money',
-                builder: (context, state) => const MoneyScreen(),
+                builder: (context, state) => MoneyScreen(
+                  initialTab: state.uri.queryParameters['tab'],
+                ),
               ),
             ],
           ),

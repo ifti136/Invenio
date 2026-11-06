@@ -15,14 +15,38 @@ import 'money_providers.dart';
 enum MoneyTab { accounts, dues, expenses }
 
 class MoneyScreen extends ConsumerStatefulWidget {
-  const MoneyScreen({super.key});
+  final String? initialTab;
+
+  const MoneyScreen({super.key, this.initialTab});
 
   @override
   ConsumerState<MoneyScreen> createState() => _MoneyScreenState();
 }
 
 class _MoneyScreenState extends ConsumerState<MoneyScreen> {
-  MoneyTab _tab = MoneyTab.accounts;
+  late MoneyTab _tab;
+
+  @override
+  void initState() {
+    super.initState();
+    _tab = switch (widget.initialTab) {
+      'dues' => MoneyTab.dues,
+      'expenses' => MoneyTab.expenses,
+      _ => MoneyTab.accounts,
+    };
+  }
+
+  @override
+  void didUpdateWidget(covariant MoneyScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialTab != widget.initialTab) {
+      _tab = switch (widget.initialTab) {
+        'dues' => MoneyTab.dues,
+        'expenses' => MoneyTab.expenses,
+        _ => MoneyTab.accounts,
+      };
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
