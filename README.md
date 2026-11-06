@@ -1,54 +1,58 @@
-# Invenio — Inventory & Economy Tracker
+# Invenio — Inventory & Money Tracker
 
-Invenio is a solo-owner Flutter Android app for a small reseller to track
-inventory, log sales, record expenses, and see daily profit — fully offline,
-no auth, no cloud sync. It is one APK that installs and works on a phone
-without ever touching the network, designed for a single person running
-sales on Facebook Marketplace and in person.
+Invenio is a solo-owner Flutter Android app for a small reseller to manage
+inventory, log sales, track money and expenses, and view profit analytics.
+It is fully offline — no auth, no cloud sync — and ships as one APK that works
+on a phone without ever touching the network.
+
+Version **3.6.3+23** · Clean Ledger design · Schema v8 (13 tables).
+
+Releases follow phase-based sub-sub-versioning, **`v3.<phase>.<change>`**:
+`v3.0.0` is the Clean Ledger baseline, Phase 0 changes are `v3.0.x`, and each
+later phase starts its own series (`v3.1.1`, `v3.2.1`, … `v3.6.1`). See
+[`docs/CHANGELOG.md`](docs/CHANGELOG.md) for the full history.
 
 ## Features
 
-### Products
-- Create, edit, and delete products with name, cost price, and notes
-- Restock with tracked stock movements (initial / restock / adjustment / sale)
-- Per-product low-stock alerts and per-product alert toggle (on/off)
-- Full stock-movement history per product
-- Searchable product list with stat cards (count, low stock, out of stock, total value)
+### Home
+- Total money, per-account chips, dues, and low-stock count
+- Today's sales, revenue, and profit with tap-through deep links
+- Setup and zero-state cards with a primary action
+
+### Inventory
+- Product catalog with search, low/out-of-stock filters, and stat cards
+- Add/edit products with price, cost, stock, low-stock threshold, and notes
+- Product detail with a merged stock/purchase timeline
+- Restock with optional cash-out from an account
+- Stock movements: initial, restock, adjustment, sale
 
 ### Sales
-- Log sales with quantity, selling price, platform (Facebook / Offline),
-  payment status (Paid / Due), and optional customer name
-- Live profit preview before saving
-- Below-cost, low-stock, and margin-drop alerts
-- Quick-sell bottom sheet per product (one tap from the product grid)
-- Discounted sales (price + loss tracked separately)
-- Filterable sales list (date range, platform, payment, product)
-- Mark as paid, edit, and delete with confirmation
+- Quick Sell in one line, plus a full multi-line cart
+- Editable prices, discounts, below-cost and above-stock warnings
+- Paid in full / Part / Later, customer create-on-the-fly, and account routing
+- Atomic save: sale, cost-snapshotted lines, stock moves, and payments
+- Day-grouped sales log with search and date/channel/status filters
+- Sale detail with record payment, share receipt, edit, delete, and undo
 
-### Expenses
-- Log expenses by category (Ads / Delivery / Packaging / Misc)
-- Date-filtered list with monthly totals and preset ranges
-- Feeds into net profit calculations across all report views
+### Money
+- Accounts with derived live balances and a running ledger
+- Transfers between accounts without touching profit
+- Balance adjustments with a visible ledger entry
+- Dues grouped by customer with FIFO or sale-specific payments
+- Expenses with categories, account deduction, filters, and monthly totals
 
-### Reports & Export
-- Dashboard with today's stats (sales, revenue, gross/net profit, due,
-  platform breakdown, low stock)
-- Daily, monthly, and product bar charts with revenue vs. profit
-- Product-level performance report
-- Excel export (Sales + Expenses + Summary sheets) via the Android share sheet
+### Reports
+- Week, month, year, and custom ranges
+- Profit & loss, margin, trend chart, and product/channel breakdowns
+- CSV export of sales, line items, payments, expenses, and balances
+- SQLite backup export and daily automatic local backup
 
-### BFMS (Budget & Financial Management)
-- Multi-wallet tracking (Cash, Bank, etc.)
-- Automated allocation rules for sales revenue
-- Budget buckets for expense tracking and financial planning
-
-### Design
-- Liquid Glass UI — `glass_kit` panels + animated aurora background
-- Material 3 with a custom color system (teal `#1D9E75` accent)
-- 5-slot bottom navigation with raised centre POS button and glass chrome
-- Rounded glass cards (hero 24 / card 20 / tile 16 / input 14 / sheet 28 / pill 999)
-- Receipt bottom sheet (pre-filled from saved sale, Share via share_plus)
-- Custom launcher icon and splash screen
+### Design & accessibility
+- Clean Ledger Material 3: flat tonal surfaces, 1 px outlines, teal
+  `#1D9E75`, light/dark/system
+- No blur, gradients, shadows, or animated backgrounds
+- Every content screen has loading, empty, filtered-empty, and error states
+- 200% text scale verified on a 360 dp viewport; contrast-tested tokens
 
 ## Tech stack
 
@@ -56,13 +60,16 @@ sales on Facebook Marketplace and in person.
 |-------|--------|
 | Framework | Flutter 3.24.4, Dart 3.5.4 |
 | Target | Android (min API 24) |
-| Database | drift (SQLite) — fully offline, schema v6 |
-| State | Riverpod (codegen) |
-| Routing | go_router 15 — `StatefulShellRoute.indexedStack` (5 slots) |
+| Database | drift (SQLite), schema v8 (13 tables) |
+| State | Riverpod |
+| Routing | go_router 15 — `StatefulShellRoute.indexedStack` (5 tabs) |
 | Charts | fl_chart 0.69 |
-| Export | syncfusion_flutter_xlsio 27.1.55 + share_plus |
-| Theme | glass_kit 4.0.2 + aurora_background 1.0.2 |
-| Icons | flutter_launcher_icons 0.14.4 |
+| Export | CSV + SQLite file via `share_plus` |
+| Prefs | `shared_preferences` |
+| Icons | `flutter_launcher_icons` |
+
+Money is always stored as integer minor units and rendered through `Money`.
+No `double`/`REAL` money columns.
 
 ## Getting started
 
@@ -93,11 +100,27 @@ flutter build apk --release
 # Split APK by ABI (smaller per-device)
 flutter build apk --split-per-abi --release
 
-# App bundle (recommended for Play Store)
+# App bundle
 flutter build appbundle --release
 ```
 
-The APK is output to `tracker_app/build/app/outputs/flutter-apk/`.
+The APK is written to `tracker_app/build/app/outputs/flutter-apk/`.
+
+## Testing
+
+The suite lives in `tracker_app/test/` and is currently **57 / 57 passing**
+with `flutter analyze` clean. See
+[`tracker_app/test/REPORT.md`](tracker_app/test/REPORT.md) for the per-file
+breakdown and the Linux `libsqlite3.so` workaround.
+
+```bash
+cd tracker_app
+
+# Linux: make sqlite3 resolvable for drift tests
+ln -sf /usr/lib64/libsqlite3.so.0 /tmp/libsqlite3.so
+
+LD_LIBRARY_PATH=/tmp flutter test --reporter expanded
+```
 
 ## Project structure
 
@@ -105,55 +128,39 @@ The APK is output to `tracker_app/build/app/outputs/flutter-apk/`.
 Invenio/
 ├── README.md                  ← you are here
 ├── docs/                      ← full documentation (start at docs/README.md)
-│   ├── README.md
-│   ├── ARCHITECTURE.md        ← human-readable one-pager
-│   ├── CHANGELOG.md           ← feature log + bug list
-│   ├── HISTORY.md             ← regression narrative
-│   ├── DESIGN.md              ← visual design spec
-│   ├── VERSION_HISTORY.md     ← full micro-version log
-│   └── instructions/          ← pre-implementation specs
+│   ├── README.md              ← index
+│   ├── ARCHITECTURE.md        ← tech choices and folder map
+│   ├── CHANGELOG.md           ← consolidated release history
+│   ├── DESIGN.md              ← Clean Ledger visual spec
+│   └── invenio overhaul.pdf   ← master spec (v2.3)
+├── .planning/ROADMAP.md       ← Phase 0–6 plan
 └── tracker_app/
-    ├── README.md              ← pointer to root README + docs
-    ├── lib/                   ← Dart source (see folder map in ARCHITECTURE.md)
-    ├── test/                  ← 8 unit + 7 widget test files + REPORT.md
-    ├── assets/icon/           ← launcher icon source (invenio.png)
+    ├── README.md              ← app pointer
+    ├── lib/                   ← Dart source
+    ├── test/                  ← unit + widget tests + REPORT.md
+    ├── assets/icon/           ← launcher icon source
     ├── pubspec.yaml
     └── android/               ← Android Gradle config; min SDK 24
 ```
 
 ## Documentation
 
-The full documentation is in [`docs/`](docs/README.md). Start with
-[`docs/README.md`](docs/README.md) — it is the index and tells you which
-doc to read for what.
+Start with [`docs/README.md`](docs/README.md).
 
 | If you want to … | Read |
 |---|---|
 | Understand the project in 5 minutes | [`docs/README.md`](docs/README.md) |
 | See the key tech choices and trade-offs | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
-| See what was built, in order | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) |
-| Understand what broke and why | [`docs/HISTORY.md`](docs/HISTORY.md) |
-| See the full version history (micro-versions) | [`docs/VERSION_HISTORY.md`](docs/VERSION_HISTORY.md) |
-| Look up a color or screen layout | [`docs/DESIGN.md`](docs/DESIGN.md) |
-| Check the test status and known limitations | [`tracker_app/test/REPORT.md`](tracker_app/test/REPORT.md) |
+| See what shipped, in order | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) |
+| Look up a color, spacing token, or screen layout | [`docs/DESIGN.md`](docs/DESIGN.md) |
+| Check test status and known limitations | [`tracker_app/test/REPORT.md`](tracker_app/test/REPORT.md) |
 
-## Testing
+## Known limitations
 
-The test suite lives in `tracker_app/test/` — 8 unit files + 7 widget files,
-**100 / 100 passing** in the current state. See
-[`tracker_app/test/REPORT.md`](tracker_app/test/REPORT.md) for the per-file
-breakdown, the `libsqlite3.so` symlink trick for Linux CI, and the
-`glass_kit` / `aurora_background` headless workarounds.
-
-```bash
-cd tracker_app
-
-# Pure-logic tests (no native deps needed)
-flutter test test/unit/alert_service_test.dart test/unit/profit_calculation_test.dart
-
-# Full suite (requires libsqlite3.so; see test/REPORT.md for the Linux symlink)
-flutter test --reporter expanded
-```
+- SQLite **restore** is not implemented; export and daily backups are.
+  Restore needs an approved file-picker dependency.
+- The app has not been verified on a physical device from this environment.
+- No cloud sync, barcode scanning, invoices, or push notifications by design.
 
 ## License
 

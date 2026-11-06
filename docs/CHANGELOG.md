@@ -1,322 +1,217 @@
 # Changelog
 
-## v2.1.2 (Build 2.1.2+19) — Fix blank gray screen on launch
-- Fixed the v2.1.1+18 launch regression where the first frame returned a bare `WalkthroughScreen` `Scaffold` with no `MaterialApp`/`WidgetsApp` ancestor; release builds rendered Flutter's textless light-gray `ErrorWidget`.
-- `TrackerApp` now always returns a `MaterialApp`-family root with an explicit `initialized` gate: a themed bootstrap loader while prefs load, then the walkthrough or the router.
-- Added `initialized` to `WalkthroughState`; it is set on load success, on load failure (fail open to a usable app), on completion, and on reset.
-- Walkthrough completion no longer double-pops; the dialog is dismissed via its own context and the root swap replaces the walkthrough.
-- Added walkthrough regression tests: first-frame safety, walkthrough branch, completed branch, and completion root swap.
-- Migrated the shop-name dialog from a raw `showDialog` + `GlassPanel` to `showGlassDialog`, so it is Material-safe and follows the project dialog convention; its input is now a `GlassTextField`.
-- Shop-name dialog actions are now **Skip** and **Save & Continue**; an empty or skipped name falls back to `Invenio`, so the dialog can no longer leave the walkthrough stuck.
-- Restored the keyboard **Done** action on the shop-name field; it pops the dialog via a dialog-scoped `Builder` context (not the outer page context) with the trimmed name.
-- Removed the dead-end swipeable `_ShopNamePage` (raw `TextField`, inert submit, hidden action button); the walkthrough is now the five feature pages plus the **Enter Shop Name** button that opens the dialog.
-- Added a `mounted` guard before using `ref` after the dialog await.
-- No new dependencies; no schema change.
+All notable changes to Invenio, newest first. This file is the single source
+of truth for release history; the former `HISTORY.md` and `VERSION_HISTORY.md`
+were folded into it, and pre-overhaul narrative remains in git history.
 
-## v1.7.0 — POS Refresh (Teal Rounded Cards)
-- **M1 — Tokens & shared widgets**: added `AppRadii`/`AppSpacing`/`AppTextStyles` (tabular money), teal/amber/danger ink tokens for light mode, `CategoryChipRow`, `QuickActionTile`, extended `StatCard`, tuned `GlassPanel(noBlur: true)` light fill/border.
-- **M2 — Nav & More**: custom 5-slot `PosNavBar` (Home, Products, raised POS, Reports, More) with low-stock badge on Products only; `More` screen owns Sales, Expenses, Wallets, Buckets, Finance rules, Add-on types, Settings; router shell reduced to Home/Products/Reports/More with secondary routes pushed.
-- **M3 — Home**: app-bar bell with low-stock badge, teal hero turnover, 2x2 stat grid, wide New sale + secondary quick actions, 7-day revenue trend, restyled platform/stock/wallet cards; `DashboardSummary` gains provider-only `expensesToday`/`revenueLast7Days`.
-- **M4 — Products**: four-cell stat strip, stock chips, glass search field, self-wrapped radius-16 product cards without dividers, distinct empty and filtered-empty states.
-- **M5 — Reports**: scope chips, `PlReportCard` with net profit = gross profit − expenses and margin, chart card with Revenue/Profit legend, tabular tables, clearer empty copy.
-- **M6 — Receipt**: `ReceiptSheet` bottom sheet after quick-sell or add-sale; product, qty × unit price, total, customer, platform, paid/due; no add-ons, cost, profit, or margin; `Share.share(text)` only. PDF deferred.
-- Fixed `ExpenseRepository.update` so an explicit null note clears it.
-- Rewrote the stale v4 migration fixture against the real schema (snake_case tables, v6 migration path).
-- Verification: `flutter analyze` 0 errors/warnings (8 pre-existing infos), `flutter test` 144/144 passing.
+Current release: **v3.6.3+23** · Schema **v8** (13 tables).
 
-## v1.6.1 (Build 1.6.1+15) — Theme Refinement & Bug Fixes
-- **Expense Form Fix**: Resolved layout crash in "Add Expense" form by wrapping `_ToggleGroup` in `Expanded`.
-- **Paper Theme Enhanced**: Updated to warm cream tones and brown accents for a more premium feel.
-- **Theme Cleanup**: Removed "Light Solid" and "Dark Solid" themes; added migration logic in `ThemeProvider` to map them to Aurora equivalents.
-- **Theme UI Update**: Refactored theme selection screen to a responsive 2-column `GridView` layout.
-- **Contrast Fix**: Replaced hardcoded white text in settings suite (`SettingsScreen`, `SystemSettingsScreen`, `AddOnTypesScreen`, `CurrencyScreen`) with theme-aware `onSurface` colors.
+## Versioning
 
-## v1.5.0 (Build 1.5.0+12) — Bottom Nav Cleanup
-- Removed Finance tab from bottom navigation bar to reduce clutter.
-- Restored Finance section as a sub-route of Settings (`/settings/finance`).
-- Updated `FinanceScreen` navigation paths to use the settings-based routes.
+Releases use phase-based sub-sub-versioning: **`v3.<phase>.<change>`**.
 
-## v1.5.0 (Build 1.5.0+11) — Routing Fix
-- Fixed "Page Not Found" error when navigating to allocation rules from the Finance tab.
-- Unified finance routing: moved `rule` and `history` sub-routes to the top-level `/finance` route and redirected `/settings/finance` to `/finance`.
-- Updated `FinanceScreen` to use the new `/finance/...` absolute paths.
-
-## v1.5.0 (Build 1.5.0+10) — Finance Tab & UI Cleanup
-- **Finance tab** added as 6th bottom nav tab: Finance moves from Settings to a dedicated tab in the `StatefulShellRoute.indexedStack`.
-- **Merged Bucket screens**: `BucketDetailScreen` and `BucketHistoryScreen` merged into a single `BucketDetailScreen` (kept the more feature-complete version with color dot, edit button, SectionHeader); `BucketHistoryScreen` removed.
-- **Dead code removal**: Removed `HapticWrapper(onTap: null)` wrappers from `FinanceScreen` and `BucketDetailScreen`.
-- **Router import fix**: Added missing `WalletListScreen` import to router.
-- **Clear All Data fix**: Replaced type-inference-breaking loop with individual `await db.delete(...).go()` calls; fixed orphaned `ref.invalidate()` / `Navigator.pop()` that were outside the `onPressed` callback.
-- **Schema stays v6** (no new tables or columns).
-
-
-## v1.4.0 (Build 1.4.0+8) — Wallet Transfers
-- New **Wallet Transfer** feature: move money between wallets without affecting profit reports.
-- Schema v6: new `transfers` table (`fromWalletId`, `toWalletId`, `amount`, `note`, `createdAt`).
-- Transfer form sheet with balance validation (prevents negative balances).
-- Transfer history screen accessible from Wallet settings.
-- Wallet balance calculation now includes transfer sums.
-
-### v1.4.0 (Build 1.4.0+9) — Currency Fix
-- `formatMoney()` now uses the stored currency symbol from `CurrencyService` instead of hardcoded `'৳'`.
-- Added `setCurrencySymbol()` to sync the formatter when the user changes the symbol.
-- Currency symbol initializes on app startup from saved preferences.
-
-## v1.3.3 (Build 1.3.3+7)
-- Fixed crash on Dashboard and Reports screens during migration: corrected raw SQL column names in `AppDatabase.onUpgrade` from camelCase to snake_case.
-- Refactored Finance section: removed Allocation Settings screen, moved rule creation/editing to Finance screen.
-- Replaced popup menus with visible Edit/Delete icons on allocation rules, expense list items, and budget buckets.
-- Fixed Theme screen blank state (transparent background + GlassPanel).
-- Fixed Allocation History bug: union of profit and expense month keys ensures months with only expenses are displayed.
-- Redesigned Budget flow: Dashboard → Budget List → Bucket Detail → Edit Popup.
-- Fixed dynamic year derivation in Allocation History.
-
-## v1.3.2 (Build 1.3.2+5)
-- Removed settings gear from Products screen AppBar; centered titles on Products, Sales, and Expenses screens.
-- Added wallet picker to Quick Sell and Discount sheets (auto-selects last-used wallet, saves wallet ID with sale).
-- Fixed Finance screen blank state (added `noBlur: true` and padding to GlassPanel) and updated currency formatting.
-- Fixed Allocation Settings screen blank state (removed `mainAxisSize: min` and changed `Flexible` → `Expanded`).
-- Fixed Theme screen blank state (replaced nested `AuroraBackdrop` with colored container previews).
-- Fixed stale hardcoded version string in System screen.
-- Cleaned up repository: removed AI workflow artifacts from git tracking.
-
-## v1.3.1 (Build 1.3.1+4)
-- Fixed FAB position: `centerDocked` → `endFloat` (app_bottom_nav.dart).
-- Fixed wallet SQL: `walletId` → `wallet_id` in raw `customSelect` queries (wallet_repository.dart).
-- Fixed finance error text color `Colors.white` → `Colors.white70` (finance_screen.dart).
-- Fixed allocation rules layout: `Column(mainAxisSize: min)`, `Expanded` → `Flexible` (allocation_settings_screen.dart).
-- Fixed version screen: fully implemented with `GlassPanel` cards (system_settings_screen.dart).
-- Fixed dashboard quick-action popup: wrapped in `GlassPanel(solid: true)` (app_bottom_nav.dart).
-- Fixed sell button `onPressed: null` → conditional callback, removed `HapticWrapper` (sale_list_screen.dart).
-- Fixed add-on picker: wrapped in `SingleChildScrollView`, simplified Done button (add_on_picker_sheet.dart).
-- Fixed dashboard card staleness: removed `const` from card instantiations (dashboard_screen.dart).
-
-## v1.3.0 (Build 1.3.0+3)
-- Fixed wallet balance reading from stale provider data.
-- Fixed finance settings navigation (wrong route path).
-- Fixed dashboard not refreshing after sales/expenses changes.
-- Fixed product restock flow issues.
-- Fixed bucket spending not updating in real time.
-- Fixed add-on picker showing disabled buttons.
-- Fixed currency symbol not persisting across restarts.
-- Fixed add-on types screen not reflecting edits.
-
-## v1.2.8 (Build 1.2.8+2)
-- Static analysis cleanup: fixed syntax errors and removed unused imports.
-- Documentation sync.
-
-## v1.2.7 (Build 1.2.7+2)
-- Integrated `HapticService` and `HapticWrapper` across all primary interactions (buttons, toggles, list items).
-- Performed "Glass Audit" to ensure consistent use of `GlassPanel` and `GlassTextField`.
-- Implemented empty states for all major lists.
-
-## v1.2.6 (Build 1.2.6+2)
-- Refactored Dashboard to a single `ListView` with `kBottomNavClearance`.
-- Implemented `TodayCard` with 2x2 metric grid and `fl_chart` sparkline.
-- Implemented `PlatformPerformanceCard` with donut chart and progress bars.
-- Added `WalletBalancesCard` and `BudgetBucketsCard` with specified empty states.
-- Implemented `StockAlertsCard` with avatar squares and quick-sell buttons.
-- Added per-sale and per-product profit report views.
-
-## v1.2.5 (Build 1.2.5+2)
-- Implemented `AddOnPickerSheet` for selecting and editing add-on quantities during sales.
-- Integrated add-on system into Sale Form, Quick Sell, and Discount sheets.
-- Updated live profit previews to subtract add-on costs from gross profit.
-- Added currency settings screen with symbol persistence.
-
-## v1.2.4 (Build 1.2.4+2)
-- Global profit recalculation including add-on costs subtracted from gross profit.
-- Balance and spent-watching streams for finance (real-time wallet balance updates).
-- Finance screen integrated into settings hub.
-- Per-sale and per-product profit reports with detailed breakdowns.
-
-## v1.2.3 (Build 1.2.3+2)
-- go_router restructured with nested routes for settings.
-- Settings hub screen with navigation to sub-settings.
-- Nav tabs reduced and reorganized.
-- Quick-action FAB for primary actions.
-
-## v1.2.2 (Build 1.2.2+2)
-- Implemented 4 distinct themes, including "Solid Slate" (disables aurora/transparency).
-- Added theme persistence via `shared_preferences`.
-- Built `ThemeScreen` with animated aurora preview cards.
-- Created `HapticService` for standardized feedback (Light/Medium/Heavy).
-
-## v1.2.1 (Schema v5)
-- Added `AddOnTypes` and `SaleAddOns` database tables.
-- Add-on type CRUD (name, cost, isActive).
-- Sale-to-add-on linking with quantities and subtotals.
-- Migration from v4 → v5 preserves all existing data.
-
-## v1.2.0 (Build 1.0.1+3)
-- Build bumped from `1.0.0+2` to `1.0.1+3`.
-- Post-BFMS edge case fixes and stability improvements.
-- Foundation for Schema v5 and settings hub.
-
-## v1.1.1 — Budgeting & Wallet Integration
-- Integrated sales revenue allocation: sales now automatically distribute funds to wallets based on active allocation rules.
-- Wallet balance tracking: real-time balance updates for all wallets (Cash, Bank, etc.).
-- Budget bucket spending: expenses now deduct from specific budget buckets, with over-budget alerts.
-- Wallet & Bucket management screens: CRUD for wallets and budget buckets.
-
-## v1.1.0 (Schema v4)
-- Schema v4: Added `Wallets`, `AllocationRules`, and `BudgetBuckets` tables.
-- Wallet system: support for multiple financial accounts with custom names and initial balances.
-- Allocation engine: rule-based splitting of sales revenue (e.g., 70% to Business Wallet, 30% to Personal Wallet).
-- Budgeting system: creation of buckets for specific expense categories with monthly limits.
-
-## v1.0.0 — Launch
-- Custom launcher icon from `tracker_app/assets/icon/invenio.png` via `flutter_launcher_icons: ^0.14.4` (5 mipmap variants + adaptive icon with teal `#1D9E75` background).
-- Custom splash screen (logo over white background) via `drawable/launch_background.xml`.
-- `android:label` = "Invenio" (was "tracker"); `applicationId` stays `com.reseller.tracker`.
-- Version bumped to `1.0.0+2` (was `1.0.0+1`).
-- No Dart code touched.
-
-## v0.6.9 — Modal bottom sheets clear the custom nav
-- `max(viewInsets.bottom, padding.bottom + kBottomNavHeight + 8)` in all 5 `showModalBottomSheet` callers (`quick_sell_sheet`, `discount_sheet`, `product_picker_sheet`, `restock_sheet`, `product_filter_sheet`).
-- `useSafeArea: true` dropped to avoid double-counting the system safe area.
-- `restock_sheet` and `product_filter_sheet` barrier opacity bumped from 0.35 to 0.5.
-
-## v0.6.8 — Pop-up visibility + sales UX
-- `GlassPanel.solid: true` flag for near-opaque pop-up surfaces (`scheme.surface` at 0.92/0.95 opacity).
-- `ProductPickerSheet` extracted as a shared widget.
-- Sheets use `Column(mainAxisSize: MainAxisSize.min)` + `useSafeArea: true` + 0.5 barrier.
-- Log Sale form's product tile is tap-able in add mode.
-- `ref.invalidate(dashboardProvider)` added to `quick_sell_sheet` and `discount_sheet`.
-- Modal barrier opacity: 0.5 for sheets, 0.6 for dialogs.
-
-## v0.6.7 — Sales-flow `noBlur` + dialog `actionsBuilder(ctx)` refactor
-- `noBlur: true` on 3 `discount_sheet` `GlassPanel`s + 2 bottom `GlassPanel.flush`es in `quick_sell_sheet` and `discount_sheet`.
-- `noBlur: true, expand: false` on bottom confirm panels.
-- `showGlassDialog` changed to `actionsBuilder` pattern for correct Navigator context.
-- 12 call sites updated to use `actionsBuilder`.
-- Removed redundant "Full sale form" button from Sales list.
-
-## v0.6.5 / v0.6.6 — Body + dialog `noBlur` (glass_kit `SizedBox.expand` workaround)
-- `noBlur: true` on 18 body `GlassPanel`s across 6 screens + 1 dialog `GlassPanel`.
-- Fixed missed `_ProductSellCard` in Sales list.
-- Removed silently-ignored `@Riverpod(keepAlive: true)` annotations from 5 provider files.
-- `appDatabaseProvider` is the only legitimate `keepAlive: true`.
-
-## v0.6.4 — Cleanup + DB integration
-- Removed diagnostic files (`debug_borders.dart`, `debug_app_bar.dart`, `debug_mode.dart`).
-- Restored plain `AppBar` on all 9 screens.
-- `+` entry point moved to `SliverAppBar.actions`.
-- Form save paths now invalidate list/dashboard providers so data stays fresh.
-
-## v0.6.3 — GlassTextField permanent `noBlur` fix
-- Root cause: `glass_kit`'s `GlassContainer` ends with `SizedBox.expand`, producing 0×0 layout in unbounded parents.
-- Permanent fix: `GlassTextField`'s internal `GlassPanel` gets `noBlur: true`.
-
-## v0.6.2 — Form-screen blank fix
-- Same `glass_kit` `SizedBox.expand` regression on form-level `GlassPanel`. Fixed with `noBlur: true`.
-
-## v0.6.1 — Layout diagnostic placeholders (removed in 0.6.4)
-- Added `DebugBorders` / `DebugContainer` / `DebugAppBar` overlays.
-- All removed in v0.6.4.
-
-## v0.6.0 — Liquid Glass visual alignment
-- `SheetDragHandle` widget extracted (40×4 px pill, shared across all bottom sheets).
-- `ChipThemeData` added; product-list filter chips themed teal on select.
-- Sheet chrome aligned to DESIGN.md.
-
-## v0.5.0 — Reports & Export
-- Dashboard with today's stats (sales, revenue, gross/net profit, due, platform breakdown, low stock).
-- Daily, monthly, and product bar charts via `fl_chart` 0.69.
-- Excel export (`syncfusion_flutter_xlsio` 27.1.55) with 3 sheets: Sales, Expenses, Summary.
-- Share via `share_plus`.
-
-## v0.4.0 — Expenses
-- Expense CRUD with category enum (Ads / Delivery / Packaging / Misc).
-- Date-filter bar with presets (Today, This week, This month, etc.) and custom range picker.
-- Monthly totals; feeds into net profit in all report views.
-
-## v0.3.0 — Sales
-- Sale log with product, quantity, selling price, platform (Facebook / Offline), payment status (Paid / Due), customer name.
-- Live total + estimated profit preview before save.
-- Below-cost, low-stock, and margin-drop alerts via `AlertService`.
-- Filterable sales list (date range, platform, payment, product).
-- Mark as paid, edit, delete (with confirmation).
-
-## v0.2.0 — Products
-- Product CRUD with name, cost price, initial stock, optional note.
-- Per-product low-stock threshold (default 3) and per-product alert toggle.
-- Restock with tracked stock movements (initial / restock / sale / adjustment).
-- Searchable product list with stat cards (count, low, out, value).
-- Recent sales + stock-movement history per product.
-
-## v0.1.0 — Liquid Glass theme
-- Added `glass_kit: ^4.0.2` + `aurora_background: ^1.0.2`.
-- `AuroraBackdrop` widget (3 animated waves: teal, indigo, magenta).
-- `GlassPanel` / `GlassPanel.flush` widgets (frosted + non-frosted variants).
-- `GlassTextField` (TextFormField-backed, validator / input formatters).
-- `showGlassDialog<T>()` + `GlassDialogAction<T>` (typed return value).
-- Material 3 theme with transparent `scaffoldBackgroundColor`.
-- Floating glass bottom nav with `kBottomNavHeight = 76` cap.
-
-## v0.0.1 — Foundation
-- 4 drift tables: `Products`, `Sales`, `Expenses`, `StockMovements`.
-- `AppDatabase` (`@DriftDatabase`, `NativeDatabase.createInBackground`, Riverpod singleton).
-- go_router `ShellRoute` (later `StatefulShellRoute.indexedStack`) with 5 bottom tabs.
-- Material 3 light + dark theme seeded from teal accent.
-- Placeholder screens for all 5 tabs.
+- `v3.0.0` is the Clean Ledger overhaul baseline.
+- Phase 0 changes are `v3.0.1`, `v3.0.2`, …
+- Phase 1 starts at `v3.1.1`, Phase 2 at `v3.2.1`, … Phase 6 at `v3.6.1`.
+- The scheme was applied retroactively to the Phase 0–6 history below.
 
 ---
 
-## Bug fix history
+## Phase 6 — Polish & QA
 
-All bugs listed below have been fixed in the codebase. For detailed root-cause analysis of each bug, see [`HISTORY.md`](HISTORY.md).
+### v3.6.3 — Documentation consolidation and phase-based versioning
+- Consolidated `HISTORY.md` and `VERSION_HISTORY.md` into this changelog and
+  removed the old files.
+- Adopted `v3.<phase>.<change>` and applied it retrospectively from `v3.0.0`
+  through this release.
+- Refreshed the root and app READMEs, docs index, architecture notes, project
+  state, decision log, and test report.
+- Version `3.6.3+23`.
 
-| ID | Severity | File | Description |
-|---|---|---|---|
-| BUG-01 | 🔴 HIGH | `lib/services/export_service.dart` | Excel export missing Summary sheet |
-| BUG-02 | 🔴 HIGH | `lib/features/sales/sale_list_screen.dart` | Mark-as-paid invalidated wrong provider |
-| BUG-03 | 🔴 HIGH | `lib/router.dart` | Edit routes conflicted with detail routes |
-| BUG-04 | 🟡 MED | `lib/services/alert_service.dart` | Margin-drop threshold was 15pp instead of 10pp |
-| BUG-05 | 🟡 MED | `lib/features/sales/sale_repository.dart` | Deleted sale left ghost stock movement |
-| BUG-06 | 🟡 MED | `lib/features/sales/sale_provider.dart` | `lastSellingPrice` returned `Sale?` instead of `double?` |
-| BUG-07 | 🟢 LOW | `lib/features/dashboard/dashboard_screen.dart` | `_LowStockSection` extended `ConsumerWidget` unnecessarily |
-| BUG-08 | 🟢 LOW | `lib/core/extensions/db_extensions.dart` | `dateAsDateTime` scoped to one file |
-| BUG-09 | 🟢 LOW | `test/widget_test.dart` | Legacy boilerplate test replaced with smoke test |
-| BUG-10 | 🔴 HIGH | `lib/router.dart` | `/sales/:id` rendered wrong screen |
-| BUG-11 | 🔴 HIGH | `lib/features/dashboard/dashboard_screen.dart` | Low-stock tiles not tappable |
-| BUG-12 | 🟡 MED | `lib/core/widgets/glass_text_field.dart` | Stacked `BackdropFilter` → GPU jank |
-| BUG-13 | 🟡 MED | `lib/features/products/product_list_screen.dart` | Search used raw `TextField` instead of `GlassTextField` |
-| BUG-14 | 🟢 LOW | `lib/features/sales/sale_list_screen.dart` | Dead ternary in stats |
-| BUG-15 | 🟢 LOW | `lib/features/reports/reports_screen.dart` | Export targeted wrong month on yearly tab |
-| BUG-16 | 🟡 MED | `lib/db/app_database.dart` | Cascade operator misuse in export sort/take |
-| BUG-17 | 🟡 MED | `lib/features/products/product_repository.dart` | Cost price edit silently ignored |
-| BUG-18 | 🟡 MED | `lib/features/sales/sale_list_screen.dart` | Estimated profit hardcoded as 20% of cost |
-| BUG-19 | 🟡 MED | `lib/features/dashboard/dashboard_screen.dart` | App-open low-stock banner missing |
-| BUG-20 | 🟡 MED | `lib/core/widgets/app_bottom_nav.dart` | Low-stock badge missing on Products tab |
-| BUG-21 | 🟢 LOW | `lib/features/sales/widgets/discount_sheet.dart` | Discount sheet `_loss` sign confusion |
-| BUG-22 | 🟢 LOW | `lib/features/expenses/expense_form_screen.dart` | Validator message didn't match spec |
-| BUG-23 | 🟡 MED | `lib/features/sales/sale_list_screen.dart` | No sale history view in Sales tab |
-| BUG-24 | 🟡 MED | `lib/features/sales/widgets/quick_sell_sheet.dart` | Dashboard didn't refresh after sheet sale |
-| BUG-25 | 🟡 MED | `lib/features/sales/sale_form_screen.dart` | Product locked after selection |
-| BUG-26 | 🟡 MED | `lib/features/sales/sale_list_screen.dart` | `_ProductSellCard` collapsed to 0×0 |
-| BUG-27 | 🟡 MED | `lib/core/widgets/glass_dialog.dart` | Alert dialog dismissed wrong route |
-| BUG-28 | 🟡 MED | `lib/core/widgets/glass_dialog.dart` | Low-stock alert dialog full-screen |
-| BUG-29 | 🟡 MED | `lib/core/widgets/glass_panel.dart` | Sheets/dialogs too translucent |
-| BUG-30 | 🟡 MED | `lib/features/sales/widgets/quick_sell_sheet.dart` | Confirm button missing |
-| BUG-31 | 🟡 MED | `lib/core/widgets/glass_dialog.dart` | Pop-ups appeared at top of screen |
-| BUG-32 | 🟡 MED | `lib/features/sales/sale_list_screen.dart` | Duplicate `+` entry point |
-| BUG-33 | 🟡 MED | 5 `showModalBottomSheet` callers | Sheets covered by custom nav bar |
-| BUG-34 | 🟡 MED | `lib/features/finance/` | Wallet balance stale |
-| BUG-35 | 🟡 MED | `lib/features/settings/finance_screen.dart` | Finance settings pushed wrong route |
-| BUG-36 | 🟡 MED | `lib/features/dashboard/` | Dashboard not refreshing |
-| BUG-37 | 🟡 MED | `lib/features/wallet/` | Add-on picker buttons disabled |
-| BUG-38 | 🟡 MED | `lib/services/currency_service.dart` | Currency symbol not persisting |
-| BUG-39 | 🟢 LOW | `lib/core/widgets/app_bottom_nav.dart` | FAB position wrong |
-| BUG-40 | 🟢 LOW | `lib/features/sales/sale_list_screen.dart` | Sell button always disabled |
-| BUG-41 | 🟢 LOW | `lib/features/dashboard/dashboard_screen.dart` | Dashboard cards stale due to `const` |
+### v3.6.2 — Contrast, 200% font scale, and final QA
+- Added contrast tests for every light and dark text/surface pair at 4.5:1 and
+  for `outline` on `surface` at 3:1; tuned warning and tertiary tokens.
+- Added 200% text-scale widget coverage on a 360 dp viewport for Home, Sales,
+  Inventory, Money, and Reports.
+- Fixed overflows with `FittedBox`, `Wrap`, flexible rows, and horizontally
+  scrollable segmented controls in product tiles, stock/status chips, hero
+  money, report tables, P&L rows, account rows, and payment/theme selectors.
+- Added semantic labels and tooltips for quantity steppers.
+- Added final QA tests for atomic multi-line stock drops and cost-snapshotted
+  profit.
+- `flutter analyze` clean; **57 / 57 tests passing**.
 
-## Schema migrations
+### v3.6.1 — Required states and accessibility fixes
+- Audited every content screen for loading, true-empty, filtered-empty (Clear
+  filters), and error (Retry) states.
+- Reworked Home's today card error state into a clear message with a `Retry`
+  action.
+- Kept empty states first-class: icon, title, one sentence, and a primary
+  action, with no blank screens.
 
-| Version | Released in | Change |
-|---|---|---|
-| 1 | v0.0.1 | Initial schema: 4 tables |
-| 2 | v0.5.2 | `alertEnabled` on Products; `isDiscounted`, `normalPrice` on Sales |
-| 3 | v1.1.0 | Added Wallets, AllocationRules; `walletId`, `ownership` on Sales/Expenses |
-| 4 | v1.1.0 | Added BudgetBuckets; `bucketId` on Expenses |
-| 5 | v1.2.1 | Added AddOnTypes, SaleAddOns |
+---
+
+## Phase 5 — Home & Reports
+
+### v3.5.3 — CSV export
+- Escaped CSV export of sales, line items, payments, expenses, and derived
+  balances through the Android share sheet.
+- Reports "no data" instead of writing an empty file.
+- SQLite backup export and daily automatic local backup.
+
+### v3.5.2 — Reports P&L, chart, and breakdowns
+- Week, month, year, and custom ranges.
+- Profit & loss, margin, trend chart, and product/channel breakdowns.
+- Empty and filtered-empty states for every report section.
+
+### v3.5.1 — Reactive home dashboard
+- Total money, account chips, customer dues, and low-stock count.
+- Today's sales, revenue, and profit cards with tap-through deep links.
+- Setup and zero-state cards with a primary action.
+
+---
+
+## Phase 4 — Money & Expenses
+
+### v3.4.4 — Operating expenses
+- Expenses with categories, account deduction, day-precision dates, filters,
+  monthly totals, edit, delete, and undo.
+
+### v3.4.3 — Customer dues and reminders
+- Dues grouped by customer with FIFO or sale-specific payments.
+- Shareable reminders and per-customer detail.
+
+### v3.4.2 — Account ledger and adjustments
+- Running-balance ledger with This month / Last month / This year / All time
+  periods.
+- Balance adjustments stored in the `adjustments` table and shown in the
+  ledger.
+
+### v3.4.1 — Accounts overview and transfers
+- Derived account balances: opening balance + payments − expenses − paid
+  restocks + net transfers + adjustments. No stored balance column.
+- Transfers with same-account and negative-source guards; transfers never
+  change profit.
+
+---
+
+## Phase 3 — Sales
+
+### v3.3.4 — Sales log, detail, payments, receipts, edit, and delete
+- Day-grouped sales log with search and date/channel/status filters.
+- Sale detail with record payment, share receipt (no cost or profit shown),
+  edit, and delete with undo.
+
+### v3.3.3 — Quick Sell
+- One-line Quick Sell with undo.
+- Hand-off from Quick Sell into the full multi-line cart.
+
+### v3.3.2 — Product picker and new sale form
+- Searchable product picker with inline quantity selection.
+- Paid in full / Part / Later, customer selection with inline create, and
+  account selection for received money.
+- Editable prices, discounts, and above-stock/below-cost warnings.
+
+### v3.3.1 — Cart and atomic `saveSale`
+- `CartController` with per-product merge and edit-sale seeding.
+- Atomic transaction writes the sale, cost-snapshotted line items, stock
+  movements, and payments; edit restores prior stock and re-applies.
+
+---
+
+## Phase 2 — Inventory
+
+### v3.2.3 — Restock and cash out
+- Restock with optional cash-out from an account.
+- Stock movements: `initial`, `restock`, `adjustment`, `sale`; restock updates
+  last cost and never writes an expense.
+
+### v3.2.2 — Product form and detail timeline
+- Add/edit product form with price, cost, stock, low-stock threshold, and
+  notes.
+- Product detail with a merged stock/purchase timeline and archived handling.
+
+### v3.2.1 — Inventory repository and list
+- Reactive product repository and providers.
+- Catalog with search, low/out-of-stock filters, and stat cards.
+
+---
+
+## Phase 1 — Foundation & Shell
+
+### v3.1.4 — First-run setup and full settings
+- First-run setup for shop name, currency, and first payment source.
+- Settings hub: shop name, payment sources, channels, categories, currency,
+  theme mode, manual export, daily auto-backup toggle, CSV export, and a
+  double-confirmed clear-all-data.
+
+### v3.1.3 — Five-tab shell, routing, and empty states
+- Five-tab `StatefulShellRoute.indexedStack`: Home, Sales, Inventory, Money,
+  Reports. Settings opens from the Home app bar.
+- Shared empty-state widget and screen-level loading/error scaffolding.
+- Deep links into filtered screens.
+
+### v3.1.2 — Shared widgets
+- `EmptyState`, `MoneyText`, product tiles, status/stock chips, sale bars, and
+  money/section cards.
+- Flat tonal cards and sheets with 1 px outlines.
+
+### v3.1.1 — Material 3 theme and tokens
+- One `AppTheme` from `ColorScheme.fromSeed(0xFF1D9E75)` with light, dark, and
+  system modes; no theme picker or theme enums.
+- Clean Ledger tokens: 4/8/12/16/24/32 spacing, 16 px cards, 12 px
+  buttons/inputs, 24 px hero, 28 px sheets, pill chips.
+- Retired multi-theme migration logic.
+
+---
+
+## Phase 0 — Foundation
+
+### v3.0.3 — Fresh schema and backup service
+- Fresh database at `invenio_v7.sqlite` (schema v7), later advanced to v8
+  with the `adjustments` table; 13 tables, seeded channels/categories/settings.
+- No legacy-data migration.
+- Backup service: WAL checkpoint + SQLite export via `share_plus`, plus a
+  daily local backup. Restore intentionally deferred.
+
+### v3.0.2 — Money value class and formatting
+- `Money` value class: integer minor units only, arithmetic, parsing, and
+  locale formatting.
+- Reactive currency symbol from settings with a `৳` fallback.
+- `MoneyText` renders with tabular figures.
+
+### v3.0.1 — Remove Liquid Glass and old UI
+- Removed `glass_kit`, `aurora_background`, and
+  `syncfusion_flutter_xlsio`.
+- Deleted the aurora backdrop, glass panels, four-theme picker, and old
+  Liquid Glass screens.
+- Excel export replaced by CSV; SQLite file export uses `share_plus`.
+
+### v3.0.0 — Clean Ledger baseline
+- Adopted `docs/invenio overhaul.pdf` (v2.3) as the master spec.
+- Rewrote `docs/DESIGN.md` for Clean Ledger and marked Liquid Glass
+  superseded.
+- Greenfield rebuild on top of the existing Flutter project.
+
+---
+
+## Earlier history
+
+Pre-overhaul releases are condensed here; full detail lives in git history.
+
+- **v2.1.2+19** — Fixed the blank gray launch screen by always returning a
+  `MaterialApp`-family root, adding a fail-open walkthrough init gate and
+  regression tests.
+- **v2.1.1+18** — First-run walkthrough with shop-name capture, MIT license,
+  root/app READMEs.
+- **v2.1.0+17** — About section.
+- **v2.0.0+16** — POS-style restyle: teal `#1D9E75`, rounded cards, 5-slot
+  nav, receipt sheet, BDT default.
+- **v1.6.1+15** — Theme cleanup, expense-form layout fix, contrast fixes.
+- **v1.6.0+14** — Glassmorphism restoration and a four-theme system.
+- **v1.4.0–v1.5.1** — Wallet transfers, finance tab, routing fixes.
+- **v0.1.0–v1.3.3** — Initial Liquid Glass build, products/sales/expenses,
+  budgets, reports, Excel export, and the glass layout fixes that followed.
+
+Liquid Glass is retired. Its implementation and regression history live only
+in git history before `v3.0.0`.

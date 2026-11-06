@@ -1,21 +1,41 @@
 # Invenio — tracker_app
 
-This is the Flutter app for [Invenio](../README.md), an inventory & economy
-tracker for a single owner-operator small reseller.
+The Flutter app for [Invenio](../README.md), an inventory and money tracker
+for a single owner-operator small reseller. Fully offline, Android min SDK 24.
 
-The project-level README is the canonical entry point — it has the
-"what is this / why it exists" summary, features, tech stack, setup,
-and build instructions. The full documentation (architecture, changelog,
-regression history, visual design, original specs) is in
-[`../docs/`](../docs/README.md).
+The root README is the canonical entry point for features, setup, and build
+instructions. Full documentation is in [`../docs/`](../docs/README.md).
 
 ## Version
 
-Current version: **2.1.2+19** (POS-style restyle v2.0.0, About section
-v2.1.0, walkthrough v2.1.1, blank-screen fix v2.1.2).
+Current: **3.6.3+23** · Clean Ledger · Schema v8 (13 tables). Releases follow
+`v3.<phase>.<change>` (base `v3.0.0`); see [`../docs/CHANGELOG.md`](../docs/CHANGELOG.md).
 
-## Features
+## What is in this app
 
-- POS-style restyle: teal Liquid Glass, rounded cards, 5-slot nav, receipt popup
-- About section with version, developer, repo link, change history
-- App walkthrough with shop name capture
+- Five tabs: Home, Sales, Inventory, Money, Reports; Settings from Home.
+- Product catalog, stock timeline, and restock with cash-out.
+- Quick Sell and a full multi-line cart with atomic saves.
+- Accounts, ledger, transfers, dues, and expenses.
+- Dashboard, P&L reports, charts, CSV export, and SQLite backups.
+- Material 3 Clean Ledger theme with light, dark, and system modes.
+
+## Run
+
+```bash
+flutter pub get
+dart run build_runner build --delete-conflicting-outputs
+flutter run
+```
+
+## Test
+
+```bash
+# Linux: make sqlite3 resolvable for drift tests
+ln -sf /usr/lib64/libsqlite3.so.0 /tmp/libsqlite3.so
+
+LD_LIBRARY_PATH=/tmp flutter test --reporter expanded
+```
+
+Current status: **57 / 57 passing**; `flutter analyze` clean. See
+[`test/REPORT.md`](test/REPORT.md).

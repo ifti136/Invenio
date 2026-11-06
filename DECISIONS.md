@@ -2,6 +2,10 @@
 
 This file logs important decisions made during development. Each entry has a date, context, decision, and rationale.
 
+> **Note (2026-11-06):** Entries before this date describe the retired Liquid
+> Glass app (v1.x–v2.1.2). The Clean Ledger overhaul below supersedes them,
+> including the blur, aurora, multi-theme, and `glass_kit` decisions.
+
 ---
 
 ## 2026-06-16 — Screen/Popup Bug Fixes
@@ -119,3 +123,93 @@ Flutter's textless light-gray `ErrorWidget`.
 **Consequence:** any future pre-router screen (splash, onboarding, migration)
 must live *inside* a MaterialApp-family root, never above one.
 
+
+
+---
+
+## 2026-11-06 — Phase-based sub-sub-versioning (v3.6.3+23)
+
+**Context:** The Clean Ledger overhaul was built as Phases 0–6, but the
+package version stayed at `2.3.0+20`, so the release history did not map to the
+phase structure.
+
+**Decision:** Adopt **`v3.<phase>.<change>`** for all releases.
+
+- `v3.0.0` is the Clean Ledger baseline.
+- Phase 0 changes are `v3.0.1`, `v3.0.2`, …; Phase 1 starts at `v3.1.1`,
+  Phase 2 at `v3.2.1`, and so on through Phase 6 at `v3.6.1`.
+- Apply the scheme retroactively in `docs/CHANGELOG.md`; do not rewrite git
+  history or force-push.
+- The current package version is `3.6.3+23`.
+
+**Rationale:** The version number now tells the reader which overhaul phase a
+change belongs to, and the changelog and pubspec stay in lockstep.
+
+---
+
+## 2026-11-06 — Clean Ledger overhaul (v3.0.0 baseline)
+
+**Context:** The Liquid Glass / aurora UI, multi-theme system, and Excel export
+were replaced by the Clean Ledger spec (`docs/invenio overhaul.pdf` v2.3). The
+app was treated as a greenfield rebuild on top of the existing Flutter project.
+
+**Decisions:**
+
+1. **Fresh schema, no legacy migration.**
+   The overhaul creates a fresh database at `invenio_v7.sqlite` (schema v7)
+   with no import path from the old app. Rationale: the old data model and
+   UI were being replaced wholesale, and a one-user offline tool can start
+   clean. The version later advanced to v8 for the adjustments table.
+
+2. **One Material 3 theme, no theme picker.**
+   `AppTheme` is built from `ColorScheme.fromSeed(0xFF1D9E75)` with light,
+   dark, and system modes. The four Liquid Glass themes and migration logic
+   were removed. Rationale: fewer states, predictable contrast, and one visual
+   language.
+
+3. **Flat surfaces only.**
+   Cards and sheets use tonal surface colours with a 1 px outline. No blur,
+   gradients, shadows, or animated backgrounds. Rationale: performance,
+   readability, and the Clean Ledger spec.
+
+4. **Money is integer minor units.**
+   `Money` owns parsing, arithmetic, and formatting; every money column is an
+   `int`. `MoneyText` renders with tabular figures and the reactive currency
+   symbol. Rationale: avoid floating-point drift in financial data.
+
+5. **Derived balances, no stored balance column.**
+   Balances are computed from opening balance, payments, expenses, paid
+   restocks, transfers, and adjustments. Rationale: one source of truth and
+   no reconciliation drift.
+
+6. **Sale line costs are snapshotted.**
+   `unit_cost_minor` is stored on each sale line. Editing a product's cost
+   later never changes historical profit. Rationale: accurate P&L and a
+   simpler edit flow.
+
+7. **`adjustments` table added in schema v8.**
+   Spec §5 had no adjustments table. A signed adjustment row with a note
+   records manual balance corrections and remains visible in the ledger.
+   Rationale: users need a way to reconcile cash without fake sales/expenses.
+
+8. **Five-tab information architecture.**
+   Home, Sales, Inventory, Money, Reports; Settings is reached from the Home
+   app bar. Rationale: one loop (sale → stock → money → profit) and fewer
+   navigation dead ends than the old six-slot POS shell.
+
+9. **CSV replaces Excel; SQLite file export uses `share_plus`.**
+   `syncfusion_flutter_xlsio` was removed. CSV is dependency-free and
+   inspectable; database export plus daily local backups cover safety.
+   Rationale: fewer heavy dependencies and no licensing surface.
+
+10. **Restore is deferred.**
+    Export and daily backups ship now, but restoring a database needs a
+    file-picker dependency that was not approved. Rationale: do not add an
+    unapproved top-level dependency; document the gap honestly.
+
+11. **Accessibility is verified with widget tests.**
+    Key screens are pumped at 200% text scale on a 360 dp viewport; contrast
+    tokens are checked at 4.5:1 text and 3:1 outline. Overflow fixes use
+    `Wrap`, `FittedBox`, and horizontally scrollable segmented controls rather
+    than shrinking fonts globally. Rationale: keep type readable while
+    preventing clipped content.

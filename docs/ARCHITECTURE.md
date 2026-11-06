@@ -1,134 +1,149 @@
 # Architecture
 
-A short, opinionated overview of the technical decisions behind Invenio, written
-for a reviewer who wants to know *why* the codebase looks the way it does.
-Pair this with [`CHANGELOG.md`](CHANGELOG.md) (what shipped) and
-[`HISTORY.md`](HISTORY.md) (what broke and why).
+A short, opinionated overview of the technical decisions behind Invenio,
+written for a reviewer who wants to know *why* the codebase looks the way it
+does. Pair this with [`CHANGELOG.md`](CHANGELOG.md) (what shipped) and
+[`DESIGN.md`](DESIGN.md) (the visual system).
 
 ---
 
 ## What this is
 
-A solo-owner Flutter Android app for a small reseller. Tracks inventory, logs
-sales, records expenses, and computes daily profit. No login. No cloud. One
-user, one device, one local database. APK installs and works offline forever.
+A solo-owner Flutter Android app for a small reseller. It tracks inventory,
+logs sales, tracks money and expenses, and computes profit. No login, no
+cloud, one user, one device, one local database. The APK installs and works
+offline.
 
 ## Why offline-first
 
-The target user is a single person running a small operation from their phone,
-often in environments with poor connectivity (markets, customer homes,
-warehouses). They are also the only person who will ever see the data, so a
-backend would add latency, cost, and a privacy surface for no benefit. The
-local SQLite database is the source of truth. A future cloud-sync layer is
-possible (the schema is normalized for it) but is not on the roadmap for v1.
+The target user runs a small operation from their phone, often in
+environments with poor connectivity. They are the only person who will see
+the data, so a backend would add latency, cost, and a privacy surface for no
+benefit. The local SQLite database is the source of truth. The schema is
+normalized enough that a future sync layer could be added, but sync is not on
+the roadmap.
 
-## Why Drift (SQLite) over Hive / Isar / shared_preferences
+## Why Drift (SQLite)
 
-- **Typed queries** — schema is enforced at compile time via `drift_dev`
-  codegen, so a typo in a column name is a build error, not a runtime crash.
-- **Migrations are first-class** — `schemaVersion` + `onUpgrade` makes schema
-  changes auditable and reversible. This is non-negotiable for a tool that
-  holds financial data.
-- **Reactive streams** — `select(...).watch()` emits a new `List<T>` whenever
-  the underlying rows change, which pairs cleanly with Riverpod's
-  `StreamProvider` and gives the UI live updates without polling.
+- **Typed queries** — the schema is checked at compile time through
+  `drift_dev` codegen, so a column typo is a build error.
+- **Migrations are first-class** — `schemaVersion` plus `onUpgrade` keeps
+  schema changes auditable. The v3 overhaul treats the app as new (fresh
+  schema v7, no legacy import) and later added v8 for the `adjustments` table.
+- **Reactive streams** — `select(...).watch()` emits whenever rows change,
+  which pairs cleanly with Riverpod `StreamProvider` for a live UI without
+  polling or manual invalidation.
 - **SQL is the right tool** — profit reports, monthly aggregations, and
-  top-N-by-profit queries are trivial in SQL and painful in a key-value store.
+  top-N queries are straightforward in SQL.
 
-## Why Riverpod with codegen
+## Why Riverpod
 
-- **Compile-time DI** — `@riverpod` annotation + `riverpod_generator` produces
-  a typed provider per function, so the compiler catches missing overrides
-  and dependency cycles.
-- **No `BuildContext` for reads** — `ref.watch(provider)` works anywhere,
-  which keeps repositories and services UI-agnostic and trivially testable.
-- **Family providers** — `provider(family<int>)` for parameterised queries
-  (sale by id, product by id) without manual `ChangeNotifier` plumbing.
-- **`AutoDispose` by default** — the generator emits `AutoDispose*Provider`
-  variants, so a provider is torn down when no one is watching. The
-  `appDatabaseProvider` is the only one opted into `keepAlive: true`
-  (the DB connection must outlive any single screen).
+- Reactive dependency injection without `BuildContext` reads.
+- Repositories and services stay UI-agnostic and testable.
+- Family providers parameterise queries (sale by id, product by id,
+  report by range).
+- `appDatabaseProvider` is kept alive for the app lifetime; screen data
+  providers dispose with their listeners.
+- The cart lives in the root provider scope so a Quick Sell can hand off to
+  the full New Sale form.
 
 ## Why go_router with `StatefulShellRoute.indexedStack`
 
-- **Declarative routes** — deep links (`/products/:id/edit`) are first-class
-  in the URL, which makes navigation easy to reason about and test.
-- **`StatefulShellRoute.indexedStack`** keeps each of the 6 bottom-nav tabs
-  mounted, so switching tabs doesn't lose scroll position or re-run
-  providers. A plain `ShellRoute` rebuilds the child on every tab switch.
-- **Nested routes** — `/products/:id` and `/products/:id/edit` are naturally
-  expressed as parent/child `GoRoute`s.
+- Declarative routes and deep links are first-class.
+- `indexedStack` keeps the five tab branches mounted, preserving scroll
+  position and provider state across tab switches.
+- Nested routes express detail/edit screens naturally, for example
+  `/inventory/:id`, `/sales/:id`, `/money/accounts/:id`, and
+  `/money/dues/:customerId`.
 
-## Why Liquid Glass (glass_kit + aurora_background)
+## Money rules
 
-- **Design language** — the app should feel like a premium business
-  instrument, not a generic Material 3 admin panel. The aurora backdrop
-  (three slow-moving colored waves behind every screen) gives the UI a
-  consistent, recognizable personality.
-- **All glass surfaces inherit the background** — every `GlassPanel`,
-  `GlassTextField`, dialog, and bottom sheet blurs the aurora behind it.
-  The whole app feels unified.
-- **Trade-off acknowledged** — `glass_kit`'s `BackdropFilter` is
-  GPU-expensive when stacked, and a `SizedBox.expand` quirk in the package
-  produces 0×0 layouts in unbounded parents. We work around this with
-  `GlassPanel(noBlur: true)` for body / form / sheet panels, and
-  `GlassPanel(solid: true)` for pop-up surfaces that need to be readable
-  against a bright aurora. See [`HISTORY.md`](HISTORY.md) for the
-  regression history.
+- All money is stored as **integer minor units** (`int`); never `double` or
+  `REAL`.
+- The `Money` value class owns parsing, arithmetic, formatting, and negative
+  handling. UI renders through `MoneyText`.
+- The currency symbol comes from `settings.currency_symbol` through a
+  reactive provider, with `৳` as the fallback.
+- Sale line items snapshot `unit_cost_minor`, so later product cost edits do
+  not rewrite historical profit.
 
-## Why no cloud sync (yet)
+## Data model (schema v8)
 
-The user explicitly does not need it. Adding it would mean picking a backend
-(Supabase was the original candidate), implementing auth or a device-pairing
-flow, and resolving sync conflicts (last-write-wins is the only sane policy
-for a single user). None of that is worth the complexity for a v1 used by
-one person. The schema is designed so a future `synced_at` column + a
-background uploader can be added without a data migration.
+13 tables:
+
+`products`, `stock_movements`, `sales`, `sale_items`, `payments`,
+`customers`, `channels`, `accounts`, `transfers`, `expenses`,
+`expense_categories`, `settings`, `adjustments`.
+
+Key invariants:
+
+- Account balances are derived: opening balance + payments − expenses − paid
+  restocks + net transfers + adjustments. There is no stored balance column.
+- Transfers move money between accounts and never affect revenue or profit.
+- Paid restocks reduce cash but are inventory cost, not an expense.
+- Dues are unpaid sale balances grouped per customer; payments apply FIFO by
+  default or to a chosen sale.
+- Multi-line sales, their line items, stock movements, and payments are
+  written in one transaction.
+
+## UI architecture
+
+- One `AppTheme` from `ColorScheme.fromSeed(0xFF1D9E75)` with light, dark,
+  and system modes. No theme picker or theme enums.
+- Clean Ledger: flat tonal surfaces, 1 px outlines, Material 3 components,
+  4/8/12/16/24/32 spacing, 16 px cards, 12 px buttons/inputs, 24 px hero,
+  28 px sheets.
+- Every content screen implements loading, true-empty (icon + title +
+  sentence + primary action), filtered-empty (Clear filters), and error
+  (Retry) states.
+- Hero money uses `FittedBox` and chips/badges scale down internally so the
+  UI survives 200% font scale on a 360 dp viewport.
+
+## Backups and export
+
+- `BackupService` checkpoints WAL and copies the SQLite file; a daily copy
+  is written under the app documents directory. Manual export shares the file
+  through `share_plus`.
+- CSV export is pure Dart and quotes commas, quotes, CR, and LF. It writes
+  sales, sale items, payments, expenses, and derived balances, and reports
+  “no data” instead of producing empty files.
+- Restore is intentionally deferred until a file-picker dependency is
+  approved.
 
 ## Known trade-offs
 
-| Trade-off | Detail | Doc |
-|---|---|---|
-| `libsqlite3.so` is a Linux CI prerequisite | Drift-backed tests fail at startup without it. Symlink trick works. | [`../tracker_app/test/REPORT.md`](../tracker_app/test/REPORT.md) |
-| `glass_kit` `BackdropFilter` headless quirks | Widget tests in `flutter test` produce compositing warnings. The app works on a real device. | [`../tracker_app/test/REPORT.md`](../tracker_app/test/REPORT.md) |
-| `aurora_background` continuous animation | Prevents `pumpAndSettle()` from settling. Use `pump(Duration)` with explicit duration. | [`../tracker_app/test/REPORT.md`](../tracker_app/test/REPORT.md) |
-| No multi-currency | All money is `REAL` (double) with 2-decimal display. | [`instructions/01_requirements.md`](instructions/01_requirements.md) §5 |
-| No barcode / invoice / push notifications | Explicitly out of scope. | [`instructions/01_requirements.md`](instructions/01_requirements.md) §5 |
+| Trade-off | Detail |
+|---|---|
+| No restore picker | Export and daily backups work; restore needs an approved dependency. |
+| No cloud sync | Deliberate: single user, offline-first. |
+| Linux test prerequisite | Drift tests need `libsqlite3.so`; see [`../tracker_app/test/REPORT.md`](../tracker_app/test/REPORT.md). |
+| No barcode / invoicing / push | Explicitly out of scope. |
+| Device verification | The suite is green, but the app has not been run on a physical device from this environment. |
 
-## Folder map (one-line purpose per directory)
+## Folder map
 
 ```
 tracker_app/
 ├── lib/
-│   ├── main.dart              — entry point; wraps app in ProviderScope
-│   ├── app.dart               — MaterialApp.router + aurora backdrop + theme
-│   ├── router.dart            — go_router with StatefulShellRoute.indexedStack (6 tabs)
+│   ├── main.dart              — entry point; wraps the app in ProviderScope
+│   ├── app.dart               — MaterialApp.router, theme, first-run gate
+│   ├── router.dart            — go_router StatefulShellRoute (5 tabs)
 │   ├── core/
-│   │   ├── background/        — AuroraBackdrop widget (Liquid Glass)
-│   │   ├── theme/             — AppColors (design tokens) + AppTheme (Material 3)
-│   │   ├── widgets/           — GlassPanel, GlassTextField, GlassDialog, etc.
-│   │   ├── utils/             — formatters (money, date, quantity)
-│   │   └── extensions/        — drift row → DateTime helpers
-│   ├── db/
-│   │   │   ├── app_database.dart  — drift database + Riverpod singleton provider
-│   │   │   └── tables/            — 7 drift table definitions (schema v4)
+│   │   ├── money/             — Money value class
+│   │   ├── theme/             — AppColors, AppTheme, tokens
+│   │   ├── utils/             — date periods and input parsing
+│   │   └── widgets/           — EmptyState, MoneyText, tiles, chips
+│   ├── db/                    — drift database, 13 table definitions, codegen
 │   ├── features/
-
-│   │   ├── dashboard/         — today's stats, platform breakdown, low stock
-│   │   ├── products/          — CRUD, restock, stock movements, product grid
-│   │   ├── sales/             — log, filter, quick-sell, discounted sales
-│   │   ├── expenses/          — log, filter, edit, delete
-│   │   └── reports/           — daily/monthly/product charts, Excel export
-│   ├── models/                — DTOs (DashboardSummary, DailySnapshot, etc.)
-│   └── services/              — AlertService (sealed AppAlert), ExportService
-├── test/                      — 8 unit + 7 widget test files; see REPORT.md
-├── assets/icon/               — launcher icon source (invenio.png)
+│   │   ├── home/              — dashboard and today aggregates
+│   │   ├── inventory/         — products, detail timeline, restock
+│   │   ├── sales/             — cart, saveSale, log, detail, receipts
+│   │   ├── money/             — accounts, ledger, transfers, dues, expenses
+│   │   ├── reports/           — ranges, P&L, charts, breakdowns, CSV
+│   │   ├── settings/          — settings hub, sources, names, backup
+│   │   └── onboarding/        — first-run setup
+│   └── services/              — backup service
+├── test/                      — unit + widget tests; see REPORT.md
+├── assets/icon/               — launcher icon source
 └── android/                   — Android Gradle config; min SDK 24
 ```
-
-## What this doc is NOT
-
-- Not a code-level spec — see [`instructions/03_code_specs.md`](instructions/03_code_specs.md).
-- Not a phase log — see [`CHANGELOG.md`](CHANGELOG.md).
-- Not a regression narrative — see [`HISTORY.md`](HISTORY.md).
-- Not a visual spec — see [`DESIGN.md`](DESIGN.md).
