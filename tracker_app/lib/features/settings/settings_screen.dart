@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/theme/theme_mode_provider.dart';
 import '../../db/app_database.dart';
+import '../../features/reports/csv_export.dart';
 import '../../services/backup_service.dart';
 import 'settings_providers.dart';
 
@@ -153,15 +154,11 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 ListTile(
                   leading: const Icon(Icons.table_view_outlined),
                   title: const Text('Export CSV'),
-                  subtitle: const Text('Available in Phase 5'),
+                  subtitle: const Text(
+                    'Share sales, payments, and expenses as CSV',
+                  ),
                   trailing: const Icon(Icons.chevron_right),
-                  onTap: () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('CSV export arrives in Phase 5.'),
-                      ),
-                    );
-                  },
+                  onTap: () => shareCsvExport(context, ref),
                 ),
                 const Divider(),
                 ListTile(
