@@ -4,6 +4,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:tracker/app.dart';
 import 'package:tracker/features/inventory/inventory_providers.dart';
+import 'package:tracker/features/settings/account_repository.dart';
+import 'package:tracker/features/settings/settings_providers.dart';
 
 void main() {
   setUp(() {
@@ -14,6 +16,10 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: [
+          appSettingsProvider.overrideWith((ref) => Stream.value(null)),
+          accountBalancesProvider.overrideWith(
+            (ref) => Stream.value(const <AccountBalance>[]),
+          ),
           lowStockCountProvider.overrideWith((ref) => Stream.value(0)),
         ],
         child: const TrackerApp(),
