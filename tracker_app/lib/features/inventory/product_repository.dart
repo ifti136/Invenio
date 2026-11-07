@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../../db/app_database.dart';
+import '../settings/account_repository.dart';
 
 class ProductStats {
   final int products;
@@ -163,10 +164,21 @@ class ProductRepository {
     required int unitCostMinor,
     int? accountId,
     String? note,
+    bool allowNegative = false,
   }) async {
     await _db.transaction(() async {
       final product = await getProduct(productId);
       if (product == null) return;
+      if (accountId != null && !allowNegative) {
+        final balance = await AccountRepository(_db).getBalance(accountId);
+        final costMinor = qty * unitCostMinor;
+        if (balance - costMinor < 0) {
+          throw NegativeBalanceException(
+            availableMinor: balance,
+            amountMinor: costMinor,
+          );
+        }
+      }
       final statement = _db.update(_db.products)
         ..where((p) => p.id.equals(productId));
       await statement.write(

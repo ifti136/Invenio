@@ -55,7 +55,21 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
 
   @override
   Widget build(BuildContext context) {
-    final accounts = ref.watch(accountsProvider).valueOrNull ?? const [];
+    final scheme = Theme.of(context).colorScheme;
+    final balances =
+        ref.watch(accountBalancesProvider).valueOrNull ?? const [];
+    final accounts = balances.map((item) => item.account).toList();
+    final qty = parseWholeNumber(_qty.text, min: 1);
+    final unitCost = parseMoneyInput(_unitCost.text);
+    int? selectedBalance;
+    for (final item in balances) {
+      if (item.account.id == _accountId) selectedBalance = item.balanceMinor;
+    }
+    final restockCostMinor =
+        qty != null && unitCost != null ? qty * unitCost.minor : null;
+    final wouldGoNegative = selectedBalance != null &&
+        restockCostMinor != null &&
+        selectedBalance - restockCostMinor < 0;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -78,6 +92,7 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
                 controller: _qty,
                 keyboardType: TextInputType.number,
                 decoration: const InputDecoration(labelText: 'Quantity'),
+                onChanged: (_) => setState(() {}),
                 validator: (value) {
                   final qty = parseWholeNumber(value ?? '', min: 1);
                   return qty == null ? 'Enter a quantity of 1 or more' : null;
@@ -90,6 +105,7 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
                   decimal: true,
                 ),
                 decoration: const InputDecoration(labelText: 'Unit cost'),
+                onChanged: (_) => setState(() {}),
                 validator: (value) => parseMoneyInput(value ?? '') == null
                     ? 'Enter a valid cost'
                     : null,
@@ -117,9 +133,16 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
                     ? 'Add a payment source in Settings to deduct cash automatically.'
                     : 'Choosing a source deducts the cost from its balance without adding an expense.',
                 style: AppTextStyles.label.copyWith(
-                  color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  color: scheme.onSurfaceVariant,
                 ),
               ),
+              if (wouldGoNegative) ...[
+                const SizedBox(height: AppSpacing.sm),
+                Text(
+                  'This restock leaves the account below zero. You will be asked to confirm.',
+                  style: AppTextStyles.label.copyWith(color: scheme.error),
+                ),
+              ],
               const SizedBox(height: AppSpacing.md),
               TextFormField(
                 controller: _note,
@@ -144,6 +167,41 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
     final qty = parseWholeNumber(_qty.text, min: 1)!;
     final unitCost = parseMoneyInput(_unitCost.text)!;
     final note = _note.text.trim();
+    final accountId = _accountId;
+
+    var allowNegative = false;
+    if (accountId != null) {
+      final balances =
+          ref.read(accountBalancesProvider).valueOrNull ?? const [];
+      int? balance;
+      for (final item in balances) {
+        if (item.account.id == accountId) balance = item.balanceMinor;
+      }
+      final costMinor = qty * unitCost.minor;
+      if (balance != null && balance - costMinor < 0) {
+        final confirmed = await showDialog<bool>(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: const Text('Go below zero?'),
+            content: const Text(
+              'This restock leaves the account with a negative balance. Continue?',
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.of(context).pop(false),
+                child: const Text('Cancel'),
+              ),
+              FilledButton(
+                onPressed: () => Navigator.of(context).pop(true),
+                child: const Text('Continue'),
+              ),
+            ],
+          ),
+        );
+        if (confirmed != true) return;
+        allowNegative = true;
+      }
+    }
 
     setState(() => _saving = true);
     try {
@@ -151,8 +209,9 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
             productId: widget.product.id,
             qty: qty,
             unitCostMinor: unitCost.minor,
-            accountId: _accountId,
+            accountId: accountId,
             note: note.isEmpty ? null : note,
+            allowNegative: allowNegative,
           );
       if (mounted) Navigator.of(context).pop(true);
     } catch (_) {

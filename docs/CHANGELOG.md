@@ -4,7 +4,7 @@ All notable changes to Invenio, newest first. This file is the single source
 of truth for release history; the former `HISTORY.md` and `VERSION_HISTORY.md`
 were folded into it, and pre-overhaul narrative remains in git history.
 
-Current release: **v3.6.3+23** · Schema **v8** (13 tables).
+Current release: **v3.6.4+24** · Schema **v8** (13 tables).
 
 ## Versioning
 
@@ -18,6 +18,14 @@ Releases use phase-based sub-sub-versioning: **`v3.<phase>.<change>`**.
 ---
 
 ## Phase 6 — Polish & QA
+
+### v3.6.4 — Guard paid restocks against account overdraw
+- A paid restock now checks the chosen account balance before saving and
+  throws `NegativeBalanceException` when the cost would take it below zero.
+- The restock sheet warns inline and asks for explicit confirmation before
+  allowing a negative balance, matching expenses and transfers.
+- Added a regression test for rejected and explicitly allowed overdraws.
+- Version `3.6.4+24`.
 
 ### v3.6.3 — Documentation consolidation and phase-based versioning
 - Consolidated `HISTORY.md` and `VERSION_HISTORY.md` into this changelog and

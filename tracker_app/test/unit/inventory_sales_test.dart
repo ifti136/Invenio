@@ -64,6 +64,47 @@ void main() {
     expect(balances.single.balanceMinor, 10000 - (10 * 900));
   });
 
+  test('paid restock above the account balance is rejected unless allowed',
+      () async {
+    final accountId = await accounts.addAccount(
+      name: 'Cash',
+      openingBalanceMinor: 500,
+    );
+    final productId = await products.createProduct(
+      name: 'Wired Mouse',
+      priceMinor: 1200,
+      costMinor: 800,
+      initialStock: 0,
+      lowStockAt: 3,
+      archived: false,
+    );
+
+    await expectLater(
+      products.restock(
+        productId: productId,
+        qty: 10,
+        unitCostMinor: 100,
+        accountId: accountId,
+      ),
+      throwsA(isA<NegativeBalanceException>()),
+    );
+
+    expect((await products.getProduct(productId))!.stock, 0);
+    expect(await db.select(db.stockMovements).get(), isEmpty);
+
+    await products.restock(
+      productId: productId,
+      qty: 10,
+      unitCostMinor: 100,
+      accountId: accountId,
+      allowNegative: true,
+    );
+
+    expect((await products.getProduct(productId))!.stock, 10);
+    final balances = await accounts.watchBalances().first;
+    expect(balances.single.balanceMinor, -500);
+  });
+
   test('quick sell saves sale, item, movement, and payment atomically',
       () async {
     final accountId = await accounts.addAccount(
