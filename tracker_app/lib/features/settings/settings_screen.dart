@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/app_version.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/theme/theme_mode_provider.dart';
 import '../../db/app_database.dart';
@@ -187,7 +188,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
             child: ListTile(
               leading: Icon(Icons.info_outline),
               title: Text('Invenio'),
-              subtitle: Text('Version 2.3.0+20'),
+              subtitle: Text('Version $appVersion'),
             ),
           ),
           const SizedBox(height: AppSpacing.xxl),

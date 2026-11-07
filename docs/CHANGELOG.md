@@ -4,7 +4,7 @@ All notable changes to Invenio, newest first. This file is the single source
 of truth for release history; the former `HISTORY.md` and `VERSION_HISTORY.md`
 were folded into it, and pre-overhaul narrative remains in git history.
 
-Current release: **v3.6.4+24** · Schema **v8** (13 tables).
+Current release: **v3.6.5+25** · Schema **v8** (13 tables).
 
 ## Versioning
 
@@ -18,6 +18,11 @@ Releases use phase-based sub-sub-versioning: **`v3.<phase>.<change>`**.
 ---
 
 ## Phase 6 — Polish & QA
+
+### v3.6.5 — Show the current app version in Settings
+- Replaced the stale hardcoded `Version 2.3.0+20` on the About card with a
+  single `appVersion` constant that tracks the release version.
+- Version `3.6.5+25`.
 
 ### v3.6.4 — Guard paid restocks against account overdraw
 - A paid restock now checks the chosen account balance before saving and
