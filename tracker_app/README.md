@@ -8,7 +8,7 @@ instructions. Full documentation is in [`../docs/`](../docs/README.md).
 
 ## Version
 
-Current: **3.6.3+23** · Clean Ledger · Schema v8 (13 tables). Releases follow
+Current: **3.6.6+26** · Clean Ledger · Schema v8 (13 tables). Releases follow
 `v3.<phase>.<change>` (base `v3.0.0`); see [`../docs/CHANGELOG.md`](../docs/CHANGELOG.md).
 
 ## What is in this app
@@ -37,5 +37,5 @@ ln -sf /usr/lib64/libsqlite3.so.0 /tmp/libsqlite3.so
 LD_LIBRARY_PATH=/tmp flutter test --reporter expanded
 ```
 
-Current status: **57 / 57 passing**; `flutter analyze` clean. See
+Current status: **58 / 58 passing**; `flutter analyze` clean. See
 [`test/REPORT.md`](test/REPORT.md).

@@ -5,7 +5,7 @@ inventory, log sales, track money and expenses, and view profit analytics.
 It is fully offline — no auth, no cloud sync — and ships as one APK that works
 on a phone without ever touching the network.
 
-Version **3.6.3+23** · Clean Ledger design · Schema v8 (13 tables).
+Version **3.6.6+26** · Clean Ledger design · Schema v8 (13 tables).
 
 Releases follow phase-based sub-sub-versioning, **`v3.<phase>.<change>`**:
 `v3.0.0` is the Clean Ledger baseline, Phase 0 changes are `v3.0.x`, and each
@@ -108,7 +108,7 @@ The APK is written to `tracker_app/build/app/outputs/flutter-apk/`.
 
 ## Testing
 
-The suite lives in `tracker_app/test/` and is currently **57 / 57 passing**
+The suite lives in `tracker_app/test/` and is currently **58 / 58 passing**
 with `flutter analyze` clean. See
 [`tracker_app/test/REPORT.md`](tracker_app/test/REPORT.md) for the per-file
 breakdown and the Linux `libsqlite3.so` workaround.

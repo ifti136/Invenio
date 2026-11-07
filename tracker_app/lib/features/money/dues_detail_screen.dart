@@ -296,9 +296,15 @@ class _DueDetailBody extends ConsumerWidget {
       buffer.writeln();
     }
     buffer.writeln('Payment reminder');
-    buffer.writeln(
-      'Hi ${detail.name}, ${Money(detail.dueMinor).format(currencySymbol: symbol)} is due across ${detail.sales.length} ${detail.sales.length == 1 ? 'sale' : 'sales'}.',
-    );
+    final amount = Money(detail.dueMinor).format(currencySymbol: symbol);
+    if (detail.sales.isEmpty) {
+      buffer.writeln('Hi ${detail.name}, $amount is outstanding.');
+    } else {
+      final count = detail.sales.length;
+      buffer.writeln(
+        'Hi ${detail.name}, $amount is due across $count ${count == 1 ? 'sale' : 'sales'}.',
+      );
+    }
     final oldest = detail.oldestCreatedAt;
     if (oldest != null) {
       buffer.writeln(

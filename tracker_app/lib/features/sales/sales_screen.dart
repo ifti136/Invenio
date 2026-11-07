@@ -163,7 +163,7 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
               (_DateFilter.all, 'All dates'),
               (_DateFilter.today, 'Today'),
               (_DateFilter.week, 'Last 7 days'),
-              (_DateFilter.month, 'Last 30 days'),
+              (_DateFilter.month, 'This month'),
             ],
             onSelected: (value) => setState(() => _date = value),
           ),
@@ -277,7 +277,7 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
       case _DateFilter.week:
         return today.subtract(const Duration(days: 6));
       case _DateFilter.month:
-        return today.subtract(const Duration(days: 29));
+        return DateTime(today.year, today.month);
     }
   }
 
@@ -308,9 +308,9 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
       case _DateFilter.today:
         return 'Today';
       case _DateFilter.week:
-        return '7 days';
+        return 'Last 7 days';
       case _DateFilter.month:
-        return '30 days';
+        return 'This month';
     }
   }
 

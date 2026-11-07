@@ -2,13 +2,13 @@
 
 **Date:** 2026-11-06
 **Flutter SDK:** 3.24.4 · **Dart:** 3.5.4
-**Status:** **57 / 57 passing** · `flutter analyze` clean.
+**Status:** **58 / 58 passing** · `flutter analyze` clean.
 
 ## Summary
 
-- Unit tests: **52 / 52**
+- Unit tests: **53 / 53**
 - Widget tests: **9 / 9** (including 5 at 200% text scale)
-- Total: **57 / 57** — full pass
+- Total: **58 / 58** — full pass
 
 The suite is fully offline and uses in-memory drift databases. No network,
 emulator, or device is required.
@@ -20,7 +20,7 @@ test/
 ├── unit/
 │   ├── money_test.dart                  6 — minor units, parsing, arithmetic, formatting
 │   ├── database_schema_test.dart        5 — v8, 13 tables, seeds, integer money columns
-│   ├── inventory_sales_test.dart        6 — restock, quick sell, multi-line stock, cost snapshots, undo
+│   ├── inventory_sales_test.dart        7 — restock overdraw guard, quick sell, multi-line stock, cost snapshots, undo
 │   ├── sales_cart_test.dart             6 — merge, atomic save, failure, edit, delete/restore
 │   ├── money_accounts_test.dart         4 — balances, transfers, profit neutrality, periods
 │   ├── dues_test.dart                   4 — grouping, FIFO, sale-specific, overpayment guard

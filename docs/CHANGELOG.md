@@ -4,7 +4,7 @@ All notable changes to Invenio, newest first. This file is the single source
 of truth for release history; the former `HISTORY.md` and `VERSION_HISTORY.md`
 were folded into it, and pre-overhaul narrative remains in git history.
 
-Current release: **v3.6.5+25** · Schema **v8** (13 tables).
+Current release: **v3.6.6+26** · Schema **v8** (13 tables).
 
 ## Versioning
 
@@ -18,6 +18,20 @@ Releases use phase-based sub-sub-versioning: **`v3.<phase>.<change>`**.
 ---
 
 ## Phase 6 — Polish & QA
+
+### v3.6.6 — Review cleanups
+- Renamed the database to `invenio.sqlite` and backups to
+  `invenio_YYYY-MM-DD.sqlite`, removing the stale `_v7` suffix.
+- Removed the unused `showComingSoon` helper and the outdated Liquid Glass
+  implementation plan.
+- Sales log "This month" now uses the calendar-month range shared with
+  Reports; the rolling week stays explicitly labelled "Last 7 days".
+- `Money.fromMajor`, `Money.parse`, and `Money.format` now use integer
+  minor-unit math instead of `double` round-trips.
+- Guarded the customer reminder against an "across 0 sales" phrase.
+- Moved product-picker provider reads out of helper methods and into
+  `build`.
+- Version `3.6.6+26`.
 
 ### v3.6.5 — Show the current app version in Settings
 - Replaced the stale hardcoded `Version 2.3.0+20` on the About card with a
@@ -181,7 +195,7 @@ Releases use phase-based sub-sub-versioning: **`v3.<phase>.<change>`**.
 ## Phase 0 — Foundation
 
 ### v3.0.3 — Fresh schema and backup service
-- Fresh database at `invenio_v7.sqlite` (schema v7), later advanced to v8
+- Fresh database (schema v7, now `invenio.sqlite`), later advanced to v8
   with the `adjustments` table; 13 tables, seeded channels/categories/settings.
 - No legacy-data migration.
 - Backup service: WAL checkpoint + SQLite export via `share_plus`, plus a

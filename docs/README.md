@@ -5,7 +5,7 @@ sales, tracking money and expenses, and viewing profit analytics — fully
 offline, no auth, no cloud sync. This directory is the canonical documentation
 for the project.
 
-## Project state (v3.6.3+23, Schema v8)
+## Project state (v3.6.6+26, Schema v8)
 
 | Aspect | Detail |
 |--------|--------|
@@ -18,7 +18,7 @@ for the project.
 | Charts | fl_chart 0.69 |
 | Export | CSV + SQLite backup via `share_plus` |
 | Tests | 57 passing — see [`../tracker_app/test/REPORT.md`](../tracker_app/test/REPORT.md) |
-| Version | `3.6.3+23` (build 23) |
+| Version | `3.6.6+26` (build 26) |
 
 ## If you want to …
 

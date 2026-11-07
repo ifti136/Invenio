@@ -35,7 +35,7 @@ class BackupService {
   Future<File?> createDailyBackup({DateTime? now}) async {
     final dir = await appBackupDirectory();
     final stamp = _dateStamp(now ?? DateTime.now());
-    final target = File(p.join(dir.path, 'invenio_v7_$stamp.sqlite'));
+    final target = File(p.join(dir.path, 'invenio_$stamp.sqlite'));
     if (await target.exists()) return target;
     return _copyDatabase(target);
   }
@@ -43,7 +43,7 @@ class BackupService {
   Future<File> exportDatabase() async {
     final dir = await getTemporaryDirectory();
     final stamp = DateTime.now().millisecondsSinceEpoch;
-    final target = File(p.join(dir.path, 'invenio_v7_$stamp.sqlite'));
+    final target = File(p.join(dir.path, 'invenio_$stamp.sqlite'));
     return _copyDatabase(target);
   }
 

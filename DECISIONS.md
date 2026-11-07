@@ -156,8 +156,8 @@ app was treated as a greenfield rebuild on top of the existing Flutter project.
 **Decisions:**
 
 1. **Fresh schema, no legacy migration.**
-   The overhaul creates a fresh database at `invenio_v7.sqlite` (schema v7)
-   with no import path from the old app. Rationale: the old data model and
+   The overhaul creates a fresh schema v7 database (now `invenio.sqlite`) with
+   no import path from the old app. Rationale: the old data model and
    UI were being replaced wholesale, and a one-user offline tool can start
    clean. The version later advanced to v8 for the adjustments table.
 

@@ -7,7 +7,10 @@ class Money implements Comparable<Money> {
 
   static const Money zero = Money(0);
 
-  factory Money.fromMajor(num major) => Money((major * 100).round());
+  factory Money.fromMajor(num major) {
+    if (major is int) return Money(major * 100);
+    return Money(_parseDecimalToMinor(major.toString()));
+  }
 
   factory Money.parse(String input) {
     final cleaned = input
@@ -15,7 +18,7 @@ class Money implements Comparable<Money> {
         .replaceAll(',', '')
         .trim();
     if (cleaned.isEmpty || cleaned == '-') return zero;
-    return Money.fromMajor(double.tryParse(cleaned) ?? 0);
+    return Money(_parseDecimalToMinor(cleaned));
   }
 
   bool get isZero => minor == 0;
@@ -38,9 +41,13 @@ class Money implements Comparable<Money> {
     final formatter = NumberFormat.currency(
       locale: locale,
       symbol: currencySymbol,
-      decimalDigits: 2,
+      decimalDigits: 0,
     );
-    return formatter.format(minor / 100);
+    final absolute = minor.abs();
+    final whole = formatter.format(absolute ~/ 100);
+    final cents = (absolute % 100).toString().padLeft(2, '0');
+    final sign = minor < 0 ? '-' : '';
+    return '$sign$whole${formatter.symbols.DECIMAL_SEP}$cents';
   }
 
   @override
@@ -54,4 +61,23 @@ class Money implements Comparable<Money> {
 
   @override
   String toString() => 'Money($minor)';
+}
+
+int _parseDecimalToMinor(String input) {
+  final match =
+      RegExp(r'^([+-]?)(\d*)(?:\.(\d*))?$').firstMatch(input.trim());
+  if (match == null) return 0;
+  final wholeText = match.group(2) ?? '';
+  final fractionText = match.group(3) ?? '';
+  if (wholeText.isEmpty && fractionText.isEmpty) return 0;
+  final sign = match.group(1) == '-' ? -1 : 1;
+  try {
+    final whole = wholeText.isEmpty ? 0 : int.parse(wholeText);
+    final fraction = fractionText.padRight(3, '0');
+    final hundredths = int.parse(fraction.substring(0, 2));
+    final roundUp = fraction.codeUnitAt(2) >= 0x35;
+    return sign * (whole * 100 + hundredths + (roundUp ? 1 : 0));
+  } on FormatException {
+    return 0;
+  }
 }

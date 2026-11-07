@@ -49,6 +49,12 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
   @override
   Widget build(BuildContext context) {
     final products = ref.watch(productsProvider);
+    final recent =
+        ref.watch(recentProductsProvider).valueOrNull ?? const <Product>[];
+    final top =
+        ref.watch(topSoldProductsProvider).valueOrNull ?? const <Product>[];
+    final recentIds = recent.map((product) => product.id).toSet();
+    final topIds = top.map((product) => product.id).toSet();
 
     return SizedBox(
       height: MediaQuery.of(context).size.height * 0.88,
@@ -74,7 +80,7 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
             ),
           ),
           const SizedBox(height: AppSpacing.sm),
-          _chips(),
+          _chips(recent, top),
           Expanded(
             child: products.when(
               loading: () => const Center(child: CircularProgressIndicator()),
@@ -100,7 +106,7 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
                     },
                   );
                 }
-                final filtered = _apply(items);
+                final filtered = _apply(items, recentIds, topIds);
                 if (filtered.isEmpty) {
                   return EmptyState(
                     icon: Icons.search_off,
@@ -182,9 +188,7 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
     );
   }
 
-  Widget _chips() {
-    final recent = ref.watch(recentProductsProvider).valueOrNull ?? const [];
-    final top = ref.watch(topSoldProductsProvider).valueOrNull ?? const [];
+  Widget _chips(List<Product> recent, List<Product> top) {
     if (recent.isEmpty && top.isEmpty) {
       return const SizedBox.shrink();
     }
@@ -222,19 +226,17 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
     );
   }
 
-  List<Product> _apply(List<Product> items) {
+  List<Product> _apply(
+    List<Product> items,
+    Set<int> recentIds,
+    Set<int> topIds,
+  ) {
     final query = _query.trim().toLowerCase();
     var source = items;
     if (_filter == _PickerFilter.recent) {
-      final ids = (ref.watch(recentProductsProvider).valueOrNull ?? const [])
-          .map((product) => product.id)
-          .toSet();
-      source = items.where((product) => ids.contains(product.id)).toList();
+      source = items.where((product) => recentIds.contains(product.id)).toList();
     } else if (_filter == _PickerFilter.top) {
-      final ids = (ref.watch(topSoldProductsProvider).valueOrNull ?? const [])
-          .map((product) => product.id)
-          .toSet();
-      source = items.where((product) => ids.contains(product.id)).toList();
+      source = items.where((product) => topIds.contains(product.id)).toList();
     }
     if (query.isEmpty) return source;
     return source

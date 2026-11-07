@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 
-const String databaseFileName = 'invenio_v7.sqlite';
+const String databaseFileName = 'invenio.sqlite';
 const String backupDirectoryName = 'backups';
 
 Future<File> appDatabaseFile() async {
