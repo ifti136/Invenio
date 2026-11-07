@@ -234,7 +234,8 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
     final query = _query.trim().toLowerCase();
     var source = items;
     if (_filter == _PickerFilter.recent) {
-      source = items.where((product) => recentIds.contains(product.id)).toList();
+      source =
+          items.where((product) => recentIds.contains(product.id)).toList();
     } else if (_filter == _PickerFilter.top) {
       source = items.where((product) => topIds.contains(product.id)).toList();
     }

@@ -4,8 +4,7 @@ import 'customers_table.dart';
 
 class Sales extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get customerId =>
-      integer().nullable().references(Customers, #id)();
+  IntColumn get customerId => integer().nullable().references(Customers, #id)();
   IntColumn get channelId => integer().references(Channels, #id)();
   IntColumn get totalMinor => integer()();
   TextColumn get status => text().withDefault(const Constant('paid'))();

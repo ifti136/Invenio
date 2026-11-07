@@ -4,7 +4,7 @@ All notable changes to Invenio, newest first. This file is the single source
 of truth for release history; the former `HISTORY.md` and `VERSION_HISTORY.md`
 were folded into it, and pre-overhaul narrative remains in git history.
 
-Current release: **v3.6.6+26** · Schema **v8** (13 tables).
+Current release: **v3.6.7+27** · Schema **v8** (13 tables).
 
 ## Versioning
 
@@ -18,6 +18,11 @@ Releases use phase-based sub-sub-versioning: **`v3.<phase>.<change>`**.
 ---
 
 ## Phase 6 — Polish & QA
+
+### v3.6.7 — Formatting pass
+- Applied `dart format` across `lib/` and `test/` (7 files reformatted).
+- `flutter analyze` clean; 58 / 58 tests passing.
+- Version `3.6.7+27`.
 
 ### v3.6.6 — Review cleanups
 - Renamed the database to `invenio.sqlite` and backups to

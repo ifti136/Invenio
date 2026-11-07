@@ -56,8 +56,7 @@ class _RestockSheetState extends ConsumerState<RestockSheet> {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final balances =
-        ref.watch(accountBalancesProvider).valueOrNull ?? const [];
+    final balances = ref.watch(accountBalancesProvider).valueOrNull ?? const [];
     final accounts = balances.map((item) => item.account).toList();
     final qty = parseWholeNumber(_qty.text, min: 1);
     final unitCost = parseMoneyInput(_unitCost.text);

@@ -13,10 +13,8 @@ class Money implements Comparable<Money> {
   }
 
   factory Money.parse(String input) {
-    final cleaned = input
-        .replaceAll(RegExp(r'[^0-9.,\-]'), '')
-        .replaceAll(',', '')
-        .trim();
+    final cleaned =
+        input.replaceAll(RegExp(r'[^0-9.,\-]'), '').replaceAll(',', '').trim();
     if (cleaned.isEmpty || cleaned == '-') return zero;
     return Money(_parseDecimalToMinor(cleaned));
   }
@@ -64,8 +62,7 @@ class Money implements Comparable<Money> {
 }
 
 int _parseDecimalToMinor(String input) {
-  final match =
-      RegExp(r'^([+-]?)(\d*)(?:\.(\d*))?$').firstMatch(input.trim());
+  final match = RegExp(r'^([+-]?)(\d*)(?:\.(\d*))?$').firstMatch(input.trim());
   if (match == null) return 0;
   final wholeText = match.group(2) ?? '';
   final fractionText = match.group(3) ?? '';

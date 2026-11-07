@@ -8,8 +8,7 @@ class StockMovements extends Table {
   TextColumn get type => text().withLength(min: 1, max: 20)();
   IntColumn get qty => integer()();
   IntColumn get unitCostMinor => integer().nullable()();
-  IntColumn get accountId =>
-      integer().nullable().references(Accounts, #id)();
+  IntColumn get accountId => integer().nullable().references(Accounts, #id)();
   TextColumn get note => text().nullable()();
   IntColumn get createdAt => integer()();
 }

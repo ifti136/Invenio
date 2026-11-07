@@ -5,7 +5,7 @@ sales, tracking money and expenses, and viewing profit analytics — fully
 offline, no auth, no cloud sync. This directory is the canonical documentation
 for the project.
 
-## Project state (v3.6.6+26, Schema v8)
+## Project state (v3.6.7+27, Schema v8)
 
 | Aspect | Detail |
 |--------|--------|
@@ -17,8 +17,8 @@ for the project.
 | Theme | Clean Ledger — Material 3, seed `#1D9E75`, light/dark/system |
 | Charts | fl_chart 0.69 |
 | Export | CSV + SQLite backup via `share_plus` |
-| Tests | 57 passing — see [`../tracker_app/test/REPORT.md`](../tracker_app/test/REPORT.md) |
-| Version | `3.6.6+26` (build 26) |
+| Tests | 58 passing — see [`../tracker_app/test/REPORT.md`](../tracker_app/test/REPORT.md) |
+| Version | `3.6.7+27` (build 27) |
 
 ## If you want to …
 

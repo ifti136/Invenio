@@ -25,8 +25,7 @@ class MoneyText extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final String symbol =
-        currencySymbol ?? ref.watch(currencySymbolProvider);
+    final String symbol = currencySymbol ?? ref.watch(currencySymbolProvider);
     final formatted = _format(symbol);
     final baseStyle = style ?? Theme.of(context).textTheme.bodyLarge;
 

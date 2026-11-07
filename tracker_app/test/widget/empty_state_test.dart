@@ -27,7 +27,8 @@ void main() {
 
     expect(find.byIcon(Icons.inventory_2_outlined), findsOneWidget);
     expect(find.text('No products yet'), findsOneWidget);
-    expect(find.text('Add a product with its price and stock.'), findsOneWidget);
+    expect(
+        find.text('Add a product with its price and stock.'), findsOneWidget);
 
     await tester.tap(find.text('Add product'));
     expect(tapped, true);

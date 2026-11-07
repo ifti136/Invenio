@@ -5,7 +5,7 @@ inventory, log sales, track money and expenses, and view profit analytics.
 It is fully offline — no auth, no cloud sync — and ships as one APK that works
 on a phone without ever touching the network.
 
-Version **3.6.6+26** · Clean Ledger design · Schema v8 (13 tables).
+Version **3.6.7+27** · Clean Ledger design · Schema v8 (13 tables).
 
 Releases follow phase-based sub-sub-versioning, **`v3.<phase>.<change>`**:
 `v3.0.0` is the Clean Ledger baseline, Phase 0 changes are `v3.0.x`, and each
