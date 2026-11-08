@@ -134,6 +134,7 @@ class SaleRepository {
         await _db.customUpdate(
           'UPDATE products SET stock = stock - ? WHERE id = ?',
           variables: [Variable<int>(line.qty), Variable<int>(line.productId)],
+          updates: {_db.products},
         );
       }
 
@@ -303,6 +304,7 @@ class SaleRepository {
         await _db.customUpdate(
           'UPDATE products SET stock = stock - ? WHERE id = ?',
           variables: [Variable<int>(line.qty), Variable<int>(line.productId)],
+          updates: {_db.products},
         );
         await _db.into(_db.stockMovements).insert(
               StockMovementsCompanion.insert(
@@ -578,6 +580,7 @@ $ordering
       await _db.customUpdate(
         'UPDATE products SET stock = stock + ? WHERE id = ?',
         variables: [Variable<int>(item.qty), Variable<int>(item.productId)],
+        updates: {_db.products},
       );
     }
   }

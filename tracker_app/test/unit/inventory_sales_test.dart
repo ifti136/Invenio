@@ -327,4 +327,41 @@ void main() {
     final balances = await accounts.watchBalances().first;
     expect(balances.single.balanceMinor, 5000);
   });
+
+  test('product stream emits stock changes after a sale and after undo',
+      () async {
+    final accountId = await accounts.addAccount(
+      name: 'Cash',
+      openingBalanceMinor: 10000,
+    );
+    final productId = await products.createProduct(
+      name: 'Wired Mouse',
+      priceMinor: 1200,
+      costMinor: 800,
+      initialStock: 5,
+      lowStockAt: 3,
+      archived: false,
+    );
+
+    expect((await products.watchProducts().first).single.stock, 5);
+
+    final afterSale = products
+        .watchProducts()
+        .firstWhere((list) => list.single.stock == 3)
+        .timeout(const Duration(seconds: 2));
+    final receipt = await sales.saveQuickSale(
+      productId: productId,
+      qty: 2,
+      unitPriceMinor: 1200,
+      accountId: accountId,
+    );
+    expect((await afterSale).single.stock, 3);
+
+    final afterUndo = products
+        .watchProducts()
+        .firstWhere((list) => list.single.stock == 5)
+        .timeout(const Duration(seconds: 2));
+    await sales.undoSale(receipt.saleId);
+    expect((await afterUndo).single.stock, 5);
+  });
 }

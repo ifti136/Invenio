@@ -4,7 +4,7 @@ All notable changes to Invenio, newest first. This file is the single source
 of truth for release history; the former `HISTORY.md` and `VERSION_HISTORY.md`
 were folded into it, and pre-overhaul narrative remains in git history.
 
-Current release: **v3.6.7+27** · Schema **v8** (13 tables).
+Current release: **v3.6.8+28** · Schema **v8** (13 tables).
 
 ## Versioning
 
@@ -18,6 +18,18 @@ Releases use phase-based sub-sub-versioning: **`v3.<phase>.<change>`**.
 ---
 
 ## Phase 6 — Polish & QA
+
+### v3.6.8 — Refresh stock numbers immediately after sales
+- Raw `UPDATE products` statements in `saveSale`, `restoreSale`, and
+  `_restoreStock` now declare `updates: {products}`, so Drift notifies every
+  `watch()` query on the products table.
+- Selling, editing, undoing, or restoring a sale now updates the inventory
+  list, product detail, low-stock badge, and dashboard stock value without
+  an app restart.
+- Added a regression test asserting the product stream emits the new stock
+  after a sale and after an undo.
+- `flutter analyze` clean; 59 / 59 tests passing.
+- Version `3.6.8+28`.
 
 ### v3.6.7 — Formatting pass
 - Applied `dart format` across `lib/` and `test/` (7 files reformatted).
