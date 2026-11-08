@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../core/money/money.dart';
+import '../../core/navigation/home_return.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/account_chip.dart';
 import '../../core/widgets/empty_state.dart';
@@ -84,7 +85,7 @@ class HomeScreen extends ConsumerWidget {
               _TotalMoneyCard(
                 totalMinor: totalMinor,
                 accounts: accounts,
-                onAccountTap: (id) => context.go('/money/accounts/$id'),
+                onAccountTap: (id) => context.go('/home/accounts/$id'),
               ),
               const SizedBox(height: AppSpacing.md),
               Row(
@@ -100,7 +101,11 @@ class HomeScreen extends ConsumerWidget {
                       tone: StatTone.warning,
                       caption:
                           '${dues.length} customer${dues.length == 1 ? '' : 's'}',
-                      onTap: () => context.go('/money?tab=dues'),
+                      onTap: () => goFromHome(
+                        context,
+                        ref,
+                        '/money?tab=dues',
+                      ),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.md),
@@ -111,7 +116,11 @@ class HomeScreen extends ConsumerWidget {
                       icon: Icons.warning_amber_outlined,
                       tone: lowStock > 0 ? StatTone.danger : StatTone.neutral,
                       caption: 'See all',
-                      onTap: () => context.go('/inventory?filter=low'),
+                      onTap: () => goFromHome(
+                        context,
+                        ref,
+                        '/inventory?filter=low',
+                      ),
                     ),
                   ),
                 ],
@@ -252,7 +261,7 @@ class _TodaySection extends ConsumerWidget {
                     label: 'Sales',
                     value: '${stats.salesCount}',
                     icon: Icons.receipt_long_outlined,
-                    onTap: () => context.go('/sales'),
+                    onTap: () => goFromHome(context, ref, '/sales'),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -264,7 +273,7 @@ class _TodaySection extends ConsumerWidget {
                     ),
                     icon: Icons.trending_up,
                     tone: StatTone.accent,
-                    onTap: () => context.go('/reports'),
+                    onTap: () => goFromHome(context, ref, '/reports'),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.sm),
@@ -278,7 +287,7 @@ class _TodaySection extends ConsumerWidget {
                     tone: stats.profitMinor < 0
                         ? StatTone.danger
                         : StatTone.accent,
-                    onTap: () => context.go('/reports'),
+                    onTap: () => goFromHome(context, ref, '/reports'),
                   ),
                 ),
               ],

@@ -4,7 +4,7 @@ All notable changes to Invenio, newest first. This file is the single source
 of truth for release history; the former `HISTORY.md` and `VERSION_HISTORY.md`
 were folded into it, and pre-overhaul narrative remains in git history.
 
-Current release: **v3.6.8+28** · Schema **v8** (13 tables).
+Current release: **v3.6.9+29** · Schema **v8** (13 tables).
 
 ## Versioning
 
@@ -18,6 +18,18 @@ Releases use phase-based sub-sub-versioning: **`v3.<phase>.<change>`**.
 ---
 
 ## Phase 6 — Polish & QA
+
+### v3.6.9 — Return to Home from Home shortcuts
+- Home shortcut taps arm a one-shot back intent; the system back gesture now
+  returns to the Home tab instead of closing the app.
+- The shared shell consumes the intent only when the target tab is at its
+  root, and clears it on any bottom-nav selection.
+- Account chips on Home open the ledger inside the Home branch, so the bottom
+  navigation bar stays visible and back returns to Home.
+- Added widget tests for the account ledger, every Home tab shortcut, and a
+  normal pushed sub-screen.
+- `flutter analyze` clean; 62 / 62 tests passing.
+- Version `3.6.9+29`.
 
 ### v3.6.8 — Refresh stock numbers immediately after sales
 - Raw `UPDATE products` statements in `saveSale`, `restoreSale`, and
