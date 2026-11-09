@@ -14,6 +14,7 @@ class AppScaffold extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final index = navigationShell.currentIndex;
+    final location = GoRouterState.of(context).uri.path;
     final lowStock = ref.watch(lowStockCountProvider).valueOrNull ?? 0;
     final returnToHome = ref.watch(homeReturnProvider);
     final canLeave = index == 0 || !returnToHome;
@@ -27,7 +28,7 @@ class AppScaffold extends ConsumerWidget {
       },
       child: Scaffold(
         body: navigationShell,
-        floatingActionButton: index <= 1
+        floatingActionButton: index == 1 || (index == 0 && location == '/home')
             ? FloatingActionButton.extended(
                 onPressed: () => openNewSale(context, ref),
                 icon: const Icon(Icons.add),

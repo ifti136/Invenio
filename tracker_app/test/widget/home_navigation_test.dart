@@ -17,6 +17,7 @@ import 'package:tracker/features/settings/settings_providers.dart';
 import 'package:tracker/features/settings/settings_screen.dart';
 
 void main() {
+  final newSaleFab = find.widgetWithText(FloatingActionButton, 'New sale');
   late AppDatabase db;
 
   setUp(() async {
@@ -48,17 +49,20 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.byType(HomeScreen), findsOneWidget);
+    expect(newSaleFab, findsOneWidget);
     await tester.tap(find.text('Cash'));
     await tester.pumpAndSettle();
 
     expect(find.byType(AccountLedgerScreen), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
+    expect(newSaleFab, findsNothing);
 
     await tester.binding.handlePopRoute();
     await tester.pumpAndSettle();
 
     expect(find.byType(HomeScreen), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
+    expect(newSaleFab, findsOneWidget);
 
     await disposeTree(tester);
   });
@@ -85,6 +89,10 @@ void main() {
 
       expect(find.byType(screen), findsOneWidget);
       expect(find.byType(NavigationBar), findsOneWidget);
+      expect(
+        newSaleFab,
+        screen == SalesScreen ? findsOneWidget : findsNothing,
+      );
 
       await tester.binding.handlePopRoute();
       await tester.pumpAndSettle();

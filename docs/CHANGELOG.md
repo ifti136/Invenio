@@ -4,7 +4,7 @@ All notable changes to Invenio, newest first. This file is the single source
 of truth for release history; the former `HISTORY.md` and `VERSION_HISTORY.md`
 were folded into it, and pre-overhaul narrative remains in git history.
 
-Current release: **v3.6.9+29** · Schema **v8** (13 tables).
+Current release: **v3.6.10+30** · Schema **v8** (13 tables).
 
 ## Versioning
 
@@ -18,6 +18,15 @@ Releases use phase-based sub-sub-versioning: **`v3.<phase>.<change>`**.
 ---
 
 ## Phase 6 — Polish & QA
+
+### v3.6.10 — Hide the Home sale FAB on the account ledger
+- The shell now checks the active route before showing the "+ New sale"
+  FAB, so it disappears on the Home account ledger while remaining on
+  Home and the Sales tab.
+- Added widget assertions for FAB presence on Home and Sales and absence
+  on the ledger.
+- `flutter analyze` clean; 62 / 62 tests passing.
+- Version `3.6.10+30`.
 
 ### v3.6.9 — Return to Home from Home shortcuts
 - Home shortcut taps arm a one-shot back intent; the system back gesture now
