@@ -47,36 +47,42 @@ class AppScaffold extends ConsumerWidget {
           },
           destinations: [
             const NavigationDestination(
-              icon: Icon(Icons.home_outlined),
-              selectedIcon: Icon(Icons.home),
+              icon: ImageIcon(AssetImage('assets/nav/home.png')),
+              selectedIcon: ImageIcon(AssetImage('assets/nav/home_filled.png')),
               label: 'Home',
             ),
             const NavigationDestination(
-              icon: Icon(Icons.receipt_long_outlined),
-              selectedIcon: Icon(Icons.receipt_long),
+              icon: ImageIcon(AssetImage('assets/nav/sales.png')),
+              selectedIcon:
+                  ImageIcon(AssetImage('assets/nav/sales_filled.png')),
               label: 'Sales',
             ),
             NavigationDestination(
               icon: Badge.count(
                 count: lowStock,
                 isLabelVisible: lowStock > 0,
-                child: const Icon(Icons.inventory_2_outlined),
+                child: const ImageIcon(AssetImage('assets/nav/inventory.png')),
               ),
               selectedIcon: Badge.count(
                 count: lowStock,
                 isLabelVisible: lowStock > 0,
-                child: const Icon(Icons.inventory_2),
+                child: const ImageIcon(
+                  AssetImage('assets/nav/inventory_filled.png'),
+                ),
               ),
               label: 'Inventory',
             ),
             const NavigationDestination(
-              icon: Icon(Icons.account_balance_wallet_outlined),
-              selectedIcon: Icon(Icons.account_balance_wallet),
+              icon: ImageIcon(AssetImage('assets/nav/money.png')),
+              selectedIcon:
+                  ImageIcon(AssetImage('assets/nav/money_filled.png')),
               label: 'Money',
             ),
             const NavigationDestination(
-              icon: Icon(Icons.bar_chart_outlined),
-              selectedIcon: Icon(Icons.bar_chart),
+              icon: ImageIcon(AssetImage('assets/nav/reports.png')),
+              selectedIcon: ImageIcon(
+                AssetImage('assets/nav/reports_filled.png'),
+              ),
               label: 'Reports',
             ),
           ],

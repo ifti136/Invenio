@@ -60,10 +60,12 @@ class _FirstRunScreenState extends ConsumerState<FirstRunScreen> {
                 padding: const EdgeInsets.all(AppSpacing.lg),
                 children: [
                   const SizedBox(height: AppSpacing.xl),
-                  Icon(
-                    Icons.storefront_outlined,
-                    size: 64,
-                    color: scheme.primary,
+                  Image.asset(
+                    'assets/splash/splash_logo_512.png',
+                    width: 80,
+                    height: 80,
+                    fit: BoxFit.contain,
+                    excludeFromSemantics: true,
                   ),
                   const SizedBox(height: AppSpacing.lg),
                   Text(

@@ -90,6 +90,7 @@ class _NewSaleScreenState extends ConsumerState<NewSaleScreen> {
         body: cart.isEmpty
             ? EmptyState(
                 icon: Icons.shopping_cart_outlined,
+                imageAsset: 'assets/illustrations/empty_sales.png',
                 title: 'No items yet',
                 message: 'Add a product to start this sale.',
                 actionLabel: 'Add item',

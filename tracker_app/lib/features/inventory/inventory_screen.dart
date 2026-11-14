@@ -87,6 +87,7 @@ class _InventoryScreenState extends ConsumerState<InventoryScreen> {
           if (items.isEmpty) {
             return EmptyState(
               icon: Icons.inventory_2_outlined,
+              imageAsset: 'assets/illustrations/empty_inventory.png',
               title: 'No products yet',
               message:
                   'Add a product with its price and stock to start selling.',

@@ -60,6 +60,7 @@ class _SalesScreenState extends ConsumerState<SalesScreen> {
           if (items.isEmpty) {
             return EmptyState(
               icon: Icons.receipt_long_outlined,
+              imageAsset: 'assets/illustrations/empty_sales.png',
               title: 'No sales yet',
               message:
                   'Log your first sale to see revenue, profit, and stock changes here.',

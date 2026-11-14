@@ -184,10 +184,16 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
           ),
           const SizedBox(height: AppSpacing.xl),
           _section('About'),
-          const Card(
+          Card(
             child: ListTile(
-              leading: Icon(Icons.info_outline),
-              title: Text('Invenio'),
+              leading: Image.asset(
+                'assets/icon/app_icon_1024.png',
+                width: 40,
+                height: 40,
+                fit: BoxFit.contain,
+                excludeFromSemantics: true,
+              ),
+              title: const Text('Invenio'),
               subtitle: Text('Version $appVersion'),
             ),
           ),

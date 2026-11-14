@@ -7,6 +7,8 @@ class EmptyState extends StatelessWidget {
   final String? actionLabel;
   final IconData? actionIcon;
   final VoidCallback? onAction;
+  final String? imageAsset;
+  final double imageSize;
 
   const EmptyState({
     super.key,
@@ -16,6 +18,8 @@ class EmptyState extends StatelessWidget {
     this.actionLabel,
     this.actionIcon,
     this.onAction,
+    this.imageAsset,
+    this.imageSize = 128,
   });
 
   @override
@@ -29,7 +33,17 @@ class EmptyState extends StatelessWidget {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Icon(icon, size: 64, color: scheme.outline),
+            if (imageAsset != null)
+              Image.asset(
+                imageAsset!,
+                width: imageSize,
+                height: imageSize,
+                fit: BoxFit.contain,
+                filterQuality: FilterQuality.medium,
+                excludeFromSemantics: true,
+              )
+            else
+              Icon(icon, size: 64, color: scheme.outline),
             const SizedBox(height: 16),
             Text(
               title,

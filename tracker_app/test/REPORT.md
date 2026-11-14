@@ -1,14 +1,14 @@
 # Test Report — Invenio (tracker_app)
 
-**Date:** 2026-11-06
+**Date:** 2026-11-11
 **Flutter SDK:** 3.24.4 · **Dart:** 3.5.4
-**Status:** **58 / 58 passing** · `flutter analyze` clean.
+**Status:** **63 / 63 passing** · `flutter analyze` clean.
 
 ## Summary
 
-- Unit tests: **53 / 53**
-- Widget tests: **9 / 9** (including 5 at 200% text scale)
-- Total: **58 / 58** — full pass
+- Unit tests: **50 / 50**
+- Widget tests: **13 / 13** (including 5 at 200% text scale)
+- Total: **63 / 63** — full pass
 
 The suite is fully offline and uses in-memory drift databases. No network,
 emulator, or device is required.
@@ -20,7 +20,7 @@ test/
 ├── unit/
 │   ├── money_test.dart                  6 — minor units, parsing, arithmetic, formatting
 │   ├── database_schema_test.dart        5 — v8, 13 tables, seeds, integer money columns
-│   ├── inventory_sales_test.dart        7 — restock overdraw guard, quick sell, multi-line stock, cost snapshots, undo
+│   ├── inventory_sales_test.dart        8 — restock overdraw guard, quick sell, multi-line stock, cost snapshots, undo
 │   ├── sales_cart_test.dart             6 — merge, atomic save, failure, edit, delete/restore
 │   ├── money_accounts_test.dart         4 — balances, transfers, profit neutrality, periods
 │   ├── dues_test.dart                   4 — grouping, FIFO, sale-specific, overpayment guard
@@ -28,9 +28,10 @@ test/
 │   ├── reports_test.dart                8 — dashboard, P&L, breakdowns, ranges, CSV
 │   └── contrast_test.dart               4 — 4.5:1 text and 3:1 outline in light/dark
 └── widget/
-    ├── empty_state_test.dart            2 — content + primary action, action hidden
-    ├── router_test.dart                 1 — 5-tab Clean Ledger shell
+    ├── empty_state_test.dart            3 — content + primary action, illustration path, action hidden
+    ├── router_test.dart                 1 — 5-tab Clean Ledger shell + ImageIcon nav
     ├── first_run_test.dart              1 — setup saves a payment source and completes
+    ├── home_navigation_test.dart        3 — Home shortcuts, ledger nav, back behaviour
     └── text_scale_test.dart             5 — Home, Sales, Inventory, Money, Reports at 200%
 ```
 
@@ -76,8 +77,9 @@ Windows include the library with Flutter / `sqlite3_flutter_libs`.
 - **Restore is not implemented.** Export and daily local backups work; a
   file-picker dependency is required before restore can ship.
 - **No device run in this environment.** `flutter test` and `flutter analyze`
-  are green, but launcher icon, splash, share sheet, and file export should
-  be verified with `flutter run -d <device>`.
+  are green, but the launcher icon, adaptive/round masks, Android 12 splash,
+  nav tinting, share sheet, and file export should be verified with
+  `flutter run -d <device>`.
 - No cloud sync, barcode scanning, invoicing, or push notifications by design.
 
 ## Manual verification still recommended

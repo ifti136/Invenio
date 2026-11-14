@@ -145,6 +145,7 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
     if (data.isEmpty) {
       return EmptyState(
         icon: Icons.bar_chart_outlined,
+        imageAsset: 'assets/illustrations/empty_reports.png',
         title: 'No data for this period',
         message: _preset == ReportPreset.custom
             ? 'No sales or expenses in the selected dates.'

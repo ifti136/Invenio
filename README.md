@@ -1,3 +1,5 @@
+![Invenio — Money. Stock. Sales.](tracker_app/branding/source/feature_graphic_1024x500.svg)
+
 # Invenio — Inventory & Money Tracker
 
 Invenio is a solo-owner Flutter Android app for a small reseller to manage
@@ -5,12 +7,12 @@ inventory, log sales, track money and expenses, and view profit analytics.
 It is fully offline — no auth, no cloud sync — and ships as one APK that works
 on a phone without ever touching the network.
 
-Version **3.6.7+27** · Clean Ledger design · Schema v8 (13 tables).
+Version **3.7.1+31** · Clean Ledger design · Schema v8 (13 tables).
 
 Releases follow phase-based sub-sub-versioning, **`v3.<phase>.<change>`**:
 `v3.0.0` is the Clean Ledger baseline, Phase 0 changes are `v3.0.x`, and each
-later phase starts its own series (`v3.1.1`, `v3.2.1`, … `v3.6.1`). See
-[`docs/CHANGELOG.md`](docs/CHANGELOG.md) for the full history.
+later phase starts its own series (`v3.1.1`, `v3.2.1`, … `v3.7.1`). Release
+history lives in git history.
 
 ## Features
 
@@ -108,7 +110,7 @@ The APK is written to `tracker_app/build/app/outputs/flutter-apk/`.
 
 ## Testing
 
-The suite lives in `tracker_app/test/` and is currently **58 / 58 passing**
+The suite lives in `tracker_app/test/` and is currently **63 / 63 passing**
 with `flutter analyze` clean. See
 [`tracker_app/test/REPORT.md`](tracker_app/test/REPORT.md) for the per-file
 breakdown and the Linux `libsqlite3.so` workaround.
@@ -127,32 +129,37 @@ LD_LIBRARY_PATH=/tmp flutter test --reporter expanded
 ```
 Invenio/
 ├── README.md                  ← you are here
-├── docs/                      ← full documentation (start at docs/README.md)
-│   ├── README.md              ← index
-│   ├── ARCHITECTURE.md        ← tech choices and folder map
-│   ├── CHANGELOG.md           ← consolidated release history
-│   ├── DESIGN.md              ← Clean Ledger visual spec
-│   └── invenio overhaul.pdf   ← master spec (v2.3)
-├── .planning/ROADMAP.md       ← Phase 0–6 plan
+├── DESIGN.md                  ← Clean Ledger visual spec
+├── ARCHITECTURE.md            ← tech choices and folder map
 └── tracker_app/
     ├── README.md              ← app pointer
     ├── lib/                   ← Dart source
     ├── test/                  ← unit + widget tests + REPORT.md
-    ├── assets/icon/           ← launcher icon source
+    ├── assets/                ← runtime assets bundled in the APK
+    │   ├── icon/              ← app_icon_1024.png (legacy launcher input)
+    │   ├── nav/               ← nav PNGs + 2.0x/3.0x/4.0x variants
+    │   ├── illustrations/     ← empty-state art
+    │   └── splash/            ← splash_logo_512.png
+    ├── branding/              ← non-runtime branding inputs
+    │   ├── icon/              ← adaptive launcher layers + round source
+    │   ├── splash/            ← Android 12 splash source
+    │   ├── store/             ← Play Store art
+    │   └── source/            ← editable SVGs, including source/nav/
     ├── pubspec.yaml
     └── android/               ← Android Gradle config; min SDK 24
 ```
 
-## Documentation
+The branding pack lives at [`tracker_app/branding/`](tracker_app/branding/README.md).
+Runtime assets are copied into `tracker_app/assets/`; launcher layers, the
+Android 12 splash source, and store-only art stay in `tracker_app/branding/`
+and are not bundled in the APK.
 
-Start with [`docs/README.md`](docs/README.md).
+## Documentation
 
 | If you want to … | Read |
 |---|---|
-| Understand the project in 5 minutes | [`docs/README.md`](docs/README.md) |
-| See the key tech choices and trade-offs | [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) |
-| See what shipped, in order | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) |
-| Look up a color, spacing token, or screen layout | [`docs/DESIGN.md`](docs/DESIGN.md) |
+| See the key tech choices and trade-offs | [`ARCHITECTURE.md`](ARCHITECTURE.md) |
+| Look up a color, spacing token, or screen layout | [`DESIGN.md`](DESIGN.md) |
 | Check test status and known limitations | [`tracker_app/test/REPORT.md`](tracker_app/test/REPORT.md) |
 
 ## Known limitations

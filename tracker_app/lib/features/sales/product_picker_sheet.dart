@@ -96,6 +96,7 @@ class _ProductPickerSheetState extends ConsumerState<ProductPickerSheet> {
                 if (items.isEmpty) {
                   return EmptyState(
                     icon: Icons.inventory_2_outlined,
+                    imageAsset: 'assets/illustrations/empty_inventory.png',
                     title: 'No products yet',
                     message: 'Add a product before starting a sale.',
                     actionLabel: 'Add product',

@@ -47,6 +47,7 @@ class SaleDetailScreen extends ConsumerWidget {
             appBar: AppBar(title: const Text('Sale')),
             body: EmptyState(
               icon: Icons.receipt_long_outlined,
+              imageAsset: 'assets/illustrations/empty_sales.png',
               title: 'Sale not found',
               message: 'It may have been deleted from this shop.',
               actionLabel: 'Back to sales',

@@ -34,6 +34,27 @@ void main() {
     expect(tapped, true);
   });
 
+  testWidgets('renders an illustration instead of the icon when provided', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        theme: AppTheme.light(),
+        home: const Scaffold(
+          body: EmptyState(
+            icon: Icons.inventory_2_outlined,
+            imageAsset: 'assets/illustrations/empty_inventory.png',
+            title: 'No products yet',
+            message: 'Add a product with its price and stock.',
+          ),
+        ),
+      ),
+    );
+
+    expect(find.byType(Image), findsOneWidget);
+    expect(find.byIcon(Icons.inventory_2_outlined), findsNothing);
+  });
+
   testWidgets('hides the action when no callback is supplied', (tester) async {
     await tester.pumpWidget(
       MaterialApp(

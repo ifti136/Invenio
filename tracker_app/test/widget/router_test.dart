@@ -35,5 +35,16 @@ void main() {
     expect(find.text('Money'), findsOneWidget);
     expect(find.text('Reports'), findsOneWidget);
     expect(find.text('Set up your shop'), findsOneWidget);
+    expect(find.byType(ImageIcon), findsNWidgets(5));
+    expect(
+      find.byWidgetPredicate(
+        (widget) =>
+            widget is ImageIcon &&
+            widget.image is AssetImage &&
+            (widget.image as AssetImage).assetName ==
+                'assets/nav/home_filled.png',
+      ),
+      findsOneWidget,
+    );
   });
 }
